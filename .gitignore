@@ -1,0 +1,16 @@
+# Runtime
+logs/
+.pids/
+
+# Python
+services/rapid-mlx/.venv/
+services/voicemode/.venv/
+__pycache__/
+
+# Models (large files, download locally)
+models/
+
+# Secrets (encrypted files are OK, private key is NOT)
+secrets/age-key.txt
+secrets/api-keys.sops.yaml
+!secrets/sample/

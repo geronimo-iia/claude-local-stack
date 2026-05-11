@@ -1,0 +1,90 @@
+#!/bin/zsh
+set -euo pipefail
+
+source "$(dirname "$0")/../config/ai-stack.env"
+
+# Load secrets into env
+eval "$("$(dirname "$0")/ai-secrets" env 2>/dev/null)" || true
+
+case "${1:-help}" in
+  start)
+    overmind start -D
+    echo "✓ Stack started. Run: claude"
+    overmind ps
+    ;;
+  stop)
+    overmind quit 2>/dev/null || true
+    echo "✓ Stack stopped"
+    ;;
+  restart)
+    shift
+    if [[ $# -eq 0 ]]; then
+      overmind quit 2>/dev/null || true
+      sleep 1
+      overmind start -D
+    else
+      overmind restart "$@"
+    fi
+    ;;
+  status)
+    overmind ps 2>/dev/null || echo "Stack not running"
+    ;;
+  enable)
+    shift
+    if [[ $# -eq 0 ]]; then
+      sed -i '' 's/^#\([a-zA-Z_-]*:\)/\1/' "${OVERMIND_PROCFILE}"
+      echo "✓ All services enabled"
+    else
+      for svc in "$@"; do
+        sed -i '' "s/^#${svc}:/${svc}:/" "${OVERMIND_PROCFILE}"
+        echo "✓ $svc enabled"
+      done
+    fi
+    if overmind ps &>/dev/null; then
+      overmind quit 2>/dev/null || true
+      sleep 1
+      overmind start -D
+      echo "✓ Stack restarted"
+    fi
+    ;;
+  disable)
+    shift
+    if [[ $# -eq 0 ]]; then
+      sed -i '' 's/^\([a-zA-Z_-]*:\)/#\1/' "${OVERMIND_PROCFILE}"
+      echo "✓ All services disabled"
+    else
+      for svc in "$@"; do
+        sed -i '' "s/^${svc}:/#${svc}:/" "${OVERMIND_PROCFILE}"
+        echo "✓ $svc disabled"
+      done
+    fi
+    if overmind ps &>/dev/null; then
+      overmind quit 2>/dev/null || true
+      sleep 1
+      overmind start -D
+      echo "✓ Stack restarted"
+    fi
+    ;;
+  logs)
+    shift
+    if [[ $# -eq 0 ]]; then
+      overmind echo
+    else
+      overmind connect "$1"
+    fi
+    ;;
+  *)
+    echo "Usage: ai-stack {start|stop|restart|status|enable|disable|logs} [service...]"
+    echo ""
+    echo "Commands:"
+    echo "  start              Start all services (daemonized)"
+    echo "  stop               Stop all services"
+    echo "  restart [svc]      Restart all or one service"
+    echo "  status             Show running processes"
+    echo "  enable [svc...]    Enable services in Procfile (all if none specified)"
+    echo "  disable [svc...]   Disable services in Procfile (all if none specified)"
+    echo "  logs [svc]         Stream all output, or attach to one service"
+    echo ""
+    echo "Services defined in: ${OVERMIND_PROCFILE}"
+    ;;
+esac

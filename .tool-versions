@@ -1,0 +1,7 @@
+tmux latest
+overmind latest
+sops latest
+age latest
+python latest:3.12
+nodejs latest:22
+uv latest

@@ -1,0 +1,5 @@
+#rapid-mlx-default: ${AI_HOME}/lib/components/rapid-mlx/launch-default.sh
+#rapid-mlx-background: ${AI_HOME}/lib/components/rapid-mlx/launch-background.sh
+#rapid-mlx-think: ${AI_HOME}/lib/components/rapid-mlx/launch-think.sh
+#headroom: ${AI_HOME}/lib/components/headroom/launch.sh
+#ccr: ${AI_HOME}/lib/components/ccr/launch.sh

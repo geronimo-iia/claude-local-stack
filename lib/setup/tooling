@@ -1,0 +1,20 @@
+#!/bin/zsh
+set -euo pipefail
+
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../config/ai-stack.env"
+
+echo "── tooling ──"
+
+TOOLS=(jq yq curl)  # host-level utilities, no version pinning
+
+for tool in "${TOOLS[@]}"; do
+  if brew list "${tool}" &>/dev/null; then
+    brew upgrade "${tool}" 2>/dev/null || true
+    echo "  ✓ ${tool}"
+  else
+    echo "  installing ${tool}…"
+    brew install "${tool}"
+  fi
+done
+
+echo "── tooling done ──"

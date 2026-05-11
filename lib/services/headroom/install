@@ -1,0 +1,21 @@
+#!/bin/zsh
+set -euo pipefail
+
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+
+SERVICE_DIR="${AI_HOME}/lib/components/headroom"
+
+# Install
+if [[ ! -x "${SERVICE_DIR}/.venv/bin/headroom" ]]; then
+  echo "  installing headroom…"
+  mkdir -p "${SERVICE_DIR}"
+  uv venv --python "$(asdf where python)/bin/python" "${SERVICE_DIR}/.venv"
+  uv pip install --python "${SERVICE_DIR}/.venv/bin/python" "headroom-ai[proxy,ml,mcp,code]==0.21.22"
+fi
+echo "  ✓ headroom ($("${SERVICE_DIR}/.venv/bin/python" -c "import headroom; print(headroom.__version__)"))"
+
+# Configure claude-code
+if ! grep -q "headroom" ~/.claude/mcp.json 2>/dev/null; then
+  "${SERVICE_DIR}/.venv/bin/headroom" mcp install --agent claude --proxy-url "http://localhost:${HEADROOM_PORT}" --force
+  echo "  ✓ headroom MCP registered in claude-code"
+fi

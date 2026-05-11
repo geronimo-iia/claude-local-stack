@@ -1,0 +1,9 @@
+#!/bin/zsh
+set -euo pipefail
+
+if claude plugin list 2>/dev/null | grep -q "atlassian@claude-plugins-official"; then
+  claude plugin uninstall --keep-data atlassian@claude-plugins-official
+  echo "  ✓ atlassian removed"
+else
+  echo "  ✓ atlassian (not installed)"
+fi

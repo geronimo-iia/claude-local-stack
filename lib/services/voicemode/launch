@@ -1,0 +1,4 @@
+#!/bin/zsh
+set -euo pipefail
+
+exec "${AI_HOME}/lib/components/voicemode/.venv/bin/voicemode" serve

@@ -1,0 +1,14 @@
+#!/bin/zsh
+set -euo pipefail
+
+SERVICE_DIR="${AI_HOME}/lib/components/voicemode"
+
+if [[ -x "${SERVICE_DIR}/.venv/bin/voicemode" ]]; then
+  echo "  ✓ voicemode"
+  return 0
+fi
+
+echo "  installing voicemode…"
+"$(asdf where uv)/bin/uv" venv --python "$(asdf where python)/bin/python" "${SERVICE_DIR}/.venv"
+"$(asdf where uv)/bin/uv" pip install --python "${SERVICE_DIR}/.venv/bin/python" voicemode
+echo "  ✓ voicemode"

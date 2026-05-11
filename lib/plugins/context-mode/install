@@ -1,0 +1,25 @@
+#!/bin/zsh
+set -euo pipefail
+
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+
+# Install
+if claude plugin list 2>/dev/null | grep -q "context-mode"; then
+  echo "  ✓ context-mode"
+else
+  echo "  installing context-mode…"
+  claude plugin marketplace add mksglu/context-mode
+  claude plugin install context-mode@context-mode
+  echo "  ✓ context-mode"
+fi
+
+# Configure global CLAUDE.md
+if ! grep -q "ctx_fetch_and_index" ~/.claude/CLAUDE.md 2>/dev/null; then
+  cat >> ~/.claude/CLAUDE.md << 'EOF'
+
+## Context Rules
+- Never use WebFetch directly — always use ctx_fetch_and_index
+- For multi-file reads, use ctx_batch_execute instead of sequential reads
+EOF
+  echo "  ✓ context-mode rules added to ~/.claude/CLAUDE.md"
+fi

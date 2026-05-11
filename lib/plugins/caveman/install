@@ -1,0 +1,15 @@
+#!/bin/zsh
+set -euo pipefail
+
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+
+# Install
+if claude plugin list 2>/dev/null | grep -q "caveman@caveman"; then
+  echo "  ✓ caveman"
+else
+  echo "  installing caveman…"
+  claude plugin marketplace add JuliusBrussee/caveman
+  claude plugin install caveman@caveman
+  echo "  ✓ caveman"
+fi
+

@@ -1,0 +1,14 @@
+#!/bin/zsh
+set -euo pipefail
+
+SERVICE_DIR="${AI_HOME}/lib/components/rapid-mlx"
+
+if [[ -x "${SERVICE_DIR}/.venv/bin/rapid-mlx" ]]; then
+  echo "  ✓ rapid-mlx"
+  return 0
+fi
+
+echo "  installing rapid-mlx…"
+uv venv --python "$(asdf where python)/bin/python" "${SERVICE_DIR}/.venv"
+uv pip install --python "${SERVICE_DIR}/.venv/bin/python" rapid-mlx
+echo "  ✓ rapid-mlx"

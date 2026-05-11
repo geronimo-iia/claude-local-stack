@@ -1,0 +1,32 @@
+#!/bin/zsh
+set -euo pipefail
+
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../config/ai-stack.env"
+
+echo "── prerequisites ──"
+
+
+OVERMIND_REPO="https://github.com/virtualstaticvoid/asdf-overmind.git"
+
+# Brew — only asdf itself
+if brew list asdf &>/dev/null; then
+  brew upgrade asdf 2>/dev/null || true
+  echo "  ✓ asdf (brew)"
+else
+  brew install asdf
+fi
+export PATH="$(brew --prefix asdf)/bin:$PATH"
+
+# asdf plugins
+asdf plugin list 2>/dev/null | grep -q "^overmind$" || asdf plugin add overmind "${OVERMIND_REPO}"
+for plugin in tmux sops age; do
+  asdf plugin list 2>/dev/null | grep -q "^${plugin}$" || asdf plugin add "${plugin}"
+done
+
+# Install + pin (asdf skips if already at correct version)
+for plugin in tmux overmind sops age; do
+  asdf install "${plugin}" latest
+  asdf set --parent "${plugin}" "$(asdf latest "${plugin}")"
+done
+
+echo "── prerequisites done ──"

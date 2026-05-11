@@ -1,0 +1,60 @@
+{
+  "LOG": true,
+  "LOG_LEVEL": "info",
+  "CLAUDE_PATH": "",
+  "HOST": "127.0.0.1",
+  "PORT": 3456,
+  "APIKEY": "",
+  "API_TIMEOUT_MS": "600000",
+  "PROXY_URL": "",
+  "transformers": [],
+  "Providers": [],
+  "StatusLine": {
+    "enabled": true,
+    "currentStyle": "default",
+    "default": {
+      "modules": [
+        {
+          "type": "workDir",
+          "icon": "󰉋",
+          "text": "{{workDirName}}",
+          "color": "bright_blue"
+        },
+        {
+          "type": "gitBranch",
+          "icon": "🌿",
+          "text": "{{gitBranch}}",
+          "color": "bright_green"
+        },
+        {
+          "type": "model",
+          "icon": "🤖",
+          "text": "{{model}}",
+          "color": "bright_yellow"
+        },
+        {
+          "type": "usage",
+          "icon": "📊",
+          "text": "{{inputTokens}} → {{outputTokens}}",
+          "color": "bright_magenta"
+        },
+        {
+          "type": "speed",
+          "icon": "⚡",
+          "text": "{{tokenSpeed}}",
+          "color": "bright_green"
+        }
+      ]
+    }
+  },
+  "Router": {
+    "default": "",
+    "background": "",
+    "think": "",
+    "longContext": "",
+    "longContextThreshold": 60000,
+    "webSearch": "",
+    "image": ""
+  },
+  "CUSTOM_ROUTER_PATH": ""
+}

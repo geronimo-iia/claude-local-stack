@@ -1,0 +1,13 @@
+#!/bin/zsh
+set -euo pipefail
+
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+
+# Install
+if claude plugin list 2>/dev/null | grep -q "superpowers@claude-plugins-official"; then
+  echo "  ✓ superpowers"
+else
+  echo "  installing superpowers…"
+  claude plugin install superpowers@claude-plugins-official
+  echo "  ✓ superpowers"
+fi

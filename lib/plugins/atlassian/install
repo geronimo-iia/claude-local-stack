@@ -1,0 +1,13 @@
+#!/bin/zsh
+set -euo pipefail
+
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+
+# Install
+if claude plugin list 2>/dev/null | grep -q "atlassian@claude-plugins-official"; then
+  echo "  ✓ atlassian"
+else
+  echo "  installing atlassian…"
+  claude plugin install atlassian@claude-plugins-official
+  echo "  ✓ atlassian"
+fi

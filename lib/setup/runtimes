@@ -1,0 +1,24 @@
+#!/bin/zsh
+set -euo pipefail
+
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../config/ai-stack.env"
+export PATH="$(brew --prefix asdf)/bin:$PATH"
+
+
+echo "── runtimes ──"
+
+# asdf plugins
+for plugin in python nodejs uv; do
+  asdf plugin list 2>/dev/null | grep -q "^${plugin}$" || asdf plugin add "$plugin"
+done
+
+asdf install python latest:3.12
+asdf set --parent python "$(asdf latest python 3.12)"
+
+asdf install nodejs latest:22
+asdf set --parent nodejs "$(asdf latest nodejs 22)"
+
+asdf install uv latest
+asdf set --parent uv "$(asdf latest uv)"
+
+echo "── runtimes done ──"

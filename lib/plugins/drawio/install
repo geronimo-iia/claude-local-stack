@@ -1,0 +1,14 @@
+#!/bin/zsh
+set -euo pipefail
+
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+
+# Install
+if claude plugin list 2>/dev/null | grep -q "drawio"; then
+  echo "  ✓ drawio"
+else
+  echo "  installing drawio…"
+  claude plugin marketplace add markus41/claude
+  claude plugin install drawio-diagramming@claude-orchestration
+  echo "  ✓ drawio"
+fi

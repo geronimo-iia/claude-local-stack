@@ -1,0 +1,11 @@
+#!/bin/zsh
+set -euo pipefail
+
+SERVICE_DIR="${AI_HOME}/lib/components/headroom"
+
+if [[ -d "${SERVICE_DIR}/.venv" ]]; then
+  rm -rf "${SERVICE_DIR}/.venv"
+  echo "  ✓ headroom removed"
+else
+  echo "  ✓ headroom (not installed)"
+fi

@@ -7,4 +7,10 @@ llm:
   - arthurcollet/Qwen3.6-27B-mlx-mxfp8
 
 embedding:
-  - mlx-community/bge-m3-4bit
+  # Tiny memory footprint, Fast inference
+  - mlx-community/all-MiniLM-L6-v2-4bit
+  # good middle ground (Gemma backbone, trained for embeddings, multilingual)
+  # - mlx-community/embeddinggemma-300m-6bit
+  # top-tier retrieval quality at similar memory cost, only English
+  # NOT EXIST - mlx-community/bge-large-en-v1.5-4bit
+  - mlx-community/bge-m3-mlx-4bit

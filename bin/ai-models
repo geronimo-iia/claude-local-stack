@@ -17,10 +17,8 @@ if [[ ! -f "$MANIFEST" ]]; then
   exit 1
 fi
 
-
 # Load secrets into env
 eval "$("$(dirname "$0")/ai-secrets" env 2>/dev/null)" || true
-
 
 parse_repos() {
   local category="$1"

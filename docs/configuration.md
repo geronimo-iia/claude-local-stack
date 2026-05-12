@@ -32,9 +32,10 @@ Nothing else belongs here. Service-specific config goes in the service's own con
 Defines services for overmind. Each line: `name: command`.
 
 ```procfile
-rapid-mlx: HF_HOME=$AI_HOME/models/llm $AI_HOME/services/rapid-mlx/.venv/bin/rapid-mlx serve --model ${AI_STACK_MODEL:-arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8} --port ${RAPID_MLX_PORT:-8000}
-headroom: headroom serve --port ${HEADROOM_PORT:-8787} --upstream http://localhost:${RAPID_MLX_PORT:-8000}/v1
-ccr: ccr start
+rapid-mlx-default: lib/services/rapid-mlx/launch default
+rapid-mlx-background: lib/services/rapid-mlx/launch background
+headroom: lib/services/headroom/launch
+ccr: lib/services/claude-code-router/launch
 ```
 
 Service-specific env vars (`HF_HOME`, `AI_STACK_MODEL`, ports) are set inline or overridden at runtime.
@@ -97,8 +98,6 @@ RTK hook (installed by `rtk init -g`):
 Override any Procfile default via env vars:
 
 ```bash
-AI_STACK_MODEL=mlx-community/Qwen3-235B-A22B-4bit ai-stack restart rapid-mlx
-RAPID_MLX_PORT=9000 ai-stack restart rapid-mlx
 HEADROOM_PORT=9787 ai-stack restart headroom
 ```
 

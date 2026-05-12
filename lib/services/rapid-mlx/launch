@@ -1,0 +1,67 @@
+#!/bin/zsh
+set -euo pipefail
+
+source "$(dirname "$0")/../../config/ai-stack.env"
+
+CONFIG="${AI_HOME}/config/rapid-mlx.yaml"
+RAPID_MLX="${AI_HOME}/lib/components/rapid-mlx/.venv/bin/rapid-mlx"
+ROLE="${1:-default}"
+DRY_RUN="${2:-}"
+
+# Extract field value for the current role
+field() {
+  awk -v role="$ROLE" -v key="$1" '
+    /^  - role:/ { current=$NF }
+    current == role && $0 ~ "^    " key ":" { gsub(/^[^:]+: */, ""); print; exit }
+  ' "$CONFIG"
+}
+
+# Extract features array
+features() {
+  awk -v role="$ROLE" '
+    /^  - role:/ { current=$NF }
+    current == role && /features:/ { gsub(/.*\[/, ""); gsub(/\].*/, ""); gsub(/,/, "\n"); print; exit }
+  ' "$CONFIG"
+}
+
+model=$(field model)
+port=$(field port)
+context_length=$(field context_length)
+max_tokens=$(field max_tokens)
+embedding_model=$(field embedding_model)
+temperature=$(field temperature)
+top_p=$(field top_p)
+tool_call_parser=$(field tool_call_parser)
+trust_remote_code=$(field trust_remote_code)
+
+if [[ -z "$model" || -z "$port" ]]; then
+  echo "error: role '${ROLE}' not found in ${CONFIG}" >&2
+  exit 1
+fi
+
+# Build command
+cmd=("$RAPID_MLX" serve "$model" --port "$port")
+
+[[ -n "$context_length" ]]    && cmd+=(--context-length "$context_length")
+[[ -n "$max_tokens" ]]        && cmd+=(--max-tokens "$max_tokens")
+[[ -n "$embedding_model" ]]   && cmd+=(--embedding-model "$embedding_model")
+[[ -n "$temperature" ]]       && cmd+=(--default-temperature "$temperature")
+[[ -n "$top_p" ]]             && cmd+=(--default-top-p "$top_p")
+[[ -n "$tool_call_parser" ]]  && cmd+=(--tool-call-parser "$tool_call_parser")
+[[ -n "$trust_remote_code" ]] && cmd+=(--trust-remote-code)
+
+# Apply features
+for feat in $(features); do
+  feat=$(echo "$feat" | xargs)
+  case "$feat" in
+    tool-calling)         cmd+=(--enable-auto-tool-choice) ;;
+    continuous-batching)  cmd+=(--continuous-batching) ;;
+    reasoning)            cmd+=(--reasoning-parser qwen3) ;;
+  esac
+done
+
+if [[ "$DRY_RUN" == "--dry-run" ]]; then
+  echo "${cmd[@]}"
+else
+  exec "${cmd[@]}"
+fi

@@ -1,6 +1,0 @@
-#!/bin/zsh
-set -euo pipefail
-
-exec "${AI_HOME}/lib/components/rapid-mlx/.venv/bin/rapid-mlx" serve \
-  --model "mlx-community/Qwen3-235B-A22B-4bit" \
-  --port "${RAPID_MLX_PORT:-8000}"

@@ -13,5 +13,5 @@ Claude Code plugin for interacting with Jira and Confluence.
 This component is optional. Install manually:
 
 ```bash
-ai-stack-install services atlassian
+ai-install services atlassian
 ```

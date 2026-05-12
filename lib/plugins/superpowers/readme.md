@@ -9,5 +9,5 @@ Claude Code plugin that adds extended capabilities.
 This component is optional. Install manually:
 
 ```bash
-ai-stack-install services superpowers
+ai-install services superpowers
 ```

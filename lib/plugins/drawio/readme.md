@@ -13,5 +13,5 @@ Ask Claude Code to create a diagram and it will output a `.drawio` file you can 
 This component is optional. Install manually:
 
 ```bash
-ai-stack-install services drawio
+ai-install services drawio
 ```

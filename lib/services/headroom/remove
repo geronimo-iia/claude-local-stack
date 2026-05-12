@@ -1,6 +1,8 @@
 #!/bin/zsh
 set -euo pipefail
 
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+
 SERVICE_DIR="${AI_HOME}/lib/components/headroom"
 
 if [[ -d "${SERVICE_DIR}/.venv" ]]; then

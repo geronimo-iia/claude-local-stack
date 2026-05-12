@@ -1,6 +1,8 @@
 #!/bin/zsh
 set -euo pipefail
 
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+
 SERVICE_DIR="${AI_HOME}/lib/components/rapid-mlx"
 
 if [[ -x "${SERVICE_DIR}/.venv/bin/rapid-mlx" ]]; then
@@ -10,5 +12,5 @@ fi
 
 echo "  installing rapid-mlx…"
 uv venv --python "$(asdf where python)/bin/python" "${SERVICE_DIR}/.venv"
-uv pip install --python "${SERVICE_DIR}/.venv/bin/python" rapid-mlx
+uv pip install --python "${SERVICE_DIR}/.venv/bin/python" rapid-mlx mlx-embeddings
 echo "  ✓ rapid-mlx"

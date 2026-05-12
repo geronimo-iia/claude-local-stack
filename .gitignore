@@ -14,3 +14,8 @@ models/
 secrets/age-key.txt
 secrets/api-keys.sops.yaml
 !secrets/sample/
+
+# Current activated profile and config files
+.active-profile
+config/Profile
+config/rapid-mlx.yaml

@@ -1,3 +1,0 @@
-rapid-mlx-default: ${AI_HOME}/lib/services/rapid-mlx/launch default
-headroom: ${AI_HOME}/lib/services/headroom/launch
-ccr: ${AI_HOME}/lib/services/claude-code-router/launch

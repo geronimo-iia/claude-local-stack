@@ -90,6 +90,7 @@ elif [[ $# -eq 0 ]] || [[ "$1" == "all" ]]; then
   install_category plugins
   echo ""
   echo "✓ ai-stack installed."
+  echo "  Next: ai-stack profile default"
 else
   for target in "$@"; do
     case "$target" in

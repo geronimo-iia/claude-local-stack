@@ -1,0 +1,50 @@
+{
+  "LOG": true,
+  "LOG_LEVEL": "info",
+  "HOST": "127.0.0.1",
+  "PORT": 3456,
+  "API_TIMEOUT_MS": "600000",
+  "transformers": [],
+  "Providers": [
+    {
+      "name": "rapid-mlx-default",
+      "type": "openai",
+      "baseUrl": "http://localhost:8000/v1",
+      "models": ["arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8"]
+    },
+    {
+      "name": "rapid-mlx-background",
+      "type": "openai",
+      "baseUrl": "http://localhost:8001/v1",
+      "models": ["arthurcollet/Qwen3.6-27B-mlx-mxfp8"]
+    },
+    {
+      "name": "rapid-mlx-think",
+      "type": "openai",
+      "baseUrl": "http://localhost:8002/v1",
+      "models": ["mlx-community/Qwen3-235B-A22B-4bit"]
+    }
+  ],
+  "Router": {
+    "default": "rapid-mlx-default,arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8",
+    "background": "rapid-mlx-background,arthurcollet/Qwen3.6-27B-mlx-mxfp8",
+    "think": "rapid-mlx-think,mlx-community/Qwen3-235B-A22B-4bit",
+    "longContext": "rapid-mlx-default,arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8",
+    "longContextThreshold": 60000,
+    "webSearch": "",
+    "image": ""
+  },
+  "StatusLine": {
+    "enabled": true,
+    "currentStyle": "default",
+    "default": {
+      "modules": [
+        { "type": "workDir", "icon": "󰉋", "text": "{{workDirName}}", "color": "bright_blue" },
+        { "type": "gitBranch", "icon": "🌿", "text": "{{gitBranch}}", "color": "bright_green" },
+        { "type": "model", "icon": "🤖", "text": "{{model}}", "color": "bright_yellow" },
+        { "type": "usage", "icon": "📊", "text": "{{inputTokens}} → {{outputTokens}}", "color": "bright_magenta" },
+        { "type": "speed", "icon": "⚡", "text": "{{tokenSpeed}}", "color": "bright_green" }
+      ]
+    }
+  }
+}

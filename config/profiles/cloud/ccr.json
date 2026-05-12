@@ -1,0 +1,42 @@
+{
+  "LOG": true,
+  "LOG_LEVEL": "info",
+  "HOST": "127.0.0.1",
+  "PORT": 3456,
+  "API_TIMEOUT_MS": "600000",
+  "transformers": [],
+  "Providers": [
+    {
+      "name": "bedrock",
+      "type": "openai",
+      "baseUrl": "https://bedrock-mantle.eu-west-1.api.aws/anthropic/v1",
+      "models": [
+        "eu.anthropic.claude-sonnet-4-6",
+        "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+        "eu.anthropic.claude-opus-4-6-v1"
+      ]
+    }
+  ],
+  "Router": {
+    "default": "bedrock,eu.anthropic.claude-sonnet-4-6",
+    "background": "bedrock,eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "think": "bedrock,eu.anthropic.claude-opus-4-6-v1",
+    "longContext": "bedrock,eu.anthropic.claude-sonnet-4-6",
+    "longContextThreshold": 60000,
+    "webSearch": "",
+    "image": ""
+  },
+  "StatusLine": {
+    "enabled": true,
+    "currentStyle": "default",
+    "default": {
+      "modules": [
+        { "type": "workDir", "icon": "󰉋", "text": "{{workDirName}}", "color": "bright_blue" },
+        { "type": "gitBranch", "icon": "🌿", "text": "{{gitBranch}}", "color": "bright_green" },
+        { "type": "model", "icon": "🤖", "text": "{{model}}", "color": "bright_yellow" },
+        { "type": "usage", "icon": "📊", "text": "{{inputTokens}} → {{outputTokens}}", "color": "bright_magenta" },
+        { "type": "speed", "icon": "⚡", "text": "{{tokenSpeed}}", "color": "bright_green" }
+      ]
+    }
+  }
+}

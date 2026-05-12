@@ -1,13 +1,102 @@
 #!/bin/zsh
 set -euo pipefail
 
+# --- Bootstrap ---
+
 source "$(dirname "$0")/../config/ai-stack.env"
 
-# Load secrets into env
-eval "$("$(dirname "$0")/ai-secrets" env 2>/dev/null)" || true
+if ! command -v overmind &>/dev/null; then
+  echo "error: overmind not found. Run: ai-install" >&2
+  exit 1
+fi
+
+# Decrypt and export secrets (API keys, tokens)
+source <("$(dirname "$0")/ai-secrets" env 2>/dev/null)
+
+# --- Helpers ---
+
+# Poll until overmind socket disappears (max ~5s)
+_wait_socket_gone() {
+  local i=0
+  while [[ -S "$OVERMIND_SOCKET" ]] && (( i++ < 25 )); do sleep 0.2; done
+}
+
+# Restart the stack only if it's currently running
+_restart_if_running() {
+  if overmind ps &>/dev/null; then
+    overmind quit 2>/dev/null || true
+    _wait_socket_gone
+    overmind start -D
+    echo "✓ Stack restarted"
+  fi
+}
+
+# Ensure all given service names exist in the active Procfile
+_validate_services() {
+  for svc in "$@"; do
+    if ! grep -qE "^#?${svc}:" "${OVERMIND_PROCFILE}"; then
+      echo "error: unknown service '$svc'" >&2
+      echo "Available: $(grep -oE '^#?[a-zA-Z_-]+' "${OVERMIND_PROCFILE}" | sed 's/^#//' | tr '\n' ' ')" >&2
+      exit 1
+    fi
+  done
+}
+
+# --- Profile management ---
+# A profile is a self-contained stack config (ccr.json + Procfile + optional rapid-mlx.yaml)
+# stored in config/profiles/<name>/. Activation copies files to their runtime locations.
+
+# Resolve the directory for a given profile name
+_profile_dir() {
+  echo "${AI_HOME}/config/profiles/$1"
+}
+
+# Read the currently active profile (or "none")
+_current_profile() {
+  local state="${AI_HOME}/config/.active-profile"
+  if [[ -f "$state" ]]; then
+    cat "$state"
+  else
+    echo "none"
+  fi
+}
+
+# Activate a profile: copy its configs to runtime locations
+_activate_profile() {
+  local name="$1"
+  local dir
+  dir="$(_profile_dir "$name")"
+
+  if [[ ! -d "$dir" ]]; then
+    echo "error: unknown profile '$name'" >&2
+    echo "Available: $(ls "${AI_HOME}/config/profiles" | tr '\n' ' ')" >&2
+    exit 1
+  fi
+
+  # CCR routing config → ~/.claude-code-router/config.json
+  mkdir -p "$HOME/.claude-code-router"
+  cp "$dir/ccr.json" "$HOME/.claude-code-router/config.json"
+
+  # rapid-mlx instance definitions (optional — cloud profile has none)
+  if [[ -f "$dir/rapid-mlx.yaml" ]]; then
+    cp "$dir/rapid-mlx.yaml" "${AI_HOME}/config/rapid-mlx.yaml"
+  fi
+
+  # Procfile → active service definitions for overmind
+  cp "$dir/Procfile" "${OVERMIND_PROCFILE}"
+
+  # Record active profile name
+  echo "$name" > "${AI_HOME}/config/.active-profile"
+}
+
+# --- Commands ---
 
 case "${1:-help}" in
   start)
+    if overmind ps &>/dev/null; then
+      echo "Stack already running. Use: ai-stack restart"
+      exit 1
+    fi
     overmind start -D
     echo "✓ Stack started. Run: claude"
     overmind ps
@@ -20,7 +109,7 @@ case "${1:-help}" in
     shift
     if [[ $# -eq 0 ]]; then
       overmind quit 2>/dev/null || true
-      sleep 1
+      _wait_socket_gone
       overmind start -D
     else
       overmind restart "$@"
@@ -32,38 +121,28 @@ case "${1:-help}" in
   enable)
     shift
     if [[ $# -eq 0 ]]; then
-      sed -i '' 's/^#\([a-zA-Z_-]*:\)/\1/' "${OVERMIND_PROCFILE}"
-      echo "✓ All services enabled"
-    else
-      for svc in "$@"; do
-        sed -i '' "s/^#${svc}:/${svc}:/" "${OVERMIND_PROCFILE}"
-        echo "✓ $svc enabled"
-      done
+      echo "error: specify at least one service to enable" >&2
+      exit 1
     fi
-    if overmind ps &>/dev/null; then
-      overmind quit 2>/dev/null || true
-      sleep 1
-      overmind start -D
-      echo "✓ Stack restarted"
-    fi
+    _validate_services "$@"
+    for svc in "$@"; do
+      sed -i '' "s/^#${svc}:/${svc}:/" "${OVERMIND_PROCFILE}"
+      echo "✓ $svc enabled"
+    done
+    _restart_if_running
     ;;
   disable)
     shift
     if [[ $# -eq 0 ]]; then
-      sed -i '' 's/^\([a-zA-Z_-]*:\)/#\1/' "${OVERMIND_PROCFILE}"
-      echo "✓ All services disabled"
-    else
-      for svc in "$@"; do
-        sed -i '' "s/^${svc}:/#${svc}:/" "${OVERMIND_PROCFILE}"
-        echo "✓ $svc disabled"
-      done
+      echo "error: specify at least one service to disable" >&2
+      exit 1
     fi
-    if overmind ps &>/dev/null; then
-      overmind quit 2>/dev/null || true
-      sleep 1
-      overmind start -D
-      echo "✓ Stack restarted"
-    fi
+    _validate_services "$@"
+    for svc in "$@"; do
+      sed -i '' "s/^${svc}:/#${svc}:/" "${OVERMIND_PROCFILE}"
+      echo "✓ $svc disabled"
+    done
+    _restart_if_running
     ;;
   logs)
     shift
@@ -73,17 +152,44 @@ case "${1:-help}" in
       overmind connect "$1"
     fi
     ;;
+  profile)
+    shift
+    if [[ $# -eq 0 ]]; then
+      echo "Current profile: $(_current_profile)"
+      exit 0
+    fi
+    if [[ "$(_current_profile)" == "$1" ]]; then
+      echo "Profile '$1' already active"
+      exit 0
+    fi
+    # Stop current services before swapping config
+    local was_running=false
+    if overmind ps &>/dev/null; then
+      was_running=true
+      echo "✓ Stopping stack for profile switch..."
+      overmind quit 2>/dev/null || true
+      _wait_socket_gone
+    fi
+    _activate_profile "$1"
+    echo "✓ Profile '$1' activated"
+    # Restart with new profile if previously running
+    if $was_running; then
+      overmind start -D
+      echo "✓ Stack restarted"
+    fi
+    ;;
   *)
-    echo "Usage: ai-stack {start|stop|restart|status|enable|disable|logs} [service...]"
+    echo "Usage: ai-stack {start|stop|restart|status|enable|disable|logs|profile} [service...]"
     echo ""
     echo "Commands:"
     echo "  start              Start all services (daemonized)"
     echo "  stop               Stop all services"
     echo "  restart [svc]      Restart all or one service"
     echo "  status             Show running processes"
-    echo "  enable [svc...]    Enable services in Procfile (all if none specified)"
-    echo "  disable [svc...]   Disable services in Procfile (all if none specified)"
+    echo "  enable [svc...]    Enable services in Procfile"
+    echo "  disable [svc...]   Disable services in Procfile"
     echo "  logs [svc]         Stream all output, or attach to one service"
+    echo "  profile [name]     Switch routing profile (default|local|hybrid|cloud)"
     echo ""
     echo "Services defined in: ${OVERMIND_PROCFILE}"
     ;;

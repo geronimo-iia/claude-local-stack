@@ -1,0 +1,8 @@
+#!/bin/zsh
+set -euo pipefail
+
+source "$(dirname "$0")/../config/ai-stack.env"
+
+source <("$(dirname "$0")/ai-secrets" env 2>/dev/null)
+
+exec "${cmd[@]}"

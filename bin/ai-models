@@ -1,0 +1,95 @@
+#!/bin/zsh
+set -euo pipefail
+
+source "$(dirname "$0")/../config/ai-stack.env"
+
+# ensure hf cli is available
+if ! command -v hf &>/dev/null; then
+  echo "error: 'hf' command not found. Run 'ai-stack install setup'" >&2
+  exit 1
+fi
+
+# Ensure manifest is installed
+MANIFEST="${AI_HOME}/config/models.yaml"
+
+if [[ ! -f "$MANIFEST" ]]; then
+  echo "error: manifest not found at $MANIFEST" >&2
+  exit 1
+fi
+
+
+# Load secrets into env
+eval "$("$(dirname "$0")/ai-secrets" env 2>/dev/null)" || true
+
+
+parse_repos() {
+  local category="$1"
+  awk -v cat="$category" '
+    /^[a-z]+:/ { current=$1; gsub(/:/, "", current); next }
+    current == cat && /^ *- / { gsub(/^ *- */, ""); print }
+  ' "$MANIFEST"
+}
+
+pull_category() {
+  local category="$1"
+  local repos=$(parse_repos "$category")
+  [[ -z "$repos" ]] && return 0
+  echo "── ${category} ──"
+  while read -r repo; do
+    echo "  ↓ ${repo}…"
+    hf download "$repo" --quiet
+    echo "  ✓ ${repo}"
+  done <<< "$repos"
+}
+
+list_models() {
+  for category in llm embedding; do
+    local repos=$(parse_repos "$category")
+    [[ -z "$repos" ]] && continue
+    echo "${category}:"
+    while read -r repo; do
+      local cache_name="models--${repo//\//-}"
+      local hf_cache="${HF_HUB_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/huggingface/hub}"
+      if [[ -d "${hf_cache}/${cache_name}" ]]; then
+        echo "  ✓ ${repo}"
+      else
+        echo "  ✗ ${repo}"
+      fi
+    done <<< "$repos"
+  done
+}
+
+usage() {
+  cat <<EOF
+Usage: ai-models <command> [target...]
+
+Commands:
+  pull [target]   Download models (all, a category, or a repo ID)
+  list            Show manifest with download status
+
+Examples:
+  ai-models pull                              # download all
+  ai-models pull llm                          # just LLMs
+  ai-models pull mlx-community/bge-m3-4bit   # one specific model
+  ai-models list                              # show status
+EOF
+}
+
+case "${1:-}" in
+  pull)
+    shift
+    if [[ $# -eq 0 ]]; then
+      for cat in llm embedding; do pull_category "$cat"; done
+    else
+      for target in "$@"; do
+        case "$target" in
+          llm|embedding) pull_category "$target" ;;
+          *) hf download "$target" --quiet ;;
+        esac
+      done
+    fi
+    ;;
+  list) list_models ;;
+  -h|--help|"") usage ;;
+  *) echo "error: unknown command '${1}'" >&2; usage; exit 1 ;;
+esac

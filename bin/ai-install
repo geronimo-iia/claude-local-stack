@@ -1,0 +1,102 @@
+#!/bin/zsh
+set -euo pipefail
+
+source "$(dirname "$0")/../config/ai-stack.env"
+
+LIB="${AI_HOME}/lib"
+
+run_install() { echo "  → $1"; source "$2" }
+
+install_setup() {
+  echo "── setup ──"
+  for f in prerequisites runtimes tooling; do
+    [[ -f "${LIB}/setup/${f}" ]] && run_install "$f" "${LIB}/setup/${f}"
+  done
+  for f in "${LIB}"/setup/*/install(N); do
+    run_install "$(basename "$(dirname "$f")")" "$f"
+  done
+}
+
+install_category() {
+  local category="$1"
+  echo "── ${category} ──"
+  local items=()
+  for dir in "${LIB}/${category}"/*(N/); do
+    local pri=50
+    [[ -f "${dir}/priority" ]] && pri=$(<"${dir}/priority")
+    [[ -f "${dir}/install" ]] && items+=("${pri}:${dir}")
+  done
+  for entry in ${(on)items}; do
+    local dir="${entry#*:}"
+    run_install "$(basename "$dir")" "${dir}/install"
+  done
+}
+
+install_by_name() {
+  local name="$1"
+  for category in setup services plugins; do
+    local f="${LIB}/${category}/${name}/install"
+    [[ -f "$f" ]] && { run_install "$name" "$f"; return 0 }
+  done
+  echo "error: unknown target '${name}'" >&2; return 1
+}
+
+usage() {
+  cat <<EOF
+Usage: ai-install [target...]
+       ai-install --list
+
+Targets:
+  all        Install everything (default)
+  setup      Bootstrap (prerequisites, runtimes, tooling, claude-code)
+  services   All services (sorted by priority)
+  plugins    All plugins (sorted by priority)
+  <name>     A specific component by name (auto-detected)
+
+Options:
+  -h, --help    Show this help
+  --list        List available services and plugins
+
+Examples:
+  ai-install                  # full install
+  ai-install services         # services only
+  ai-install headroom rtk     # cherry-pick
+EOF
+}
+
+list_components() {
+  for category in services plugins; do
+    echo "${category}:"
+    local items=()
+    for dir in "${LIB}/${category}"/*(N/); do
+      [[ -f "${dir}/install" ]] || continue
+      local pri=50
+      [[ -f "${dir}/priority" ]] && pri=$(<"${dir}/priority")
+      items+=("${pri}:$(basename "$dir")")
+    done
+    for entry in ${(on)items}; do
+      echo "  ${entry#*:} (priority: ${entry%%:*})"
+    done
+  done
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage; exit 0
+elif [[ "${1:-}" == "--list" ]]; then
+  list_components; exit 0
+elif [[ $# -eq 0 ]] || [[ "$1" == "all" ]]; then
+  install_setup
+  install_category services
+  install_category plugins
+  echo ""
+  echo "✓ ai-stack installed."
+else
+  for target in "$@"; do
+    case "$target" in
+      setup)    install_setup ;;
+      services) install_category services ;;
+      plugins)  install_category plugins ;;
+      *)        install_by_name "$target" ;;
+    esac
+  done
+fi

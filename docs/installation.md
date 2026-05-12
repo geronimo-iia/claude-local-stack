@@ -3,20 +3,20 @@
 ## Usage
 
 ```bash
-ai-stack-install [target...]
-ai-stack-install --list
-ai-stack-install --help
+ai-install [target...]
+ai-install --list
+ai-install --help
 ```
 
 | Command | What it does |
 |---------|-------------|
-| `ai-stack-install` | Install everything (setup → services → plugins) |
-| `ai-stack-install setup` | Bootstrap only (prerequisites, runtimes, tooling, claude-code) |
-| `ai-stack-install services` | All services |
-| `ai-stack-install plugins` | All plugins |
-| `ai-stack-install headroom rtk` | Cherry-pick by name (auto-detected from any category) |
-| `ai-stack-install --list` | List available services and plugins with their priority |
-| `ai-stack-install --help` | Show usage help |
+| `ai-install` | Install everything (setup → services → plugins) |
+| `ai-install setup` | Bootstrap only (prerequisites, runtimes, tooling, claude-code) |
+| `ai-install services` | All services |
+| `ai-install plugins` | All plugins |
+| `ai-install headroom rtk` | Cherry-pick by name (auto-detected from any category) |
+| `ai-install --list` | List available services and plugins with their priority |
+| `ai-install --help` | Show usage help |
 
 ## Install sequence
 
@@ -27,6 +27,15 @@ When running a full install (`all`), the order is:
 3. **plugins** — sorted by priority
 
 This ensures system deps and runtimes exist before anything else runs.
+
+### Setup breakdown
+
+| Phase | What it installs |
+|-------|------------------|
+| `prerequisites` | asdf, tmux, overmind, sops, age |
+| `runtimes` | python, nodejs, uv |
+| `tooling` | jq, yq, curl, hf (huggingface-cli) |
+| `claude-code` | claude-code CLI (npm global) |
 
 ## Priority
 

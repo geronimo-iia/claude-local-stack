@@ -6,7 +6,7 @@
 ai-stack/
 ├── bin/
 │   ├── ai-stack                # CLI (start/stop/restart/status/enable/disable/logs)
-│   ├── ai-stack-install        # Full install orchestrator
+│   ├── ai-install        # Full install orchestrator
 │   └── ai-secrets              # Secrets management
 │
 ├── config/
@@ -59,30 +59,30 @@ ai-stack/
 
 ## What's committed
 
-| Path | Committed | Why |
-|------|:---------:|-----|
-| `bin/` | ✓ | CLI scripts |
-| `config/` | ✓ | Path definitions, service defs, router config |
-| `lib/setup/` | ✓ | Bootstrap scripts |
-| `lib/services/` | ✓ | Service install/launch scripts |
-| `lib/plugins/` | ✓ | Plugin install/remove scripts |
-| `lib/utils/` | ✓ | Helper scripts |
-| `secrets/.sops.yaml` | ✓ | SOPS rules (public key only) |
-| `secrets/sample/` | ✓ | Template for new users |
-| `docs/` | ✓ | Documentation |
-| `models/` | ✗ | Large files, downloaded locally |
-| `lib/services/*/.venv/` | ✗ | Recreated via `uv venv` |
-| `secrets/age-key.txt` | ✗ | Private key |
-| `secrets/api-keys.sops.yaml` | ✗ | Encrypted secrets |
-| `logs/` | ✗ | Runtime output |
+| Path                         | Committed | Why                                           |
+| ---------------------------- | :-------: | --------------------------------------------- |
+| `bin/`                       |     ✓     | CLI scripts                                   |
+| `config/`                    |     ✓     | Path definitions, service defs, router config |
+| `lib/setup/`                 |     ✓     | Bootstrap scripts                             |
+| `lib/services/`              |     ✓     | Service install/launch scripts                |
+| `lib/plugins/`               |     ✓     | Plugin install/remove scripts                 |
+| `lib/utils/`                 |     ✓     | Helper scripts                                |
+| `secrets/.sops.yaml`         |     ✓     | SOPS rules (public key only)                  |
+| `secrets/sample/`            |     ✓     | Template for new users                        |
+| `docs/`                      |     ✓     | Documentation                                 |
+| `models/`                    |     ✗     | Large files, downloaded locally               |
+| `lib/services/*/.venv/`      |     ✗     | Recreated via `uv venv`                       |
+| `secrets/age-key.txt`        |     ✗     | Private key                                   |
+| `secrets/api-keys.sops.yaml` |     ✗     | Encrypted secrets                             |
+| `logs/`                      |     ✗     | Runtime output                                |
 
 ## Runtime artifacts (not in repo)
 
-| Artifact | Location | Purpose |
-|----------|----------|---------|
+| Artifact        | Location                         | Purpose                   |
+| --------------- | -------------------------------- | ------------------------- |
 | Overmind socket | `$TMPDIR/ai-stack.overmind.sock` | IPC for overmind commands |
-| PID tracking | Managed by overmind internally | — |
-| Logs | `logs/` | Service output |
+| PID tracking    | Managed by overmind internally   | —                         |
+| Logs            | `logs/`                          | Service output            |
 
 ## Symlinks to system locations
 

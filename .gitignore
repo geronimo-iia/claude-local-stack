@@ -17,5 +17,5 @@ secrets/api-keys.sops.yaml
 
 # Current activated profile and config files
 .active-profile
-config/Profile
+config/Procfile
 config/rapid-mlx.yaml

@@ -1,10 +1,11 @@
 #!/bin/zsh
 set -euo pipefail
 
-source "$(dirname "$0")/../../config/ai-stack.env"
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
 
 CONFIG="${AI_HOME}/config/rapid-mlx.yaml"
-RAPID_MLX="${AI_HOME}/lib/components/rapid-mlx/.venv/bin/rapid-mlx"
+SERVICE_DIR="${AI_HOME}/lib/services/rapid-mlx"
+RAPID_MLX="${SERVICE_DIR}/.venv/bin/rapid-mlx"
 ROLE="${1:-default}"
 DRY_RUN="${2:-}"
 
@@ -26,12 +27,13 @@ features() {
 
 model=$(field model)
 port=$(field port)
-context_length=$(field context_length)
 max_tokens=$(field max_tokens)
 embedding_model=$(field embedding_model)
 temperature=$(field temperature)
 top_p=$(field top_p)
 tool_call_parser=$(field tool_call_parser)
+reasoning_parser=$(field reasoning_parser)
+paged_cache=$(field paged_cache)
 trust_remote_code=$(field trust_remote_code)
 
 if [[ -z "$model" || -z "$port" ]]; then
@@ -40,14 +42,15 @@ if [[ -z "$model" || -z "$port" ]]; then
 fi
 
 # Build command
-cmd=("$RAPID_MLX" serve "$model" --port "$port")
+cmd=("$RAPID_MLX" --no-telemetry serve "$model" --port "$port")
 
-[[ -n "$context_length" ]]    && cmd+=(--context-length "$context_length")
 [[ -n "$max_tokens" ]]        && cmd+=(--max-tokens "$max_tokens")
 [[ -n "$embedding_model" ]]   && cmd+=(--embedding-model "$embedding_model")
 [[ -n "$temperature" ]]       && cmd+=(--default-temperature "$temperature")
 [[ -n "$top_p" ]]             && cmd+=(--default-top-p "$top_p")
 [[ -n "$tool_call_parser" ]]  && cmd+=(--tool-call-parser "$tool_call_parser")
+[[ -n "$reasoning_parser" ]]  && cmd+=(--reasoning-parser "$reasoning_parser")
+[[ "$paged_cache" == "true" ]] && cmd+=(--use-paged-cache)
 [[ -n "$trust_remote_code" ]] && cmd+=(--trust-remote-code)
 
 # Apply features

@@ -21,6 +21,12 @@ _wait_socket_gone() {
   while [[ -S "$OVERMIND_SOCKET" ]] && (( i++ < 25 )); do sleep 0.2; done
 }
 
+# Poll until overmind socket appears (max ~5s)
+_wait_socket_ready() {
+  local i=0
+  while [[ ! -S "$OVERMIND_SOCKET" ]] && (( i++ < 25 )); do sleep 0.2; done
+}
+
 # Restart the stack only if it's currently running
 _restart_if_running() {
   if overmind ps &>/dev/null; then
@@ -98,6 +104,7 @@ case "${1:-help}" in
       exit 1
     fi
     overmind start -D
+    _wait_socket_ready
     echo "✓ Stack started. Run: claude"
     overmind ps
     ;;
@@ -152,6 +159,17 @@ case "${1:-help}" in
       overmind connect "$1"
     fi
     ;;
+  shell)
+    # Run a command with stack env, or spawn a subshell if no args
+    shift
+    # unset CLAUDE_CODE_USE_BEDROCK which breaks claide CLI in the shell context since it tries to use the cloud API instead of CCR
+    unset CLAUDE_CODE_USE_BEDROCK
+    if [[ $# -eq 0 ]]; then
+      exec $SHELL
+    else
+      exec "$@"
+    fi
+    ;;
   profile)
     shift
     if [[ $# -eq 0 ]]; then
@@ -189,6 +207,7 @@ case "${1:-help}" in
     echo "  enable [svc...]    Enable services in Procfile"
     echo "  disable [svc...]   Disable services in Procfile"
     echo "  logs [svc]         Stream all output, or attach to one service"
+    echo "  shell [cmd...]     Run command with stack env, or open subshell"
     echo "  profile [name]     Switch routing profile (default|local|hybrid|cloud)"
     echo ""
     echo "Services defined in: ${OVERMIND_PROCFILE}"

@@ -5,6 +5,9 @@ Source: https://github.com/musistudio/claude-code-router
 Routes requests by task type (default, background, think, longContext) to different models/providers.
 Sits between Headroom and the backends.
 
+help: https://polyskill.ai/blog/claude-code-router
+
+
 ## Call chain position
 
 ```

@@ -9,20 +9,29 @@
     {
       "name": "rapid-mlx-default",
       "type": "openai",
-      "baseUrl": "http://localhost:8000/v1",
-      "models": ["arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8"]
+      "models": [
+        "arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8"
+      ],
+      "api_key": "local",
+      "api_base_url": "http://localhost:8000/v1/chat/completions"
     },
     {
       "name": "rapid-mlx-background",
       "type": "openai",
-      "baseUrl": "http://localhost:8001/v1",
-      "models": ["arthurcollet/Qwen3.6-27B-mlx-mxfp8"]
+      "models": [
+        "arthurcollet/Qwen3.6-27B-mlx-mxfp8"
+      ],
+      "api_key": "local",
+      "api_base_url": "http://localhost:8001/v1/chat/completions"
     },
     {
       "name": "rapid-mlx-think",
       "type": "openai",
-      "baseUrl": "http://localhost:8002/v1",
-      "models": ["mlx-community/Qwen3-235B-A22B-4bit"]
+      "models": [
+        "mlx-community/Qwen3-235B-A22B-4bit"
+      ],
+      "api_key": "local",
+      "api_base_url": "http://localhost:8002/v1/chat/completions"
     }
   ],
   "Router": {
@@ -39,12 +48,38 @@
     "currentStyle": "default",
     "default": {
       "modules": [
-        { "type": "workDir", "icon": "󰉋", "text": "{{workDirName}}", "color": "bright_blue" },
-        { "type": "gitBranch", "icon": "🌿", "text": "{{gitBranch}}", "color": "bright_green" },
-        { "type": "model", "icon": "🤖", "text": "{{model}}", "color": "bright_yellow" },
-        { "type": "usage", "icon": "📊", "text": "{{inputTokens}} → {{outputTokens}}", "color": "bright_magenta" },
-        { "type": "speed", "icon": "⚡", "text": "{{tokenSpeed}}", "color": "bright_green" }
+        {
+          "type": "workDir",
+          "icon": "\udb80\ude4b",
+          "text": "{{workDirName}}",
+          "color": "bright_blue"
+        },
+        {
+          "type": "gitBranch",
+          "icon": "\ud83c\udf3f",
+          "text": "{{gitBranch}}",
+          "color": "bright_green"
+        },
+        {
+          "type": "model",
+          "icon": "\ud83e\udd16",
+          "text": "{{model}}",
+          "color": "bright_yellow"
+        },
+        {
+          "type": "usage",
+          "icon": "\ud83d\udcca",
+          "text": "{{inputTokens}} \u2192 {{outputTokens}}",
+          "color": "bright_magenta"
+        },
+        {
+          "type": "speed",
+          "icon": "\u26a1",
+          "text": "{{tokenSpeed}}",
+          "color": "bright_green"
+        }
       ]
     }
-  }
+  },
+  "APIKEY": "local"
 }

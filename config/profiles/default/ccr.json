@@ -4,13 +4,17 @@
   "HOST": "127.0.0.1",
   "PORT": 3456,
   "API_TIMEOUT_MS": "600000",
+  "APIKEY": "local",
   "transformers": [],
   "Providers": [
     {
       "name": "rapid-mlx-default",
       "type": "openai",
-      "baseUrl": "http://localhost:8000/v1",
-      "models": ["arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8"]
+      "api_base_url": "http://localhost:8000/v1/chat/completions",
+      "models": [
+        "arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8"
+      ],
+      "api_key": "local"
     }
   ],
   "Router": {
@@ -27,11 +31,36 @@
     "currentStyle": "default",
     "default": {
       "modules": [
-        { "type": "workDir", "icon": "󰉋", "text": "{{workDirName}}", "color": "bright_blue" },
-        { "type": "gitBranch", "icon": "🌿", "text": "{{gitBranch}}", "color": "bright_green" },
-        { "type": "model", "icon": "🤖", "text": "{{model}}", "color": "bright_yellow" },
-        { "type": "usage", "icon": "📊", "text": "{{inputTokens}} → {{outputTokens}}", "color": "bright_magenta" },
-        { "type": "speed", "icon": "⚡", "text": "{{tokenSpeed}}", "color": "bright_green" }
+        {
+          "type": "workDir",
+          "icon": "\udb80\ude4b",
+          "text": "{{workDirName}}",
+          "color": "bright_blue"
+        },
+        {
+          "type": "gitBranch",
+          "icon": "\ud83c\udf3f",
+          "text": "{{gitBranch}}",
+          "color": "bright_green"
+        },
+        {
+          "type": "model",
+          "icon": "\ud83e\udd16",
+          "text": "{{model}}",
+          "color": "bright_yellow"
+        },
+        {
+          "type": "usage",
+          "icon": "\ud83d\udcca",
+          "text": "{{inputTokens}} \u2192 {{outputTokens}}",
+          "color": "bright_magenta"
+        },
+        {
+          "type": "speed",
+          "icon": "\u26a1",
+          "text": "{{tokenSpeed}}",
+          "color": "bright_green"
+        }
       ]
     }
   }

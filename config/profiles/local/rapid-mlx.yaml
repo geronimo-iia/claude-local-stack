@@ -3,21 +3,23 @@ instances:
     port: 8000
     model: arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8
     embedding_model: mlx-community/bge-m3-mlx-4bit
-    context_length: 32768
     max_tokens: 8192
-    tool_call_parser: qwen3
+    tool_call_parser: auto
+    paged_cache: true
+    reasoning_parser: qwen3
     features: [tool-calling, continuous-batching]
 
   - role: background
     port: 8001
     model: arthurcollet/Qwen3.6-27B-mlx-mxfp8
-    context_length: 32768
     max_tokens: 4096
+    paged_cache: true
     features: [continuous-batching]
 
   - role: think
     port: 8002
     model: mlx-community/Qwen3-235B-A22B-4bit
-    context_length: 16384
     max_tokens: 16384
+    paged_cache: true
+    reasoning_parser: qwen3
     features: [reasoning]

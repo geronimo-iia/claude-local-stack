@@ -1,21 +1,30 @@
 # Integration
 
-How to connect tools to the ai-stack. The entry point is always Headroom (`http://localhost:8787`) which routes through CCR to backends.
+Entry point for all tools: `http://localhost:8787` with `ANTHROPIC_API_KEY=local`.
+
+## Prerequisites
+
+1. Profile active: `ai-stack profile default`
+2. Stack running: `ai-stack start`
+3. For Bedrock profiles: `aws sso login --profile devops`
 
 ## Claude Code (CLI)
 
-`config/ai-stack.env` exports the required variables:
+Env vars exported by `ai-stack shell`:
 
 ```bash
 ANTHROPIC_BASE_URL=http://localhost:8787
 ANTHROPIC_API_KEY=local
 ```
 
-These are sourced automatically by the `aclaude` alias (see below).
+```bash
+ai-stack shell
+claude
+```
 
 ## VS Code — Continue
 
-In `.continue/config.yaml`:
+`.continue/config.yaml`:
 
 ```yaml
 models:
@@ -28,7 +37,7 @@ models:
 
 ## VS Code — Claude extension
 
-In VS Code settings (`settings.json`):
+`settings.json`:
 
 ```json
 {
@@ -37,27 +46,12 @@ In VS Code settings (`settings.json`):
 }
 ```
 
-## Call chain
-
-```
-Tool → Headroom (:8787) → CCR (:3456) → rapid-mlx / Bedrock
-```
-
-## Prerequisites
-
-1. Stack is running: `ai-stack start`
-2. A profile is active: `ai-stack profile default`
-3. For Bedrock profiles: AWS session is valid (`aws sso login --profile devops`)
-
 ## Shell aliases
 
-Add to `~/.zshrc`:
-
 ```bash
+export PATH="${HOME}/ai-stack/bin:$PATH"
 
-export "${HOME}/ai-stack/bin:$PATH"
-
-# Stack management
+# Stack
 alias ais="ai-stack start"
 alias aiq="ai-stack stop"
 alias air="ai-stack restart"
@@ -65,13 +59,11 @@ alias aist="ai-stack status"
 alias ail="ai-stack logs"
 alias aip="ai-stack profile"
 
-# Launch tools through the stack
-alias aclaude="ai-schell claude"
-alias acode="ai-schell code"
+# Tools
+alias aclaude="ai-stack shell claude"
+alias acode="ai-stack shell code"
 
-# Secrets
+# Utilities
 alias sec="ai-secrets"
-
-# Models
 alias aim="ai-models"
 ```

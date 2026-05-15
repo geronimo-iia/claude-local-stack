@@ -6,5 +6,8 @@ instances:
     max_tokens: 8192
     tool_call_parser: qwen3_coder
     paged_cache: true
+    #suffix_decoding: true
+    mtp: true
+    no_thinking: true
     reasoning_parser: qwen3
     features: [tool-calling, continuous-batching]

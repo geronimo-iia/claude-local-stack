@@ -1,4 +1,6 @@
 #!/bin/zsh
 set -euo pipefail
 
-exec ccr start
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+
+exec "${AI_HOME}/lib/utils/supervised-launch" ccr start

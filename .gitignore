@@ -19,6 +19,6 @@ secrets/api-keys.sops.yaml
 .active-profile
 config/Procfile
 config/rapid-mlx.yaml
-
+config/.headroom
 # old files
 docs/archive

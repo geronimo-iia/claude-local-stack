@@ -15,7 +15,7 @@
         "eu.anthropic.claude-opus-4-6-v1"
       ],
       "api_key": "local",
-      "api_base_url": "https://bedrock-mantle.eu-west-1.api.aws/anthropic/v1"
+      "api_base_url": "https://bedrock-runtime.eu-west-1.amazonaws.com"
     }
   ],
   "Router": {

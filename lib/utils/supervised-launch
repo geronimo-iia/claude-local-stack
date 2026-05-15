@@ -1,0 +1,72 @@
+#!/bin/zsh
+# Supervised process launcher with bounded restarts and exponential backoff.
+# Usage: supervised-launch <command> [args...]
+#
+# Exits 1 when crash loop detected (5 failures within 60s window).
+# All supervisor events go to stderr — captured by Overmind log stream.
+
+set -uo pipefail
+
+if [[ $# -eq 0 ]]; then
+  echo "[supervised-launch] error: no command given" >&2
+  exit 1
+fi
+
+readonly MAX_ATTEMPTS=5
+readonly WINDOW_SECONDS=60
+readonly BACKOFF_CAP=30
+
+cmd=("$@")
+label="${1##*/}"   # basename of command for log clarity
+
+attempts=0
+window_start=$(date +%s)
+backoff=1
+
+log() {
+  echo "[supervised-launch:${label}] $*" >&2
+}
+
+log "starting: ${cmd[*]}"
+
+while true; do
+  start=$(date +%s)
+
+  # Run the process — not exec, we need to capture exit and loop
+  "${cmd[@]}"
+  exit_code=$?
+  now=$(date +%s)
+  runtime=$(( now - start ))
+
+  log "process exited with code ${exit_code} (runtime ${runtime}s)"
+
+  # Process ran long enough → treat as healthy run, reset crash window
+  if (( runtime >= WINDOW_SECONDS )); then
+    log "runtime exceeded window — resetting crash counter"
+    attempts=0
+    window_start=$now
+    backoff=1
+  fi
+
+  attempts=$(( attempts + 1 ))
+  window_elapsed=$(( now - window_start ))
+
+  if (( attempts >= MAX_ATTEMPTS && window_elapsed < WINDOW_SECONDS )); then
+    log "crash loop detected: ${attempts} failures in ${window_elapsed}s (limit: ${MAX_ATTEMPTS} in ${WINDOW_SECONDS}s) — giving up"
+    exit 1
+  fi
+
+  # Window expired — reset counter
+  if (( window_elapsed >= WINDOW_SECONDS )); then
+    attempts=0
+    window_start=$now
+    backoff=1
+  fi
+
+  log "restarting in ${backoff}s (attempt ${attempts}/${MAX_ATTEMPTS})"
+  sleep "$backoff"
+
+  # Exponential backoff capped at BACKOFF_CAP
+  backoff=$(( backoff * 2 ))
+  (( backoff > BACKOFF_CAP )) && backoff=$BACKOFF_CAP
+done

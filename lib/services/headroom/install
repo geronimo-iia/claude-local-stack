@@ -3,14 +3,15 @@ set -euo pipefail
 
 [[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
 
-SERVICE_DIR="${AI_HOME}/lib/components/headroom"
+SERVICE_DIR="${AI_HOME}/lib/services/headroom"
 
 # Install
 if [[ ! -x "${SERVICE_DIR}/.venv/bin/headroom" ]]; then
   echo "  installing headroom…"
   mkdir -p "${SERVICE_DIR}"
   uv venv --python "$(asdf where python)/bin/python" "${SERVICE_DIR}/.venv"
-  uv pip install --python "${SERVICE_DIR}/.venv/bin/python" "headroom-ai[proxy,ml,mcp,code]==0.21.22"
+  #uv pip install --python "${SERVICE_DIR}/.venv/bin/python" "headroom-ai[proxy,ml,mcp,code]==0.21.22" boto3
+  uv pip install --python "${SERVICE_DIR}/.venv/bin/python" "headroom-ai[all]==0.21.22" boto3
 fi
 echo "  ✓ headroom ($("${SERVICE_DIR}/.venv/bin/python" -c "import headroom; print(headroom.__version__)"))"
 

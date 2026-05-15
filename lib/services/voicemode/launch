@@ -1,4 +1,7 @@
 #!/bin/zsh
 set -euo pipefail
 
-exec "${AI_HOME}/lib/components/voicemode/.venv/bin/voicemode" serve
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+
+exec "${AI_HOME}/lib/utils/supervised-launch" \
+  "${AI_HOME}/lib/components/voicemode/.venv/bin/voicemode" serve

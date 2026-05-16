@@ -4,6 +4,10 @@
 
 set -euo pipefail
 
+# ── Bootstrap ai-stack env ───────────────────────────────────────────
+
+source "$(dirname "$0")/../../config/ai-stack.env" 2>/dev/null || true
+
 # ── Constants ────────────────────────────────────────────────────────
 
 readonly BOLD='\033[1m'
@@ -13,16 +17,11 @@ readonly CYAN='\033[0;36m'
 readonly YELLOW='\033[0;33m'
 readonly NC='\033[0m'
 
-readonly HEADROOM_URL="http://localhost:8787"
+readonly HEADROOM_URL="http://localhost:${HEADROOM_PORT:-8787}"
 
-# ── Dependency check ─────────────────────────────────────────────────
+# ── Python ───────────────────────────────────────────────────────────
 
-HAS_PYTHON=true
-if ! command -v python3 &>/dev/null; then
-  echo -e "${YELLOW}python3 required for Headroom stats parsing${NC}" >&2
-  echo -e "Showing RTK stats only." >&2
-  HAS_PYTHON=false
-fi
+readonly PYTHON="$(asdf where python)/bin/python"
 
 # ── Temp file with trap cleanup ──────────────────────────────────────
 
@@ -54,8 +53,7 @@ if command -v rtk &>/dev/null; then
     echo -e "  Commands:     ${TOTAL_CMDS:-0}"
 
     # Top 3 savers via python for reliable parsing
-    if [[ "$HAS_PYTHON" == true ]]; then
-      TOP_OUTPUT="$(echo "$RTK_OUTPUT" | python3 -c "
+    TOP_OUTPUT="$(echo "$RTK_OUTPUT" | "$PYTHON" -c "
 import sys
 lines = [l.strip() for l in sys.stdin if l.strip() and l.strip()[0].isdigit() and '.' in l.strip()[:4]]
 for line in lines[:3]:
@@ -67,12 +65,11 @@ for line in lines[:3]:
         print(f'    {cmd}: {saved} ({pct})')
 " 2>/dev/null || echo "")"
 
-      if [[ -n "$TOP_OUTPUT" ]]; then
-        echo -e "  Top savers:"
-        while IFS= read -r line; do
-          echo -e "  ${DIM}${line}${NC}"
-        done <<< "$TOP_OUTPUT"
-      fi
+    if [[ -n "$TOP_OUTPUT" ]]; then
+      echo -e "  Top savers:"
+      while IFS= read -r line; do
+        echo -e "  ${DIM}${line}${NC}"
+      done <<< "$TOP_OUTPUT"
     fi
   fi
 else
@@ -90,14 +87,14 @@ if curl -sf -H "Accept: application/json" "${HEADROOM_URL}/stats" > "$STATS_FILE
   STATS_OK=true
 fi
 
-if [[ "$STATS_OK" == true && "$HAS_PYTHON" == true ]]; then
+if [[ "$STATS_OK" == true ]]; then
   VERSION="$(curl -sf "${HEADROOM_URL}/health" 2>/dev/null \
-    | python3 -c "import json,sys; print(json.load(sys.stdin).get('version','?'))" 2>/dev/null \
+    | "$PYTHON" -c "import json,sys; print(json.load(sys.stdin).get('version','?'))" 2>/dev/null \
     || echo "?")"
-  echo -e "  Status:       ${GREEN}● LIVE on :8787${NC} (v${VERSION})"
+  echo -e "  Status:       ${GREEN}● LIVE on :${HEADROOM_PORT:-8787}${NC} (v${VERSION})"
 
   # Parse stats from file (no shell interpolation of JSON)
-  python3 - "$STATS_FILE" << 'PYEOF'
+  "$PYTHON" - "$STATS_FILE" << 'PYEOF'
 import json, sys
 
 with open(sys.argv[1]) as f:
@@ -162,13 +159,10 @@ if total_tokens > 0:
     print(f'  COMBINED:     {total_tokens:,} tokens saved')
 PYEOF
 
-elif [[ "$STATS_OK" == true ]]; then
-  echo -e "  Status:       ${GREEN}● LIVE on :8787${NC}"
-  echo -e "  ${YELLOW}python3 required for detailed stats${NC}"
 else
   echo -e "  Status:       ${YELLOW}○ NOT RUNNING${NC}"
   if command -v headroom &>/dev/null; then
-    echo -e "  ${DIM}Start with: headroom proxy --port 8787${NC}"
+    echo -e "  ${DIM}Start with: ai-stack start${NC}"
   else
     echo -e "  ${DIM}Install with: pip install \"headroom-ai[proxy]\"${NC}"
   fi

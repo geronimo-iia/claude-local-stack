@@ -20,6 +20,7 @@ asdf set --parent nodejs "$(asdf latest nodejs 22)"
 
 asdf install uv latest
 asdf set --parent uv "$(asdf latest uv)"
+asdf set -u uv 0.11.13
 
 asdf install rust latest
 asdf set --parent rust "$(asdf latest rust)"

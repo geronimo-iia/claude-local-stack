@@ -1,26 +1,30 @@
 # Profiles
 
-A profile is a complete stack configuration: routing rules + service definitions + model config.
+A profile is a complete stack configuration: routing rules + service definitions + model config + install manifest.
 
 ## Structure
 
 ```
 config/profiles/
 ├── default/
-│   ├── ccr.json         # → ~/.claude-code-router/config.json
-│   ├── rapid-mlx.yaml   # → config/rapid-mlx.yaml
-│   └── Procfile         # → config/Procfile
+│   ├── ccr.json           # → ~/.claude-code-router/config.json
+│   ├── rapid-mlx.yaml    # → config/rapid-mlx.yaml
+│   ├── Procfile           # → config/Procfile
+│   └── services.yaml      # services to install on activation
 ├── local/
 │   ├── ccr.json
 │   ├── rapid-mlx.yaml
-│   └── Procfile
+│   ├── Procfile
+│   └── services.yaml
 ├── hybrid/
 │   ├── ccr.json
 │   ├── rapid-mlx.yaml
-│   └── Procfile
+│   ├── Procfile
+│   └── services.yaml
 └── cloud/
     ├── ccr.json
-    └── Procfile          # no rapid-mlx.yaml (no local models)
+    ├── Procfile           # headroom only (no CCR, no rapid-mlx)
+    └── services.yaml
 ```
 
 ## Activation
@@ -33,27 +37,39 @@ ai-stack profile hybrid
 2. Copies `ccr.json` → `~/.claude-code-router/config.json`
 3. Copies `rapid-mlx.yaml` → `config/rapid-mlx.yaml` (if present)
 4. Copies `Procfile` → `config/Procfile`
-5. Writes profile name to `config/.active-profile`
-6. Restarts services (if was running)
+5. If `AI_STACK_AUTO_INSTALL=true`: runs `ai-install <svc>` for each service in `services.yaml`
+6. Writes profile name to `config/.active-profile`
+7. Restarts services (if was running)
 
-## Routing matrix
+## services.yaml
 
-| Task        | default                       | local                         | hybrid                        | cloud               |
-| ----------- | ----------------------------- | ----------------------------- | ----------------------------- | ------------------- |
-| default     | rapid-mlx :8000 (Qwen3.6-35B) | rapid-mlx :8000 (Qwen3.6-35B) | rapid-mlx :8000 (Qwen3.6-35B) | Bedrock (Sonnet 4)  |
-| background  | rapid-mlx :8000 (Qwen3.6-35B) | rapid-mlx :8001 (Qwen3.6-27B) | rapid-mlx :8001 (Qwen3.6-27B) | Bedrock (Haiku 4.5) |
-| think       | rapid-mlx :8000 (Qwen3.6-35B) | rapid-mlx :8002 (Qwen3-235B)  | Bedrock (Sonnet 4)            | Bedrock (Opus 4)    |
-| longContext | rapid-mlx :8000 (Qwen3.6-35B) | rapid-mlx :8000 (Qwen3.6-35B) | Bedrock (Sonnet 4)            | Bedrock (Sonnet 4)  |
+Declares which services must be installed for the profile to work:
 
-## Services per profile
+```yaml
+# config/profiles/default/services.yaml
+install:
+  - headroom
+  - claude-code-router
+  - rapid-mlx
+```
 
-| Service              | default | local | hybrid | cloud |
-| -------------------- | :-----: | :---: | :----: | :---: |
-| rapid-mlx-default    |    ✓    |   ✓   |   ✓    |   ✗   |
-| rapid-mlx-background |    ✗    |   ✓   |   ✓    |   ✗   |
-| rapid-mlx-think      |    ✗    |   ✓   |   ✗    |   ✗   |
-| headroom             |    ✓    |   ✓   |   ✓    |   ✗   |
-| ccr                  |    ✓    |   ✓   |   ✓    |   ✓   |
+```yaml
+# config/profiles/cloud/services.yaml
+install:
+  - headroom
+```
+
+Install scripts are idempotent — safe to run on every profile switch.
+
+## Auto-install
+
+Controlled by env var in `config/ai-stack.env`:
+
+```bash
+AI_STACK_AUTO_INSTALL="true"    # run install on profile switch
+```
+
+Set to `"false"` for fast switching (CI, already-installed environments).
 
 ## Runtime overrides
 
@@ -63,3 +79,13 @@ ai-stack profile hybrid
 ai-stack disable headroom    # temporary override
 ai-stack profile hybrid      # resets Procfile to profile's definition
 ```
+
+## Cloud profile
+
+The cloud profile bypasses CCR entirely. Headroom talks directly to AWS Bedrock:
+
+```
+Claude Code → Headroom (:8787, backend=bedrock) → AWS Bedrock
+```
+
+Uses `launch-cloud` script with `--backend bedrock` and AWS SSO credentials.

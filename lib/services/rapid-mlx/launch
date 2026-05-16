@@ -4,8 +4,6 @@ set -euo pipefail
 [[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
 
 CONFIG="${AI_HOME}/config/rapid-mlx.yaml"
-SERVICE_DIR="${AI_HOME}/lib/services/rapid-mlx"
-RAPID_MLX="${SERVICE_DIR}/.venv/bin/rapid-mlx"
 ROLE="${1:-default}"
 DRY_RUN="${2:-}"
 
@@ -45,7 +43,7 @@ if [[ -z "$model" || -z "$port" ]]; then
 fi
 
 # Build command
-cmd=("$RAPID_MLX" --no-telemetry serve "$model" --port "$port")
+cmd=("rapid-mlx" --no-telemetry serve "$model" --port "$port")
 
 [[ -n "$max_tokens" ]]        && cmd+=(--max-tokens "$max_tokens")
 [[ -n "$embedding_model" ]]   && cmd+=(--embedding-model "$embedding_model")

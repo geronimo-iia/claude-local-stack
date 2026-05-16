@@ -4,14 +4,15 @@ set -euo pipefail
 [[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
 
 exec "${AI_HOME}/lib/utils/supervised-launch" \
-  "$(dirname "$0")/.venv/bin/headroom" proxy \
+  "headroom" proxy \
   --port "${HEADROOM_PORT:-8787}" \
   --mode "${HEADROOM_MODE:-token}" \
   --anthropic-api-url "http://localhost:${CCR_PORT:-3456}" \
   --no-telemetry \
   --no-subscription-tracking  \
   --workers "${HEADROOM_WORKERS:-1}" \
+  --memory \
+  --memory-db-path "${HEADROOM_MEMORY_PATH}/memory.db" \
   --log-file "${AI_HOME}/logs/headroom.log"
-  # --memory            # persistent cross-session memory
   # --learn             # learn from failures, writes to MEMORY.md
   # --code-aware        # AST-based code compression (requires tree-sitter)

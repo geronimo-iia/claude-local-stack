@@ -54,28 +54,28 @@ instances:
     features: [tool-calling, continuous-batching]
 ```
 
-| Field | Required | Description |
-|-------|:--------:|-------------|
-| role | ✓ | Instance name (matches Procfile entry) |
-| port | ✓ | Listen port |
-| model | ✓ | HuggingFace repo ID |
-| embedding_model | | HuggingFace repo ID for embeddings |
-| max_tokens | | Max output tokens (default: 32768) |
-| tool_call_parser | | Parser for tool calls: `auto`, `qwen`, `qwen3_xml`, `hermes`, etc. |
-| reasoning_parser | | Reasoning extraction: `qwen3`, `deepseek_r1`, `gemma4`, etc. |
-| paged_cache | | Enable paged KV cache (`true`/`false`) |
-| temperature | | Default sampling temperature |
-| top_p | | Default top-p sampling |
-| trust_remote_code | | Allow remote code execution for model loading |
-| features | | Feature flags (see below) |
+| Field             | Required | Description                                                        |
+| ----------------- | :------: | ------------------------------------------------------------------ |
+| role              |    ✓     | Instance name (matches Procfile entry)                             |
+| port              |    ✓     | Listen port                                                        |
+| model             |    ✓     | HuggingFace repo ID                                                |
+| embedding_model   |          | HuggingFace repo ID for embeddings                                 |
+| max_tokens        |          | Max output tokens (default: 32768)                                 |
+| tool_call_parser  |          | Parser for tool calls: `auto`, `qwen`, `qwen3_xml`, `hermes`, etc. |
+| reasoning_parser  |          | Reasoning extraction: `qwen3`, `deepseek_r1`, `gemma4`, etc.       |
+| paged_cache       |          | Enable paged KV cache (`true`/`false`)                             |
+| temperature       |          | Default sampling temperature                                       |
+| top_p             |          | Default top-p sampling                                             |
+| trust_remote_code |          | Allow remote code execution for model loading                      |
+| features          |          | Feature flags (see below)                                          |
 
 ### Features
 
-| Feature | CLI flag added |
-|---------|---------------|
-| `tool-calling` | `--enable-auto-tool-choice` |
-| `continuous-batching` | `--continuous-batching` |
-| `reasoning` | `--reasoning-parser qwen3` |
+| Feature               | CLI flag added              |
+| --------------------- | --------------------------- |
+| `tool-calling`        | `--enable-auto-tool-choice` |
+| `continuous-batching` | `--continuous-batching`     |
+| `reasoning`           | `--reasoning-parser qwen3`  |
 
 ## Adding a component
 

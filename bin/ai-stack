@@ -91,6 +91,15 @@ _activate_profile() {
   # Procfile → active service definitions for overmind
   cp "$dir/Procfile" "${OVERMIND_PROCFILE}"
 
+  # Auto-install services if enabled
+  if [[ "${AI_STACK_AUTO_INSTALL:-false}" == "true" && -f "$dir/services.yaml" ]]; then
+    while IFS= read -r svc; do
+      svc=$(echo "$svc" | sed 's/^[- ]*//' | xargs)
+      [[ -z "$svc" || "$svc" == "install:" ]] && continue
+      "${AI_HOME}/bin/ai-install" "$svc"
+    done < "$dir/services.yaml"
+  fi
+
   # Record active profile name
   echo "$name" > "${AI_HOME}/config/.active-profile"
 }

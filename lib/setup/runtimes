@@ -8,7 +8,7 @@ export PATH="$(brew --prefix asdf)/bin:$PATH"
 echo "── runtimes ──"
 
 # asdf plugins
-for plugin in python nodejs uv; do
+for plugin in python nodejs uv rust; do
   asdf plugin list 2>/dev/null | grep -q "^${plugin}$" || asdf plugin add "$plugin"
 done
 
@@ -21,4 +21,14 @@ asdf set --parent nodejs "$(asdf latest nodejs 22)"
 asdf install uv latest
 asdf set --parent uv "$(asdf latest uv)"
 
+asdf install rust latest
+asdf set --parent rust "$(asdf latest rust)"
+
 echo "── runtimes done ──"
+
+# Ensure ~/.local/bin is in PATH (required for uv tool install)
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+  echo "  ⚠ ~/.local/bin is not in PATH"
+  echo "  Add to ~/.zshrc: export PATH=\"\$HOME/.local/bin:\$PATH\""
+fi
+

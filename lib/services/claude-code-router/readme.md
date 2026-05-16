@@ -11,7 +11,7 @@ help: https://polyskill.ai/blog/claude-code-router
 ## Call chain position
 
 ```
-Claude Code → Headroom (:8787) → CCR (:3456) → Rapid-MLX (:8000) / Bedrock / Anthropic
+Claude Code → Headroom (:8787) → CCR (:3456) → Rapid-MLX (:8000)
 ```
 
 ## Configuration

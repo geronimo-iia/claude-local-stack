@@ -1,55 +1,85 @@
-# Headroom — Prompt Compression Proxy
+# headroom
 
-Source: https://github.com/chopratejas/headroom
-Docs: https://headroom-docs.vercel.app
+Token compression proxy between Claude Code and LLM backends. Supports local (via CCR) and cloud (AWS Bedrock) routing.
 
-Sits in front of CCR. Compresses prompts before they reach any backend (local or cloud).
-Reduces token usage ~50% per request — saves context window locally, saves cost on cloud.
+## Launch scripts
 
-## Call chain position
+| Script         | Backend   | Chain                                    |
+| -------------- | --------- | ---------------------------------------- |
+| `launch`       | anthropic | Claude Code → Headroom → CCR → rapid-mlx |
+| `launch-cloud` | bedrock   | Claude Code → Headroom → AWS Bedrock     |
 
-```
-Claude Code → Headroom (:8787) → CCR (:3456) → backends
-```
+## Installation
 
-## Optional Launch flags: LLMLingua
-
-Loads a small LM (~300MB) for higher quality compression.
-
-```
---llmlingua
---llmlingua-device mps    # options: auto, cuda, cpu, mps
+```bash
+ai-install headroom
 ```
 
+Installs `headroom-ai[all]` + `boto3` into a local venv. Registers MCP server in `~/.claude.json` with full venv path.
+
+## Memory
+
+Persistent user memory stored in a SQLite database.
+
+| Env var                | Value                         | Purpose                   |
+| ---------------------- | ----------------------------- | ------------------------- |
+| `HEADROOM_MEMORY_PATH` | `${AI_HOME}/config/.headroom` | Directory for `memory.db` |
+
+Memory features:
+- `--memory` — enable persistent memory
+- `--memory-db-path` — path to SQLite file
+- `--no-memory-tools` — disable tool injection (passive context only)
+- `--no-memory-context` — disable automatic context injection
+- `--memory-top-k 10` — number of memories injected per request
+
+MCP tools exposed to Claude Code:
+- `headroom_stats` — usage statistics
+- `headroom_compress` — manual compression
 
 ## Modes
 
-Set via `HEADROOM_MODE` env var or `--mode` flag:
+| Mode    | Description               |
+| ------- | ------------------------- |
+| `token` | Active token compression  |
+| `cache` | Cache-based deduplication |
 
-| Mode             | Description                                                                  |
-| ---------------- | ---------------------------------------------------------------------------- |
-| `token`          | Optimize for token reduction (recommended for local models)                  |
-| `cache`          | Optimize for cache hit rate (recommended for cloud APIs with prompt caching) |
-| `token_headroom` | Maximize context window headroom                                             |
+## Optional flags
 
-For local models (rapid-mlx): use `token` — fewer tokens = faster generation + longer sessions.
-For cloud APIs (Bedrock/Anthropic): use `cache` — maximizes prompt caching hits to reduce cost.
+| Flag               | Purpose                                                       |
+| ------------------ | ------------------------------------------------------------- |
+| `--code-aware`     | AST-based code compression (requires tree-sitter)             |
+| `--learn`          | Extract error→recovery patterns, writes to MEMORY.md          |
+| `--min-evidence N` | Minimum observations before persisting a pattern (default: 5) |
 
-## Usage
+## Cloud (Bedrock)
 
-## MCP tools
+`launch-cloud` uses `--backend bedrock` with AWS SSO credentials.
 
-- `headroom_compress` — manually compress a document
-- `headroom_retrieve` — retrieve compressed content (CCR — compression is reversible)
-- `headroom_stats` — compression metrics for current session
+| Env var       | Value     | Purpose         |
+| ------------- | --------- | --------------- |
+| `AWS_REGION`  | eu-west-1 | Bedrock region  |
+| `AWS_PROFILE` | default   | AWS SSO profile |
+
+Requires valid SSO session: `aws sso login --profile sbx`
+
+Note: `AWS_DEFAULT_REGION` is also exported in `launch-cloud` to force litellm/boto3 region resolution.
+
+## Claude Code integration
+
+Env vars set in `config/ai-stack.env`:
+
+```bash
+ANTHROPIC_BASE_URL="http://localhost:${HEADROOM_PORT}"
+```
+
+`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=70` triggers auto-compaction at 70% context usage to keep token count manageable.
 
 ## Env vars
 
-| Variable             | Default                 | Description                            |
-| -------------------- | ----------------------- | -------------------------------------- |
-| `HEADROOM_PORT`      | `8787`                  | Port the proxy listens on              |
-| `HEADROOM_HOST`      | `0.0.0.0`               | Host the proxy binds to                |
-| `HEADROOM_MODE`      | `token`                 | Compression strategy (see Modes above) |
-| `HEADROOM_BASE_URL`  | `http://localhost:8787` | URL for consumers (SDK, agents)        |
-| `HEADROOM_LOG_LEVEL` | `INFO`                  | Logging level                          |
-| `HEADROOM_API_KEY`   | (none)                  | API key if proxy requires auth         |
+Set in `config/ai-stack.env`:
+
+```bash
+HEADROOM_PORT=8787
+HEADROOM_MODE=token
+HEADROOM_MEMORY_PATH="${AI_HOME}/config/.headroom"
+```

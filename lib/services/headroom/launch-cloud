@@ -8,18 +8,18 @@ export AWS_DEFAULT_REGION="${AWS_REGION:-eu-west-1}"
 export AWS_REGION="${AWS_REGION:-eu-west-1}"
 
 exec "${AI_HOME}/lib/utils/supervised-launch" \
-  "$(dirname "$0")/.venv/bin/headroom" proxy \
+  "headroom" proxy \
   --port "${HEADROOM_PORT:-8787}" \
   --mode "${HEADROOM_MODE:-token}" \
   --backend bedrock \
   --region "${AWS_REGION}" \
-  --bedrock-profile "${AWS_PROFILE:-sbx}" \
+  --bedrock-profile "${AWS_PROFILE:-default}" \
   --memory \
+  --memory-db-path "${HEADROOM_MEMORY_PATH}/memory.db" \
   --code-aware \
   --no-telemetry \
   --no-subscription-tracking \
   --workers "${HEADROOM_WORKERS:-1}" \
   --log-file "${AI_HOME}/logs/headroom.log"
-  # --memory            # persistent cross-session memory
   # --learn             # learn from failures, writes to MEMORY.md
   # --code-aware        # AST-based code compression (requires tree-sitter)

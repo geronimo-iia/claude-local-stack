@@ -1,14 +1,26 @@
 #!/bin/zsh
 set -euo pipefail
 
-SERVICE_DIR="${AI_HOME}/lib/components/voicemode"
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
 
-if [[ -x "${SERVICE_DIR}/.venv/bin/voicemode" ]]; then
-  echo "  ✓ voicemode"
-  return 0
+SERVICE_DIR="${AI_HOME}/lib/services/voicemode"
+
+TOOLS=(ffmpeg node portaudio)  # host-level utilities, no version pinning
+
+for tool in "${TOOLS[@]}"; do
+  if brew list "${tool}" &>/dev/null; then
+    brew upgrade "${tool}" 2>/dev/null || true
+    echo "  ✓ ${tool}"
+  else
+    echo "  installing ${tool}…"
+    brew install "${tool}"
+  fi
+done
+
+
+if ! command -v voicemode &>/dev/null; then
+  echo "  installing voicemode"
+  uv tool install "voice-mode" --python "$(asdf where python)/bin/python"
 fi
-
-echo "  installing voicemode…"
-"$(asdf where uv)/bin/uv" venv --python "$(asdf where python)/bin/python" "${SERVICE_DIR}/.venv"
-"$(asdf where uv)/bin/uv" pip install --python "${SERVICE_DIR}/.venv/bin/python" voicemode
 echo "  ✓ voicemode"
+

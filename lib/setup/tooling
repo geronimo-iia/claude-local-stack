@@ -1,12 +1,13 @@
 #!/bin/zsh
 set -euo pipefail
 
-[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../config/ai-stack.env"
+# ffmpeg node portaudio are required by voicemode
+# we also need jq, yq, curl, and hf for various scripts and utilities
+TOOLS=(jq yq curl hf ffmpeg node portaudio)  # host-level utilities, no version pinning
 
 echo "── tooling ──"
 
-TOOLS=(jq yq curl hf)  # host-level utilities, no version pinning
-
+echo "checking tools: ${TOOLS[*]}"
 for tool in "${TOOLS[@]}"; do
   if brew list "${tool}" &>/dev/null; then
     brew upgrade "${tool}" 2>/dev/null || true

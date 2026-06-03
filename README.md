@@ -1,59 +1,119 @@
-# ai-stack
+# claude-local-stack
 
-Local AI stack for Claude Code on Apple Silicon. Fully offline multi-model routing, token compression, voice, and prompt optimization.
+> **Requires Apple Silicon (M1/M2/M3/M4)** — MLX inference is ARM-only. macOS only.
+
+Local AI stack for Claude Code on Apple Silicon.
+Configuration per profile:
+- offline mono or multi-model routing,
+- cloud
+With token optimization
+
+Since I work with many llm model and tool, it was time for me to try to manage all the mess in a more rational way.
+This stack is far from state of the art, but it help me a lot for :
+- my daily job
+- encrypt secret (and don't wrote them everywhere ...)
+- manage token compression, plugins configuration
+- start playing with voice (STT/TTS) integration
+- experimenting model
+
+I know that my installation and scripts are macos only...
+But with the help of an agent and local docs, i'm sure that you could translate all this stack for your personal computer.
+
 
 ## Architecture
 
-```
-Claude Code → Headroom (:8787) → CCR (:3456) → rapid-mlx (:8000-8002) / Bedrock
+### Default Profile (fully local)
+
+```mermaid
+flowchart LR
+    CC[Claude Code] --> H[Headroom :8787]
+    H --> CCR[CCR :3456]
+    CCR --> R[rapid-mlx :8000]
+    R --> M[Qwen3.6-35B-A3B MLX]
 ```
 
-| Component | Role                       | Port      |
-| --------- | -------------------------- | --------- |
-| Headroom  | Token compression proxy    | 8787      |
-| CCR       | Multi-provider task router | 3456      |
-| rapid-mlx | Local MLX inference        | 8000-8002 |
-| Bedrock   | AWS cloud fallback         | —         |
+### Cloud Profile (AWS Bedrock)
+
+```mermaid
+flowchart LR
+    CC[Claude Code] --> H[Headroom :8787]
+    H --> B[AWS Bedrock]
+    B --> Claude[Claude Sonnet/Opus]
+```
+
+### Components
+
+| Component                                               | Role                       | Port  |
+| ------------------------------------------------------- | -------------------------- | ----- |
+| [Headroom](https://github.com/nicobailon/headroom)      | Token compression proxy    | 8787  |
+| [CCR](https://github.com/musistudio/claude-code-router) | Multi-provider task router | 3456  |
+| [rapid-mlx](https://github.com/argmaxinc/rapid-mlx)     | Local MLX inference server | 8000+ |
+| [AWS Bedrock](https://aws.amazon.com/bedrock/)          | Cloud LLM provider         | —     |
+
+### Claude Plugins (token saving)
+
+| Plugin                                                 |
+| ------------------------------------------------------ |
+| [RTK](https://github.com/nicobailon/rtk)               |
+| [caveman](https://github.com/cyanheads/caveman)        |
+| [context-mode](https://github.com/mksglu/context-mode) |
+
+### Claude Plugins (daily use)
+
+| Plugin                                                |
+| ----------------------------------------------------- |
+| [superpowers](https://claude.com/plugins/superpowers) |
+| [atlassian](https://claude.com/plugins/atlassian)     |
+
+### Stack Technologies
+
+| Tool                                                                                | Role                     | Link        |
+| ----------------------------------------------------------------------------------- | ------------------------ | ----------- |
+| [asdf](https://github.com/asdf-vm/asdf)                                             | Runtime version manager  | plugins     |
+| [uv](https://github.com/astral-sh/uv)                                               | Python package manager   | venvs       |
+| [Homebrew](https://github.com/Homebrew/brew)                                        | macOS package manager    | formulae    |
+| [overmind](https://github.com/DarthSim/overmind)                                    | Procfile process manager | tmux-backed |
+| [SOPS](https://github.com/getsops/sops) + [age](https://github.com/FiloSottile/age) | Secrets encryption       | —           |
+
+### Stack Runtimes
+
+| Runtime                                            | Managed via | Notes                       |
+| -------------------------------------------------- | ----------- | --------------------------- |
+| [Python 3.12.x](https://github.com/python/cpython) | asdf        | ML compatibility            |
+| [Node 22.x LTS](https://github.com/nodejs/node)    | asdf        | Claude Code / CCR           |
+| [Rust](https://github.com/rust-lang/rust)          | asdf        | needed for some Python deps |
+
 
 ## Quick start
 
-```bash
-# Prerequisites
-# - macOS Apple Silicon (M3 Max 128 GB recommended)
-# - asdf (plugins: python, nodejs, uv)
-# - overmind + tmux
-# - sops + age
+1. clone this repository "cd ${HOME} && git clone ..."
+2. [configure your shell](./docs/integration.md#Shell)
+3. Install tools: `ai-install`
+4. use [ai-secret](./docs/secrets.md) to set your local secret like `ANTHROPIC_API_KEY`, `HF_TOKEN`, ...
+5. Activate a profile: `ai-stack profile default`
+6. boot: `ai-stack start`
+7. launch Claude: `aclaude`, or VS Code: `acode`
+   (`aclaude`/`acode` are shell aliases injected by `ai-stack shell` — see [docs/integration.md](docs/integration.md))
 
-# Install
-ai-install
-ai-models pull
-
-# Activate a profile, boot, and launch Claude
-ai-stack profile default
-ai-stack start
-ai-stack shell
-claude
-```
 
 ## Profiles
 
-Switch routing strategy, models, and services per workflow.
+Switch routing strategy, models, and services per workflow:
 
-| Profile | Local models             | Cloud fallback | Services                          |
-| ------- | ------------------------ | -------------- | --------------------------------- |
-| default | Yes (Qwen3.6-35B)        | No             | headroom, ccr, rapid-mlx          |
-| local   | Yes (Qwen3.6, 27B, 235B) | No             | headroom, ccr, rapid-mlx x3       |
-| hybrid  | Yes                      | Bedrock        | headroom, ccr, rapid-mlx, Bedrock |
-| cloud   | No                       | Bedrock        | ccr, Bedrock                      |
+- `default`: [local only](./config/profiles/default/readme.md) — no cloud account needed
+- `cloud`: [aws bedrock](./config/profiles/cloud/readme.md) — requires AWS CLI configured with Bedrock access (`aws configure`, model access enabled in us-east-1 or eu-west-1)
+
 
 ```bash
-ai-stack profile hybrid   # switch profile
+ai-stack profile default   # switch profile
 ai-stack profile          # show current
 ```
 
 See [docs/profiles.md](docs/profiles.md) for routing matrix and details.
 
 ## CLI reference
+
+See [docs/cli.md](docs/cli.md) for full reference.
 
 ### Stack management
 
@@ -88,6 +148,9 @@ ai-secrets rotate           # rotate keys
 
 ### Models
 
+Even if this client sit on top of hf (hugging face), I still like to see somewhere a list of my [model](./config/models.yaml) than I use ...
+This cli use hugging face local cache to store them, as most of our tool use it, it fix my fears....
+
 ```bash
 ai-models pull              # download all
 ai-models pull llm          # download a category
@@ -99,6 +162,8 @@ See [docs/cli.md](docs/cli.md) for full reference.
 ## Integration
 
 Point any tool at `http://localhost:8787` with `ANTHROPIC_API_KEY=local`.
+
+> `ANTHROPIC_API_KEY=local` is a sentinel value — Headroom intercepts requests at port 8787 and routes them to the active profile backend. No real Anthropic key is sent when using local/Bedrock profiles.
 
 | Tool                 | Config                                                                   |
 | -------------------- | ------------------------------------------------------------------------ |
@@ -113,7 +178,7 @@ ai-stack/
 ├── bin/              # CLI tools (ai-stack, ai-install, ai-secrets, ai-models)
 ├── config/
 │   ├── ai-stack.env  # project paths
-│   ├── profiles/     # profile definitions (default, local, hybrid, cloud)
+│   ├── profiles/     # profile definitions (default, cloud, ...)
 │   ├── Procfile      # active service definitions
 │   └── models.yaml   # model manifest
 ├── lib/
@@ -136,12 +201,12 @@ ai-stack/
 
 ## Docs
 
-| Topic         | File                                           |
-| ------------- | ---------------------------------------------- |
-| CLI           | [docs/cli.md](docs/cli.md)                     |
-| Profiles      | [docs/profiles.md](docs/profiles.md)           |
-| Components    | [docs/components.md](docs/components.md)       |
-| Integration   | [docs/integration.md](docs/integration.md)     |
-| Models        | [docs/models.md](docs/models.md)               |
-| Secrets       | [docs/secrets.md](docs/secrets.md)             |
-| Test protocol | [docs/test-protocol.md](docs/test-protocol.md) |
+| Topic       | File                                       |
+| ----------- | ------------------------------------------ |
+| CLI         | [docs/cli.md](docs/cli.md)                 |
+| Profiles    | [docs/profiles.md](docs/profiles.md)       |
+| Components  | [docs/components.md](docs/components.md)   |
+| Integration | [docs/integration.md](docs/integration.md) |
+| Models      | [docs/models.md](docs/models.md)           |
+| Secrets     | [docs/secrets.md](docs/secrets.md)         |
+| Overmind    | [docs/overmind.md](docs/overmind.md)       |

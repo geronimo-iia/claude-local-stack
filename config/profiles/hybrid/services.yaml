@@ -1,4 +1,0 @@
-install:
-  - headroom
-  - claude-code-router
-  - rapid-mlx

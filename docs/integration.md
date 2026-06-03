@@ -2,27 +2,21 @@
 
 Entry point for all tools: `http://localhost:8787` with `ANTHROPIC_API_KEY=local`.
 
-## Prerequisites
-
-1. Profile active: `ai-stack profile default`
-2. Stack running: `ai-stack start`
-3. For Bedrock profiles: `aws sso login --profile devops`
+See [README quick start](../README.md#quick-start) for prerequisites (profile active, stack running).
 
 ## Claude Code (CLI)
 
-Env vars exported by `ai-stack shell`:
-
 ```bash
-ANTHROPIC_BASE_URL=http://localhost:8787
-ANTHROPIC_API_KEY=local
+aclaude
 ```
 
+## VS Code
+
 ```bash
-ai-stack shell
-claude
+acode
 ```
 
-## VS Code — Continue
+### Continue extension
 
 `.continue/config.yaml`:
 
@@ -35,7 +29,7 @@ models:
     model: arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8
 ```
 
-## VS Code — Claude extension
+### Claude extension
 
 `settings.json`:
 
@@ -46,10 +40,10 @@ models:
 }
 ```
 
-## Shell aliases
+## Shell
 
 ```bash
-export PATH="${HOME}/ai-stack/bin:$PATH"
+export PATH="${HOME}/claude-stack/bin:$PATH"
 
 # Stack
 alias ais="ai-stack start"

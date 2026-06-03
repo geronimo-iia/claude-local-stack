@@ -5,6 +5,11 @@ set -euo pipefail
 
 source "$(dirname "$0")/../config/ai-stack.env"
 
+# asdf reads .tool-versions from cwd — must run from AI_HOME
+_CALLER_DIR="${PWD}"
+cd "${AI_HOME}"
+trap 'cd "${_CALLER_DIR}"' EXIT
+
 if ! command -v overmind &>/dev/null; then
   echo "error: overmind not found. Run: ai-install" >&2
   exit 1
@@ -81,7 +86,9 @@ _activate_profile() {
 
   # CCR routing config → ~/.claude-code-router/config.json
   mkdir -p "$HOME/.claude-code-router"
-  cp "$dir/ccr.json" "$HOME/.claude-code-router/config.json"
+  if [[ -f "$dir/ccr.json" ]]; then
+    cp "$dir/ccr.json" "$HOME/.claude-code-router/config.json"
+  fi
 
   # rapid-mlx instance definitions (optional — cloud profile has none)
   if [[ -f "$dir/rapid-mlx.yaml" ]]; then
@@ -205,8 +212,41 @@ case "${1:-help}" in
       echo "✓ Stack restarted"
     fi
     ;;
+  plugin|service)
+    local kind="${1}"
+    shift
+    local action="${1:-}"
+    if [[ -z "$action" || ! "$action" =~ ^(install|upgrade|remove)$ ]]; then
+      echo "Usage: ai-stack ${kind} {install|upgrade|remove} <name...>" >&2
+      exit 1
+    fi
+    shift
+    if [[ $# -eq 0 ]]; then
+      echo "error: specify at least one ${kind} name" >&2
+      exit 1
+    fi
+    local lib_dir
+    case "$kind" in
+      plugin)  lib_dir="${AI_HOME}/lib/plugins" ;;
+      service) lib_dir="${AI_HOME}/lib/services" ;;
+    esac
+    for name in "$@"; do
+      local script="${lib_dir}/${name}/install"
+      # setup components live under lib/setup/<name>/install
+      if [[ ! -f "$script" && "$kind" == "service" ]]; then
+        script="${AI_HOME}/lib/setup/${name}/install"
+      fi
+      if [[ ! -f "$script" ]]; then
+        echo "error: unknown ${kind} '${name}'" >&2
+        echo "Available: $(ls "${lib_dir}" | tr '\n' ' ')" >&2
+        exit 1
+      fi
+      echo "── ${kind} ${action}: ${name} ──"
+      source "$script" "$action"
+    done
+    ;;
   *)
-    echo "Usage: ai-stack {start|stop|restart|status|enable|disable|logs|profile} [service...]"
+    echo "Usage: ai-stack {start|stop|restart|status|enable|disable|logs|profile|plugin|service} [args...]"
     echo ""
     echo "Commands:"
     echo "  start              Start all services (daemonized)"
@@ -218,6 +258,10 @@ case "${1:-help}" in
     echo "  logs [svc]         Stream all output, or attach to one service"
     echo "  shell [cmd...]     Run command with stack env, or open subshell"
     echo "  profile [name]     Switch routing profile (default|local|hybrid|cloud)"
+    echo "  plugin  {install|upgrade|remove} <name...>"
+    echo "                     Manage Claude Code plugins"
+    echo "  service {install|upgrade|remove} <name...>"
+    echo "                     Manage stack services and setup components (e.g. claude-code)"
     echo ""
     echo "Services defined in: ${OVERMIND_PROCFILE}"
     ;;

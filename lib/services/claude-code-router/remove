@@ -1,9 +1,0 @@
-#!/bin/zsh
-set -euo pipefail
-
-if command -v ccr &>/dev/null; then
-  npm uninstall -g @musistudio/claude-code-router
-  echo "  ✓ claude-code-router removed"
-else
-  echo "  ✓ claude-code-router (not installed)"
-fi

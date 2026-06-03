@@ -1,64 +1,166 @@
-# ai-stack
+# ai-stack — Reference
 
-Local AI development stack. Routes LLM requests through a proxy chain to local models (MLX) or cloud (Bedrock).
+Local AI inference infrastructure for Claude Code on Apple Silicon. Provides offline multi-model routing, token compression, voice, and AWS Bedrock fallback.
 
-## Call chain
+## Architecture
 
 ```
-Claude Code → Headroom (:8787) → CCR (:3456) → rapid-mlx (:8000) / Bedrock
+Claude Code → Headroom (:8787) → CCR (:3456) → rapid-mlx (:8000-8002)
+                                              → AWS Bedrock
 ```
 
-| Component | Role                               |
-| --------- | ---------------------------------- |
-| Headroom  | Token compression proxy            |
-| CCR       | Multi-provider router (task-based) |
-| rapid-mlx | Local MLX inference server         |
-| Bedrock   | AWS cloud fallback                 |
-
-## Quick start
-
-```bash
-ai-install              # install everything
-ai-stack profile default  # activate a profile
-ai-stack start          # boot services
-ai-stack shell          # open shell with env loaded, then run: claude
+Cloud profile bypasses CCR:
 ```
-
-## Integration
-
-Point any tool at `http://localhost:8787` with `ANTHROPIC_API_KEY=local`.
-
-These are exported automatically by `ai-stack shell`:
-```bash
-ANTHROPIC_BASE_URL=http://localhost:8787
-ANTHROPIC_API_KEY=local
+Claude Code → Headroom (:8787, --backend bedrock) → AWS Bedrock
 ```
 
 ## Repository layout
 
 ```
-ai-stack/
-├── bin/                        # CLI tools (ai-stack, ai-install, ai-secrets, ai-models)
-├── config/
-│   ├── ai-stack.env            # project paths (AI_HOME, SOPS_AGE_KEY_FILE)
-│   ├── Procfile                # active service definitions (copied from profile)
-│   ├── rapid-mlx.yaml          # active rapid-mlx config (copied from profile)
-│   ├── .active-profile         # current profile name
-│   └── profiles/               # profile definitions (see profiles.md)
-├── lib/
-│   ├── setup/                  # bootstrap scripts (prerequisites, runtimes, tooling)
-│   ├── services/               # long-running daemons (rapid-mlx, headroom, ccr, ...)
-│   ├── plugins/                # install-only extensions (rtk, context-mode, ...)
-│   └── utils/                  # helper scripts
-├── secrets/                    # SOPS-encrypted API keys (see secrets.md)
-├── logs/                       # runtime logs (gitignored)
-└── docs/
+bin/              # CLI entry points (ai-stack, ai-install, ai-secrets, ai-models)
+config/
+  ai-stack.env   # env vars, ports, Overmind config
+  profiles/      # default | local | hybrid | cloud — each has Procfile + ccr.json + rapid-mlx.yaml
+  Procfile       # active service definitions (copied from active profile)
+  models.yaml    # model manifest (HuggingFace repo IDs)
+lib/
+  setup/         # bootstrap scripts (prerequisites, runtimes, tooling)
+  services/      # daemons: rapid-mlx, headroom, claude-code-router, voicemode
+  plugins/       # Claude Code extensions: rtk, context-mode, superpowers, caveman, drawio, atlassian
+  utils/         # supervised-launch (restart wrapper), token-savings (dashboard)
+secrets/         # SOPS + age encrypted secrets (age-key.txt and api-keys.sops.yaml are gitignored)
+logs/            # runtime output (gitignored)
+docs/            # reference docs per topic
 ```
 
-## What's gitignored
+## Key files
 
-- `secrets/age-key.txt` — private key
-- `secrets/api-keys.sops.yaml` — encrypted secrets
-- `config/.active-profile` — runtime state
-- `logs/` — runtime output
-- `lib/services/*/.venv/` — recreated via install
+| File | Purpose |
+|------|---------|
+| `config/ai-stack.env` | All env vars — sourced first before anything else |
+| `config/.active-profile` | Current profile name (runtime state, gitignored) |
+| `config/profiles/*/ccr.json` | Router rules per profile (task → model mapping) |
+| `config/profiles/*/Procfile` | Services to run per profile |
+| `config/profiles/*/rapid-mlx.yaml` | Model instance definitions per profile |
+| `config/profiles/*/services.yaml` | Services to install on profile activation |
+| `lib/utils/supervised-launch` | Restart wrapper: 5 attempts / 60s window, exponential backoff |
+| `lib/utils/token-savings` | CLI dashboard showing RTK + Headroom token savings |
+
+## Stack management
+
+```bash
+ai-stack start              # start all services (daemonized via Overmind)
+ai-stack stop               # stop all
+ai-stack restart [svc]      # restart all or one service
+ai-stack status             # running processes
+ai-stack enable <svc...>    # uncomment in Procfile, restart if running
+ai-stack disable <svc...>   # comment in Procfile, restart if running
+ai-stack logs [svc]         # stream all output, or attach to one service (tmux)
+ai-stack profile            # show active profile
+ai-stack profile <name>     # switch profile (default|local|hybrid|cloud)
+ai-stack shell [cmd]        # subshell with stack env + secrets loaded
+ai-stack plugin  {install|upgrade|remove} <name...>
+ai-stack service {install|upgrade|remove} <name...>
+```
+
+## Installation
+
+```bash
+ai-install                  # full install (bootstrap → services → plugins)
+ai-install setup            # bootstrap only (prerequisites, runtimes, tooling)
+ai-install services         # all services (sorted by priority)
+ai-install plugins          # all plugins (sorted by priority)
+```
+
+Each component under `lib/services/` or `lib/plugins/` has an `install` script. Services also have a `launch` script (called by Overmind via Procfile).
+
+## Profiles
+
+| Profile | Local models | Cloud | Services |
+|---------|:---:|:---:|---------|
+| default | Qwen3.6-35B-A3B (MoE) | — | headroom, ccr, rapid-mlx |
+| local | Qwen3.6-35B + 27B + 235B | — | headroom, ccr, rapid-mlx ×3 |
+| hybrid | Qwen3.6-35B + 27B | Bedrock (think/longContext) | headroom, ccr, rapid-mlx ×2 |
+| cloud | — | Bedrock only | headroom (bedrock backend) |
+
+Switching profile: copies `Procfile` (+ `ccr.json` + `rapid-mlx.yaml` if present) from profile dir to runtime locations.
+
+## Secrets
+
+Secrets encrypted with SOPS + age. Never stored in plaintext in any committed file.
+
+```bash
+ai-secrets init             # generate age key + SOPS config
+ai-secrets create           # create encrypted secrets file
+ai-secrets edit             # decrypt → edit → re-encrypt
+ai-secrets get <key>        # print one decrypted value
+ai-secrets list             # show key names (no values)
+ai-secrets show             # print all decrypted key/values
+ai-secrets env              # emit export KEY=VALUE lines (used at stack start)
+ai-secrets rotate           # rotate encryption keys
+```
+
+Private key: `secrets/age-key.txt` (gitignored). Encrypted file: `secrets/api-keys.sops.yaml` (gitignored).
+
+## Models
+
+```bash
+ai-models pull              # download all from manifest
+ai-models pull llm          # download a category
+ai-models list              # show manifest with download status
+```
+
+Manifest: `config/models.yaml`. Models stored in `~/.cache/huggingface/hub/`.
+
+## Service crash handling
+
+All service `launch` scripts delegate to `lib/utils/supervised-launch`. This wrapper:
+- Restarts the process up to 5 times within a 60-second window
+- Uses exponential backoff: 1s → 2s → 4s → 8s → 16s (capped at 30s)
+- Exits cleanly (code 1) on crash loop — Overmind marks service dead, no infinite loop
+- Resets counter if process ran longer than 60s (transient failure, not crash loop)
+
+`OVERMIND_ANY_CAN_DIE=true` — one dead service does not stop others.
+
+## Adding a service
+
+1. Create `lib/services/<name>/`
+2. Add `install` script (idempotent)
+3. Add `launch` script — must `exec` into `supervised-launch`:
+   ```bash
+   exec "${AI_HOME}/lib/utils/supervised-launch" <binary> [args...]
+   ```
+4. Add entry to relevant profile `Procfile`s
+5. Optional: `priority` file (integer, lower = installed first), `remove` script, `readme.md`
+
+## Environment variables
+
+| Var | Default | Purpose |
+|-----|---------|---------|
+| `AI_HOME` | resolved from `ai-stack.env` location | project root |
+| `AI_STACK_AUTO_INSTALL` | `true` | run install on profile switch |
+| `HEADROOM_PORT` | 8787 | token compression proxy port |
+| `HEADROOM_MODE` | token | compression mode (token, cache) |
+| `HEADROOM_MEMORY_PATH` | `${AI_HOME}/config/.headroom` | SQLite memory DB path |
+| `CCR_PORT` | 3456 | router port |
+| `ANTHROPIC_BASE_URL` | `http://localhost:8787` | Claude Code entry point |
+| `ANTHROPIC_API_KEY` | `local` | placeholder key for local routing |
+| `AWS_PROFILE` | sbx | AWS profile for Bedrock |
+| `AWS_REGION` | eu-west-1 | AWS region |
+| `ENABLE_TOOL_SEARCH` | `true` | Claude Code tool search |
+| `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | 70 | auto-compaction threshold (% context) |
+| `OVERMIND_PROCFILE` | `config/Procfile` | active service definitions |
+| `OVERMIND_SOCKET` | `$TMPDIR/ai-stack.overmind.sock` | Overmind IPC socket |
+| `OVERMIND_ANY_CAN_DIE` | true | services can die independently |
+
+## Docs index
+
+| Topic | File |
+|-------|------|
+| CLI reference | [cli.md](cli.md) |
+| Profiles | [profiles.md](profiles.md) |
+| Components | [components.md](components.md) |
+| Integration | [integration.md](integration.md) |
+| Models | [models.md](models.md) |
+| Secrets | [secrets.md](secrets.md) |
+| Overmind | [overmind.md](overmind.md) |

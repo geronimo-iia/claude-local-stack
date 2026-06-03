@@ -3,11 +3,35 @@ set -euo pipefail
 
 [[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
 
-# Install
-if claude plugin list 2>/dev/null | grep -q "superpowers@claude-plugins-official"; then
-  echo "  ✓ superpowers"
-else
-  echo "  installing superpowers…"
-  claude plugin install superpowers@claude-plugins-official
-  echo "  ✓ superpowers"
-fi
+
+
+
+case "${1:-install}" in
+  remove)
+    if claude plugin list 2>/dev/null | grep -q "superpowers@claude-plugins-official"; then
+      echo "  uninstalling superpowers…"
+      claude plugin uninstall --keep-data superpowers@claude-plugins-official
+    fi
+    echo "  ✓ superpowers removed"
+    ;;
+  upgrade)
+    echo "  upgrading superpowers…"
+    claude plugin update superpowers@claude-plugins-official
+    echo "  ✓ superpowers upgraded"
+    ;;
+  install)
+    if claude plugin list 2>/dev/null | grep -q "superpowers@claude-plugins-official"; then
+      echo "  ✓ superpowers"
+    else
+      echo "  installing superpowers…"
+      claude plugin install superpowers@claude-plugins-official
+      echo "  ✓ superpowers"
+    fi
+
+
+    ;;
+  *)
+    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, or remove." >&2
+    exit 1
+    ;;
+esac

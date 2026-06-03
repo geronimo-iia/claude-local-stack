@@ -25,4 +25,4 @@ lib/services/rapid-mlx/launch [role] [--dry-run]
 
 ## Docs
 
-See [docs/rapid-mlx.md](../../../docs/rapid-mlx.md) for full configuration reference.
+See [docs/rapid-mlx.md](../../../docs/components.md#rapid-mlx-configuration) for full configuration reference.

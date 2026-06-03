@@ -12,7 +12,6 @@ Components live under `lib/` in two categories:
 ```
 lib/services/headroom/
 ├── install          # idempotent install script (required)
-├── remove           # uninstall script (optional)
 ├── launch           # start the daemon (services only)
 ├── priority         # install order integer (optional, default: 50)
 └── readme.md        # description (optional)
@@ -25,6 +24,7 @@ lib/services/headroom/
 | rapid-mlx          | Local MLX inference     | 8000-8002 |
 | headroom           | Token compression proxy | 8787      |
 | claude-code-router | Multi-provider router   | 3456      |
+| voicemode          | Voice I/O (STT + TTS)  | 8765      |
 
 ## Plugins
 
@@ -61,9 +61,12 @@ instances:
 | model             |    ✓     | HuggingFace repo ID                                                |
 | embedding_model   |          | HuggingFace repo ID for embeddings                                 |
 | max_tokens        |          | Max output tokens (default: 32768)                                 |
-| tool_call_parser  |          | Parser for tool calls: `auto`, `qwen`, `qwen3_xml`, `hermes`, etc. |
+| tool_call_parser  |          | Parser for tool calls: `auto`, `qwen3_coder`, `qwen3_xml`, `hermes`, etc. |
 | reasoning_parser  |          | Reasoning extraction: `qwen3`, `deepseek_r1`, `gemma4`, etc.       |
 | paged_cache       |          | Enable paged KV cache (`true`/`false`)                             |
+| no_thinking       |          | Disable thinking/reasoning output (`true`/`false`)                 |
+| mtp               |          | Enable multi-token prediction (`true`/`false`)                     |
+| suffix_decoding   |          | Enable suffix decoding (`true`/`false`)                            |
 | temperature       |          | Default sampling temperature                                       |
 | top_p             |          | Default top-p sampling                                             |
 | trust_remote_code |          | Allow remote code execution for model loading                      |
@@ -82,4 +85,4 @@ instances:
 1. Create directory under `lib/services/` or `lib/plugins/`
 2. Add `install` script (idempotent, sourced by ai-install)
 3. For services: add `launch` script + Procfile entry in relevant profiles
-4. Optional: `priority`, `remove`, `readme.md`
+4. Optional: `priority`, `readme.md`

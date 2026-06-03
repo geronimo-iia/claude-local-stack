@@ -1,0 +1,34 @@
+#!/bin/zsh
+set -euo pipefail
+
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+
+
+case "${1:-install}" in
+  remove)
+    if claude plugin list 2>/dev/null | grep -q "andrej-karpathy-skills@karpathy-skills"; then
+      echo "  uninstalling karpathy-skills…"
+      claude plugin uninstall --keep-data andrej-karpathy-skills@karpathy-skills
+    fi
+    echo "  ✓ karpathy-skills removed"
+    ;;
+  upgrade)
+    echo "  upgrading karpathy-skills…"
+    claude plugin upgrade andrej-karpathy-skills@karpathy-skills
+    echo "  ✓ karpathy-skills upgraded"
+    ;;
+  install)
+    if claude plugin list 2>/dev/null | grep -q "andrej-karpathy-skills@karpathy-skills"; then
+      echo "  ✓ karpathy-skills"
+    else
+      echo "  installing karpathy-skills…"
+      claude plugin marketplace add forrestchang/andrej-karpathy-skills
+      claude plugin install andrej-karpathy-skills@karpathy-skills
+      echo "  ✓ karpathy-skills"
+    fi
+    ;;
+  *)
+    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, or remove." >&2
+    exit 1
+    ;;
+esac

@@ -4,16 +4,41 @@ set -euo pipefail
 [[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
 
 # Install
-if command -v rtk &>/dev/null; then
-  echo "  ✓ rtk ($(rtk --version))"
-else
-  echo "  installing rtk…"
-  brew install rtk-ai/tap/rtk
-  echo "  ✓ rtk ($(rtk --version))"
-fi
 
-# Configure claude-code
-if ! grep -q "rtk hook claude" ~/.claude/settings.json 2>/dev/null; then
-  rtk init --global
-fi
-echo "  ✓ rtk registered in claude-code"
+
+case "${1:-install}" in
+  remove)    
+    if command -v rtk &>/dev/null; then
+      brew uninstall rtk
+      echo "  ✓ rtk removed"
+    else
+      echo "  ✓ rtk (not installed)"
+    fi
+
+    ;;
+  upgrade)
+    echo "  upgrading caveman…"
+    brew upgrade rtk-ai/tap/rtk
+    echo "  ✓ rtk upgraded"
+    ;;
+  install)
+    if command -v rtk &>/dev/null; then
+      echo "  ✓ rtk ($(rtk --version))"
+    else
+      echo "  installing rtk…"
+      brew install rtk-ai/tap/rtk
+      echo "  ✓ rtk ($(rtk --version))"
+    fi
+
+    # Configure claude-code
+    if ! grep -q "rtk hook claude" ~/.claude/settings.json 2>/dev/null; then
+      rtk init --global
+    fi
+    echo "  ✓ rtk registered in claude-code"
+
+    ;;
+  *)
+    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, or remove." >&2
+    exit 1
+    ;;
+esac

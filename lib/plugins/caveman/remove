@@ -1,9 +1,0 @@
-#!/bin/zsh
-set -euo pipefail
-
-if claude plugin list 2>/dev/null | grep -q "caveman@caveman"; then
-  claude plugin uninstall --keep-data caveman@caveman
-  echo "  ✓ caveman removed"
-else
-  echo "  ✓ caveman (not installed)"
-fi

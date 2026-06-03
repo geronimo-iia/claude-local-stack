@@ -85,7 +85,9 @@ ai-stack profile hybrid      # resets Procfile to profile's definition
 The cloud profile bypasses CCR entirely. Headroom talks directly to AWS Bedrock:
 
 ```
-Claude Code → Headroom (:8787, backend=bedrock) → AWS Bedrock
+Claude Code → Headroom (:8787, --backend bedrock) → AWS Bedrock
 ```
 
 Uses `launch-cloud` script with `--backend bedrock` and AWS SSO credentials.
+
+No `ccr.json` or `rapid-mlx.yaml` in this profile.

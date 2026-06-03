@@ -1,9 +1,0 @@
-#!/bin/zsh
-set -euo pipefail
-
-if command -v rtk &>/dev/null; then
-  brew uninstall rtk
-  echo "  ✓ rtk removed"
-else
-  echo "  ✓ rtk (not installed)"
-fi

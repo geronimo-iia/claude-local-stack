@@ -1,0 +1,28 @@
+#!/bin/zsh
+set -euo pipefail
+
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+
+case "${1:-install}" in
+  remove)
+    echo "  uninstalling ollama…"
+    brew uninstall ollama
+    echo "  ✓ ollama uninstalled"
+    ;;
+  upgrade)
+    echo "  upgrading ollama…"
+    brew upgrade ollama
+    echo "  ✓ ollama upgraded"
+    ;;
+  install)
+    if ! command -v ollama &>/dev/null; then
+      echo "  installing ollama…"
+      brew install ollama
+    fi
+    echo "  ✓ ollama ($(ollama --version))"
+    ;;
+  *)
+    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, or remove." >&2
+    exit 1
+    ;;
+esac

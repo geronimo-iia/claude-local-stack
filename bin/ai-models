@@ -40,6 +40,40 @@ pull_category() {
   done <<< "$repos"
 }
 
+pull_ollama_category() {
+  local repos=$(parse_repos "ollama")
+  [[ -z "$repos" ]] && return 0
+  if ! command -v ollama &>/dev/null; then
+    echo "warning: 'ollama' not found — skipping ollama models" >&2
+    return 0
+  fi
+  echo "── ollama ──"
+  while read -r model; do
+    echo "  ↓ ${model}…"
+    ollama pull "$model"
+    echo "  ✓ ${model}"
+  done <<< "$repos"
+}
+
+list_ollama_models() {
+  local repos=$(parse_repos "ollama")
+  [[ -z "$repos" ]] && return 0
+  if ! command -v ollama &>/dev/null; then
+    echo "ollama: (ollama not installed)"
+    return 0
+  fi
+  local pulled
+  pulled=$(ollama list 2>/dev/null | awk 'NR>1 {print $1}' | sed 's/:latest$//')
+  echo "ollama:"
+  while read -r model; do
+    if echo "$pulled" | grep -qx "$model"; then
+      echo "  ✓ ${model}"
+    else
+      echo "  ✗ ${model}"
+    fi
+  done <<< "$repos"
+}
+
 list_models() {
   for category in llm embedding; do
     local repos=$(parse_repos "$category")
@@ -55,6 +89,7 @@ list_models() {
       fi
     done <<< "$repos"
   done
+  list_ollama_models
 }
 
 usage() {
@@ -66,9 +101,11 @@ Commands:
   list            Show manifest with download status
 
 Examples:
-  ai-models pull                              # download all
-  ai-models pull llm                          # just LLMs
-  ai-models pull mlx-community/bge-m3-4bit   # one specific model
+  ai-models pull                              # download all (hf + ollama)
+  ai-models pull llm                          # just LLMs (HuggingFace)
+  ai-models pull embedding                    # just embeddings (HuggingFace)
+  ai-models pull ollama                       # just Ollama models
+  ai-models pull mlx-community/bge-m3-4bit   # one specific HuggingFace model
   ai-models list                              # show status
 EOF
 }
@@ -78,10 +115,12 @@ case "${1:-}" in
     shift
     if [[ $# -eq 0 ]]; then
       for cat in llm embedding; do pull_category "$cat"; done
+      pull_ollama_category
     else
       for target in "$@"; do
         case "$target" in
           llm|embedding) pull_category "$target" ;;
+          ollama) pull_ollama_category ;;
           *) hf download "$target" --quiet ;;
         esac
       done

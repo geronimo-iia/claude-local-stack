@@ -1,0 +1,3 @@
+ollama: ${AI_HOME}/lib/services/ollama/launch
+headroom: ${AI_HOME}/lib/services/headroom/launch
+ccr: ${AI_HOME}/lib/services/claude-code-router/launch

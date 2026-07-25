@@ -6,6 +6,7 @@ Local AI inference infrastructure for Claude Code on Apple Silicon. Provides off
 
 ```
 Claude Code → Headroom (:8787) → CCR (:3456) → rapid-mlx (:8000-8002)
+                                              → Ollama (:11434)
                                               → AWS Bedrock
 ```
 
@@ -41,7 +42,7 @@ docs/            # reference docs per topic
 | `config/.active-profile` | Current profile name (runtime state, gitignored) |
 | `config/profiles/*/ccr.json` | Router rules per profile (task → model mapping) |
 | `config/profiles/*/Procfile` | Services to run per profile |
-| `config/profiles/*/rapid-mlx.yaml` | Model instance definitions per profile |
+| `config/profiles/*/rapid-mlx.yaml` | Model instance definitions per profile (rapid-mlx profiles only) |
 | `config/profiles/*/services.yaml` | Services to install on profile activation |
 | `lib/utils/supervised-launch` | Restart wrapper: 5 attempts / 60s window, exponential backoff |
 | `lib/utils/token-savings` | CLI dashboard showing RTK + Headroom token savings |
@@ -81,6 +82,7 @@ Each component under `lib/services/` or `lib/plugins/` has an `install` script. 
 | default | Qwen3.6-35B-A3B (MoE) | — | headroom, ccr, rapid-mlx |
 | local | Qwen3.6-35B + 27B + 235B | — | headroom, ccr, rapid-mlx ×3 |
 | hybrid | Qwen3.6-35B + 27B | Bedrock (think/longContext) | headroom, ccr, rapid-mlx ×2 |
+| mistral | Mistral Large 2 (123B) | — | headroom, ccr, ollama |
 | cloud | — | Bedrock only | headroom (bedrock backend) |
 
 Switching profile: copies `Procfile` (+ `ccr.json` + `rapid-mlx.yaml` if present) from profile dir to runtime locations.
@@ -138,6 +140,11 @@ All service `launch` scripts delegate to `lib/utils/supervised-launch`. This wra
 | Var | Default | Purpose |
 |-----|---------|---------|
 | `AI_HOME` | resolved from `ai-stack.env` location | project root |
+| `OLLAMA_FLASH_ATTENTION` | `1` | Halves KV-cache memory on Apple Silicon |
+| `OLLAMA_KV_CACHE_TYPE` | `q8_0` | Quantizes KV-cache (halves footprint again) |
+| `OLLAMA_CONTEXT_LENGTH` | `200000` | Default context window for Ollama models |
+| `OLLAMA_NUM_PARALLEL` | `3` | Concurrent agent request channels |
+| `OLLAMA_MAX_LOADED_MODELS` | `1` | Models kept in memory simultaneously |
 | `AI_STACK_AUTO_INSTALL` | `true` | run install on profile switch |
 | `HEADROOM_PORT` | 8787 | token compression proxy port |
 | `HEADROOM_MODE` | token | compression mode (token, cache) |

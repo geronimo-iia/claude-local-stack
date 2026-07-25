@@ -22,6 +22,7 @@ lib/services/headroom/
 | Name               | Purpose                 | Port      |
 | ------------------ | ----------------------- | --------- |
 | rapid-mlx          | Local MLX inference     | 8000-8002 |
+| ollama             | Local Ollama inference  | 11434     |
 | headroom           | Token compression proxy | 8787      |
 | claude-code-router | Multi-provider router   | 3456      |
 | voicemode          | Voice I/O (STT + TTS)  | 8765      |

@@ -21,6 +21,10 @@ config/profiles/
 │   ├── rapid-mlx.yaml
 │   ├── Procfile
 │   └── services.yaml
+├── mistral/
+│   ├── ccr.json           # routes all tiers to Ollama (:11434)
+│   ├── Procfile           # ollama + headroom + ccr
+│   └── services.yaml      # ollama + headroom + claude-code-router
 └── cloud/
     ├── ccr.json
     ├── Procfile           # headroom only (no CCR, no rapid-mlx)
@@ -79,6 +83,24 @@ Set to `"false"` for fast switching (CI, already-installed environments).
 ai-stack disable headroom    # temporary override
 ai-stack profile hybrid      # resets Procfile to profile's definition
 ```
+
+## Mistral profile
+
+The mistral profile uses Ollama as the inference backend instead of rapid-mlx. No `rapid-mlx.yaml` — Ollama is configured via env vars in `config/ai-stack.env`.
+
+```
+Claude Code → Headroom (:8787) → CCR (:3456) → Ollama (:11434) → Mistral Large 2 (123B)
+```
+
+Key env vars (all have defaults in the `ollama` launch script):
+
+```bash
+OLLAMA_FLASH_ATTENTION=1       # halves KV-cache memory
+OLLAMA_KV_CACHE_TYPE=q8_0     # quantizes KV-cache
+OLLAMA_CONTEXT_LENGTH=200000   # 200k context window
+```
+
+See `lib/services/ollama/readme.md` for the full variable reference.
 
 ## Cloud profile
 

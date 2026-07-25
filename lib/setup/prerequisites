@@ -5,6 +5,11 @@ set -euo pipefail
 
 echo "── prerequisites ──"
 
+if ! command -v brew &>/dev/null; then
+  echo "error: Homebrew not found. Install: https://brew.sh" >&2
+  exit 1
+fi
+
 
 OVERMIND_REPO="https://github.com/virtualstaticvoid/asdf-overmind.git"
 

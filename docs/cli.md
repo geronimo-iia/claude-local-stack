@@ -56,10 +56,12 @@ Secrets are loaded automatically by `ai-stack` at startup via `source <(ai-secre
 Model download management.
 
 ```bash
-ai-models pull              # download all models from manifest
+ai-models pull              # download all models from manifest (hf + ollama)
 ai-models pull llm          # download a category
-ai-models pull <repo-id>    # download a specific model
+ai-models pull embedding    # download a category
+ai-models pull ollama       # download Ollama models only
+ai-models pull <repo-id>    # download a specific HuggingFace model
 ai-models list              # show manifest with download status
 ```
 
-Models declared in `config/models.yaml`. Stored in HuggingFace cache (`~/.cache/huggingface/hub/`).
+Models declared in `config/models.yaml` under `llm:`, `embedding:`, or `ollama:` categories. HuggingFace models stored in `~/.cache/huggingface/hub/`, Ollama models in `~/.ollama/models/`.

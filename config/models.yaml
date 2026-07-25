@@ -2,6 +2,9 @@
 # Run `ai-models pull` to download all.
 
 
+ollama:
+  - mistral-large
+
 llm:
   - arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8
   - arthurcollet/Qwen3.6-27B-mlx-mxfp8

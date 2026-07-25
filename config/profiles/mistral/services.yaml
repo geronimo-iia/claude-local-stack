@@ -1,0 +1,4 @@
+install:
+  - ollama
+  - headroom
+  - claude-code-router

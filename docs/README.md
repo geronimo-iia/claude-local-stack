@@ -77,13 +77,14 @@ Each component under `lib/services/` or `lib/plugins/` has an `install` script. 
 
 ## Profiles
 
-| Profile | Local models | Cloud | Services |
-|---------|:---:|:---:|---------|
-| default | Qwen3.6-35B-A3B (MoE) | — | headroom, ccr, rapid-mlx |
-| local | Qwen3.6-35B + 27B + 235B | — | headroom, ccr, rapid-mlx ×3 |
-| hybrid | Qwen3.6-35B + 27B | Bedrock (think/longContext) | headroom, ccr, rapid-mlx ×2 |
-| mistral | Mistral Large 2 (123B) | — | headroom, ccr, ollama |
-| cloud | — | Bedrock only | headroom (bedrock backend) |
+| Profile | Local models | Cloud | Services | Min RAM |
+|---------|:---:|:---:|---------|--------|
+| default | Qwen3.6-35B-A3B (MoE, 3B active) | — | headroom, ccr, rapid-mlx ×1 | 32 GB |
+| local | Qwen3.6-35B-A3B + Qwen3.6-27B | — | headroom, ccr, rapid-mlx ×2 | 64 GB |
+| local (+think) | + Qwen3-235B-A22B (opt-in) | — | headroom, ccr, rapid-mlx ×3 | 128 GB |
+| hybrid | Qwen3.6-35B + 27B | Bedrock (think/longContext) | headroom, ccr, rapid-mlx ×2 | 64 GB |
+| mistral | Mistral Large 2 (123B) + Small 4 (24B) | — | headroom, ccr, ollama | 128 GB |
+| cloud | — | Bedrock only | headroom (bedrock backend) | any |
 
 Switching profile: copies `Procfile` (+ `ccr.json` + `rapid-mlx.yaml` if present) from profile dir to runtime locations.
 
@@ -171,3 +172,4 @@ All service `launch` scripts delegate to `lib/utils/supervised-launch`. This wra
 | Models | [models.md](models.md) |
 | Secrets | [secrets.md](secrets.md) |
 | Overmind | [overmind.md](overmind.md) |
+| Roadmap: LiteLLM multi-provider | [roadmap/litellm.md](roadmap/litellm.md) |

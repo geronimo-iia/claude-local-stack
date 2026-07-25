@@ -2,6 +2,16 @@
 
 A profile is a complete stack configuration: routing rules + service definitions + model config + install manifest.
 
+## Overview
+
+| Profile | Instances | Min RAM | Notes |
+|---------|-----------|---------|-------|
+| default | rapid-mlx ×1 | 32 GB | Single MoE model, fits most hardware |
+| local | rapid-mlx ×2 | 64 GB | think instance opt-in (128 GB required) |
+| hybrid | rapid-mlx ×2 | 64 GB | Bedrock for think/longContext |
+| mistral | ollama ×1 | 128 GB | Two Ollama models, large context |
+| cloud | none | any | Bedrock only, no local inference |
+
 ## Structure
 
 ```
@@ -86,15 +96,17 @@ ai-stack profile hybrid      # resets Procfile to profile's definition
 
 ## Mistral profile
 
-The mistral profile uses Ollama as the inference backend instead of rapid-mlx. No `rapid-mlx.yaml` — Ollama is configured via env vars in `config/ai-stack.env`.
+Uses Ollama as the inference backend instead of rapid-mlx. No `rapid-mlx.yaml` — Ollama is configured via env vars in `config/ai-stack.env`.
 
 ```
-Claude Code → Headroom (:8787) → CCR (:3456) → Ollama (:11434) → Mistral Large 2 (123B)
+Claude Code → Headroom (:8787) → CCR (:3456) → Ollama (:11434) → mistral-large:123b  [default / think / longContext]
+                                                                  → mistral-small:24b  [background]
 ```
 
 Key env vars (all have defaults in the `ollama` launch script):
 
 ```bash
+OLLAMA_KEEP_ALIVE=5m           # unload inactive models after 5 minutes
 OLLAMA_FLASH_ATTENTION=1       # halves KV-cache memory
 OLLAMA_KV_CACHE_TYPE=q8_0     # quantizes KV-cache
 OLLAMA_CONTEXT_LENGTH=200000   # 200k context window

@@ -3,7 +3,8 @@
 
 
 ollama:
-  - mistral-large
+  - mistral-large:123b  # Mistral Large 2 — Q4_K_M, ~70 GB
+  - mistral-small:24b   # Mistral Small 4 — Q4_K_M, ~14 GB
 
 llm:
   - arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8

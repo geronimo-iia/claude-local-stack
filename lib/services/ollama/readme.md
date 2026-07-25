@@ -8,11 +8,12 @@ Configured via `config/ai-stack.env` — all have defaults baked into the launch
 
 | Variable | Default | Description |
 |----------|---------|-------------|
+| `OLLAMA_KEEP_ALIVE` | `5m` | Unload inactive models after this duration (`0` = immediately, `-1` = never) |
 | `OLLAMA_FLASH_ATTENTION` | `1` | Halves KV-cache memory on Apple Silicon |
 | `OLLAMA_KV_CACHE_TYPE` | `q8_0` | Quantizes KV-cache, halves footprint again |
 | `OLLAMA_CONTEXT_LENGTH` | `200000` | Default context window for all models |
 | `OLLAMA_NUM_PARALLEL` | `3` | Concurrent agent request channels |
-| `OLLAMA_MAX_LOADED_MODELS` | `1` | Models kept in memory simultaneously |
+| `OLLAMA_MAX_LOADED_MODELS` | `2` | Models kept in memory simultaneously |
 
 Override any of these in `config/ai-stack.env`.
 

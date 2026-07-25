@@ -8,21 +8,30 @@
   "transformers": [],
   "Providers": [
     {
-      "name": "ollama-mistral",
+      "name": "ollama-mistral-large",
       "type": "openai",
       "api_base_url": "http://127.0.0.1:11434/v1/chat/completions",
       "models": [
-        "mistral-large"
+        "mistral-large:123b"
+      ],
+      "api_key": "local"
+    },
+    {
+      "name": "ollama-mistral-small",
+      "type": "openai",
+      "api_base_url": "http://127.0.0.1:11434/v1/chat/completions",
+      "models": [
+        "mistral-small:24b"
       ],
       "api_key": "local"
     }
   ],
   "Router": {
-    "default": "ollama-mistral,mistral-large",
-    "background": "ollama-mistral,mistral-large",
-    "think": "ollama-mistral,mistral-large",
-    "longContext": "ollama-mistral,mistral-large",
-    "longContextThreshold": 180000,
+    "default": "ollama-mistral-large,mistral-large:123b",
+    "background": "ollama-mistral-small,mistral-small:24b",
+    "think": "ollama-mistral-large,mistral-large:123b",
+    "longContext": "ollama-mistral-large,mistral-large:123b",
+    "longContextThreshold": 60000,
     "webSearch": "",
     "image": ""
   },

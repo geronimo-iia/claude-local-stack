@@ -18,13 +18,13 @@ case "${1:-install}" in
     ;;
   install)
     if claude plugin list 2>/dev/null | grep -q "atlassian@claude-plugins-official"; then
-      echo "  ✓ atlassian"
+      echo "  ✓ atlassian (already installed)"
     else
       echo "  installing atlassian…"
       claude plugin install atlassian@claude-plugins-official
-      echo "  ✓ atlassian"
+      claude plugin disable atlassian@claude-plugins-official
+      echo "  ✓ atlassian (installed, disabled — enable: claude plugin enable atlassian@claude-plugins-official)"
     fi
-
     ;;
   *)
     echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, or remove." >&2

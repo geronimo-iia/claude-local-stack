@@ -14,7 +14,7 @@ case "${1:-install}" in
     ;;
   upgrade)
     echo "  upgrading karpathy-skills…"
-    claude plugin upgrade andrej-karpathy-skills@karpathy-skills
+    claude plugin update andrej-karpathy-skills@karpathy-skills
     echo "  ✓ karpathy-skills upgraded"
     ;;
   install)

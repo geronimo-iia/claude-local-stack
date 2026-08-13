@@ -1,0 +1,32 @@
+#!/bin/zsh
+set -euo pipefail
+
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+
+case "${1:-install}" in
+  remove)
+    if claude plugin list 2>/dev/null | grep -q "rust-analyzer-lsp@claude-plugins-official"; then
+      echo "  uninstalling rust-analyzer-lsp…"
+      claude plugin uninstall --keep-data rust-analyzer-lsp@claude-plugins-official
+    fi
+    echo "  ✓ rust-analyzer-lsp removed"
+    ;;
+  upgrade)
+    echo "  upgrading rust-analyzer-lsp…"
+    claude plugin update rust-analyzer-lsp@claude-plugins-official
+    echo "  ✓ rust-analyzer-lsp upgraded"
+    ;;
+  install)
+    if claude plugin list 2>/dev/null | grep -q "rust-analyzer-lsp@claude-plugins-official"; then
+      echo "  ✓ rust-analyzer-lsp"
+    else
+      echo "  installing rust-analyzer-lsp…"
+      claude plugin install rust-analyzer-lsp@claude-plugins-official
+      echo "  ✓ rust-analyzer-lsp"
+    fi
+    ;;
+  *)
+    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, or remove." >&2
+    exit 1
+    ;;
+esac

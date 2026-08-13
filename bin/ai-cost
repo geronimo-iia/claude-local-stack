@@ -18,6 +18,7 @@ Commands:
 
 Options:
   --days N    Number of days to look back (default: 30)
+  --all       All time, no window
 
 Examples:
   ai-cost local
@@ -31,6 +32,7 @@ _parse_days() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --days) DAYS="$2"; shift 2 ;;
+      --all)  DAYS=1095; shift ;;  # 3 years — AWS Cost Explorer max is 37 months
       *) shift ;;
     esac
   done
@@ -180,6 +182,10 @@ cmd_aws() {
   local since end
   since=$(_date_ago "$DAYS")
   end=$(date +%Y-%m-%d)
+  # AWS Cost Explorer requires start = first of month when going beyond 14 months
+  if (( DAYS > 425 )); then
+    since="${since:0:7}-01"
+  fi
 
   local filter='{"Dimensions":{"Key":"SERVICE","Values":["Claude Sonnet 4.6 (Amazon Bedrock Edition)","Claude Sonnet 4.5 (Amazon Bedrock Edition)","Claude Sonnet 4 (Amazon Bedrock Edition)","Claude Haiku 4.5 (Amazon Bedrock Edition)","Claude Opus 4.6 (Amazon Bedrock Edition)","Claude Opus 4.5 (Amazon Bedrock Edition)"]}}'
 

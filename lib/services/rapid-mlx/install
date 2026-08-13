@@ -12,13 +12,13 @@ case "${1:-install}" in
     ;;
   upgrade)
     echo "  upgrading rapid-mlx…"
-    uv tool upgrade --quiet "rapid-mlx" --with mlx-embeddings --python "$(asdf where python)/bin/python"
+    uv tool install --force "rapid-mlx==0.12.11" --with mlx-embeddings --python "$(asdf where python)/bin/python"
     echo "  ✓ rapid-mlx upgraded"
     ;;
   install)
     if ! command -v rapid-mlx &>/dev/null; then
       echo "  installing rapid-mlx…"
-      uv tool install "rapid-mlx==0.6.50" --with mlx-embeddings --python "$(asdf where python)/bin/python"
+      uv tool install "rapid-mlx==0.12.11" --with mlx-embeddings --python "$(asdf where python)/bin/python"
     fi
     echo "  ✓ rapid-mlx"
     ;;

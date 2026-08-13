@@ -12,13 +12,13 @@ case "${1:-install}" in
     ;;
   upgrade)
     echo "  upgrading headroom…"
-    uv tool upgrade --quiet "headroom-ai[all]" --with boto3 --python "$(asdf where python)/bin/python"
+    uv tool install --force "headroom-ai[all]==0.35.0" --with boto3 --with hnswlib --python "$(asdf where python)/bin/python"
     echo "  ✓ headroom upgraded"
     ;;
   install)
     if ! command -v headroom &>/dev/null; then
       echo "  installing headroom…"
-      uv tool install "headroom-ai[all]==0.21.22" --with boto3 --python "$(asdf where python)/bin/python"
+      uv tool install "headroom-ai[all]==0.35.0" --with boto3 --with hnswlib --python "$(asdf where python)/bin/python"
     fi
     echo "  ✓ headroom"
 

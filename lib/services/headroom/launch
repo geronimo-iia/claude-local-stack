@@ -13,6 +13,6 @@ exec "${AI_HOME}/lib/utils/supervised-launch" \
   --workers "${HEADROOM_WORKERS:-1}" \
   --memory \
   --memory-db-path "${HEADROOM_MEMORY_PATH}/memory.db" \
-  --log-file "${AI_HOME}/logs/headroom.log"
+  --log-file "${AI_HOME}/logs/headroom-$(date +%Y-%m-%d).log"
   # --learn             # learn from failures, writes to MEMORY.md
   # --code-aware        # AST-based code compression (requires tree-sitter)

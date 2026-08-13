@@ -20,6 +20,6 @@ exec "${AI_HOME}/lib/utils/supervised-launch" \
   --no-telemetry \
   --no-subscription-tracking \
   --workers "${HEADROOM_WORKERS:-1}" \
-  --log-file "${AI_HOME}/logs/headroom.log"
+  --log-file "${AI_HOME}/logs/headroom-$(date +%Y-%m-%d).log"
   # --learn             # learn from failures, writes to MEMORY.md
   # --code-aware        # AST-based code compression (requires tree-sitter)

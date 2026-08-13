@@ -4,7 +4,7 @@ set -euo pipefail
 source "$(dirname "$0")/../config/ai-stack.env"
 
 
-LOG_FILE="${AI_HOME}/logs/headroom.log"
+LOG_DIR="${AI_HOME}/logs"
 DAYS=30
 
 usage() {
@@ -59,32 +59,44 @@ _model_key() {
 cmd_local() {
   _parse_days "$@"
 
-  if [[ ! -f "$LOG_FILE" ]]; then
-    echo "error: log not found at $LOG_FILE" >&2
-    exit 1
-  fi
-
   local since
   since=$(_date_ago "$DAYS")
 
-  python3 - "$LOG_FILE" "$since" <<'PYEOF'
+  # Collect all headroom log files (dated + legacy)
+  local log_files=()
+  for f in "${LOG_DIR}"/headroom-*.log "${LOG_DIR}"/headroom.log; do
+    [[ -f "$f" ]] && log_files+=("$f")
+  done
+
+  if [[ ${#log_files[@]} -eq 0 ]]; then
+    echo "error: no headroom logs found in $LOG_DIR" >&2
+    exit 1
+  fi
+
+  python3 - "$since" "${log_files[@]}" <<'PYEOF'
 import sys, json
 from collections import defaultdict
 
-log_file, since = sys.argv[1], sys.argv[2]
+since = sys.argv[1]
+log_files = sys.argv[2:]
 
 PRICING = {
+    'claude-sonnet-5':   (0.003,  0.015),
     'claude-sonnet-4-6': (0.003,  0.015),
     'claude-sonnet-4-5': (0.003,  0.015),
     'claude-sonnet-4':   (0.003,  0.015),
-    'claude-haiku-4-5':  (0.0008, 0.004),
+    'claude-opus-5':     (0.015,  0.075),
     'claude-opus-4-6':   (0.015,  0.075),
     'claude-opus-4-5':   (0.015,  0.075),
+    'claude-haiku-4-5':  (0.0008, 0.004),
+    'claude-fable-5':    (0.003,  0.015),
 }
 
 def model_key(m):
     m = m.replace('eu.anthropic.', '')
-    for suffix in ['-20250514', '-20251001', '-v1:0', '-v1']:
+    import re
+    m = re.sub(r'-2025\d{4}', '', m)
+    for suffix in ['-v1:0', '-v1']:
         m = m.replace(suffix, '')
     return m
 
@@ -92,8 +104,8 @@ by_day   = defaultdict(lambda: {'reqs': 0, 'input': 0, 'output': 0, 'saved': 0, 
 by_model = defaultdict(lambda: {'reqs': 0, 'input': 0, 'output': 0, 'cost': 0.0})
 totals   = {'reqs': 0, 'input_orig': 0, 'input_opt': 0, 'output': 0, 'saved': 0, 'cost': 0.0}
 
-with open(log_file) as f:
-    for line in f:
+for log_file in log_files:
+    for line in open(log_file):
         line = line.strip()
         if not line:
             continue

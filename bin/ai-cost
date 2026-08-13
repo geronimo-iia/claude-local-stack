@@ -6,6 +6,7 @@ source "$(dirname "$0")/../config/ai-stack.env"
 
 LOG_DIR="${AI_HOME}/logs"
 DAYS=30
+GRAPH_MODE=0
 
 usage() {
   cat <<EOF
@@ -19,6 +20,7 @@ Commands:
 Options:
   --days N    Number of days to look back (default: 30)
   --all       All time, no window
+  --graph     Monthly bar chart (aws command only)
 
 Examples:
   ai-cost local
@@ -31,8 +33,9 @@ EOF
 _parse_days() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --days) DAYS="$2"; shift 2 ;;
-      --all)  DAYS=1095; shift ;;  # 3 years — AWS Cost Explorer max is 37 months
+      --days)  DAYS="$2"; shift 2 ;;
+      --all)   DAYS=1095; shift ;;  # 3 years — AWS Cost Explorer max is 37 months
+      --graph) GRAPH_MODE=1; shift ;;
       *) shift ;;
     esac
   done
@@ -201,12 +204,17 @@ cmd_aws() {
     --metrics "UnblendedCost" \
     --group-by Type=DIMENSION,Key=SERVICE)
 
-  echo "$raw" | python3 -c "
-import sys, json
+  local tmp
+  tmp=$(mktemp)
+  printf '%s' "$raw" > "$tmp"
+  GRAPH_MODE="${GRAPH_MODE}" AWS_DATA="$tmp" python3 - <<'PYEOF'
+import sys, json, os
 from collections import defaultdict
 
-data = json.loads(sys.stdin.read())
+data = json.loads(open(os.environ['AWS_DATA']).read())
+graph_mode = os.environ.get('GRAPH_MODE') == '1'
 by_day   = defaultdict(float)
+by_month = defaultdict(float)
 by_model = defaultdict(float)
 total    = 0.0
 
@@ -217,25 +225,38 @@ for r in data['ResultsByTime']:
         v   = float(g['Metrics']['UnblendedCost']['Amount'])
         if v == 0:
             continue
-        by_day[day]   += v
-        by_model[svc] += v
-        total         += v
+        by_day[day]        += v
+        by_month[day[:7]]  += v
+        by_model[svc]      += v
+        total              += v
 
 if not by_day:
     print('  No Claude charges found.')
     sys.exit(0)
 
-print(f\"  {'Date':<12} {'Cost':>10}\")
-print(f\"  {'-'*12} {'-'*10}\")
-for day in sorted(by_day):
-    print(f\"  {day:<12} \${by_day[day]:>9.2f}\")
-print(f\"  {'TOTAL':<12} \${total:>9.2f}\n\")
+if graph_mode:
+    max_v = max(by_month.values())
+    bar_w = 40
+    print(f"\n  Monthly AWS Bedrock spend\n")
+    for month in sorted(by_month):
+        v    = by_month[month]
+        bars = int(v / max_v * bar_w)
+        print(f"  {month}  {'█' * bars}{'░' * (bar_w - bars)}  ${v:>8.0f}")
+    print(f"\n  TOTAL  ${total:>8.0f}\n")
+    sys.exit(0)
 
-print(f\"  {'Model':<45} {'Total Cost':>10}\")
-print(f\"  {'-'*45} {'-'*10}\")
+print(f"  {'Date':<12} {'Cost':>10}")
+print(f"  {'-'*12} {'-'*10}")
+for day in sorted(by_day):
+    print(f"  {day:<12} ${by_day[day]:>9.2f}")
+print(f"  {'TOTAL':<12} ${total:>9.2f}\n")
+
+print(f"  {'Model':<45} {'Total Cost':>10}")
+print(f"  {'-'*45} {'-'*10}")
 for svc, v in sorted(by_model.items(), key=lambda x: -x[1]):
-    print(f\"  {svc:<45} \${v:>9.2f}\")
-"
+    print(f"  {svc:<45} ${v:>9.2f}")
+PYEOF
+  rm -f "$tmp"
 }
 
 # --- all: both ---

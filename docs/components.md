@@ -26,17 +26,19 @@ lib/services/headroom/
 | headroom           | Token compression proxy | 8787      |
 | claude-code-router | Multi-provider router   | 3456      |
 | voicemode          | Voice I/O (STT + TTS)  | 8765      |
+| llm-wiki           | Git-backed wiki engine (binary, no daemon) | — |
 
 ## Plugins
 
-| Name         | Purpose                       |
-| ------------ | ----------------------------- |
-| context-mode | Context management for Claude |
-| superpowers  | Extended Claude capabilities  |
-| caveman      | Logging/debugging helper      |
-| rtk          | Prompt toolkit                |
-| drawio       | Diagram integration           |
-| atlassian    | Jira/Confluence integration   |
+| Name                | Purpose                                        |
+| ------------------- | ---------------------------------------------- |
+| context-mode        | Context management for Claude                  |
+| superpowers         | Extended Claude capabilities                   |
+| caveman             | Output token compression                       |
+| rtk                 | Prompt toolkit                                 |
+| drawio              | Diagram integration                            |
+| atlassian           | Jira/Confluence integration                    |
+| llm-wiki-skills     | Wiki skills — ingest, research, crystallize, graph (MCP via llm-wiki) |
 
 ## rapid-mlx configuration
 

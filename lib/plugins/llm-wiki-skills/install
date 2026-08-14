@@ -1,0 +1,36 @@
+#!/bin/zsh
+set -euo pipefail
+
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+
+PLUGIN_ID="llm-wiki@geronimo-iia"
+PLUGIN_URL="https://github.com/geronimo-iia/llm-wiki-skills"
+
+case "${1:-install}" in
+  remove)
+    if claude plugin list 2>/dev/null | grep -q "${PLUGIN_ID}"; then
+      echo "  uninstalling llm-wiki-skills…"
+      claude plugin uninstall "${PLUGIN_ID}"
+    fi
+    echo "  ✓ llm-wiki-skills removed"
+    ;;
+  upgrade)
+    echo "  upgrading llm-wiki-skills…"
+    claude plugin update "${PLUGIN_ID}"
+    echo "  ✓ llm-wiki-skills upgraded"
+    ;;
+  install)
+    if claude plugin list 2>/dev/null | grep -q "${PLUGIN_ID}"; then
+      echo "  ✓ llm-wiki-skills"
+    else
+      echo "  installing llm-wiki-skills…"
+      claude plugin marketplace add geronimo-iia/llm-wiki-skills
+      claude plugin install "${PLUGIN_ID}"
+      echo "  ✓ llm-wiki-skills"
+    fi
+    ;;
+  *)
+    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, or remove." >&2
+    exit 1
+    ;;
+esac

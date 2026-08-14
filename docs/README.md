@@ -26,8 +26,8 @@ config/
   models.yaml    # model manifest (HuggingFace repo IDs)
 lib/
   setup/         # bootstrap scripts (prerequisites, runtimes, tooling)
-  services/      # daemons: rapid-mlx, headroom, claude-code-router, voicemode
-  plugins/       # Claude Code extensions: rtk, context-mode, superpowers, caveman, drawio, atlassian
+  services/      # daemons: rapid-mlx, headroom, claude-code-router, voicemode; binaries: llm-wiki
+  plugins/       # Claude Code extensions: rtk, context-mode, superpowers, caveman, drawio, atlassian, llm-wiki-skills
   utils/         # supervised-launch (restart wrapper), token-savings (dashboard)
 secrets/         # SOPS + age encrypted secrets (age-key.txt and api-keys.sops.yaml are gitignored)
 logs/            # runtime output (gitignored)

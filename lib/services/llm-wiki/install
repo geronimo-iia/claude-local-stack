@@ -11,6 +11,7 @@ case "${1:-install}" in
     ;;
   upgrade)
     echo "  upgrading llm-wiki…"
+    brew update
     brew upgrade geronimo-iia/tap/llm-wiki
     echo "  ✓ llm-wiki upgraded"
     ;;

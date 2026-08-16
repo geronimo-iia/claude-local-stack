@@ -13,6 +13,7 @@ case "${1:-install}" in
     echo "  upgrading llm-wiki…"
     brew update
     brew upgrade geronimo-iia/tap/llm-wiki
+    pkill -f llm-wiki || true
     echo "  ✓ llm-wiki upgraded"
     ;;
   install)

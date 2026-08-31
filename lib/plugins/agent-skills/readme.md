@@ -36,4 +36,6 @@ management, and writing quality.
 `summarize` CLI is gated behind `INSTALL_SUMMARIZE=true`:
 ```bash
 INSTALL_SUMMARIZE=true ai-stack plugin install agent-skills
+
+Plugin installs as `geronimo-skills@geronimo-agent-skills`.
 ```

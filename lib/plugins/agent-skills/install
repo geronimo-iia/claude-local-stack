@@ -3,7 +3,7 @@ set -euo pipefail
 
 [[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
 
-PLUGIN_ID="geronimo-skills@geronimo-iia"
+PLUGIN_ID="geronimo-skills@geronimo-agent-skills"
 PLUGIN_REPO="geronimo-iia/agent-skills"
 
 install_cli_tools() {
@@ -86,7 +86,8 @@ case "${1:-install}" in
       echo "  ✓ agent-skills (plugin already installed)"
     else
       echo "  installing agent-skills…"
-      claude plugin marketplace add "${PLUGIN_REPO}"
+      claude plugin marketplace add "${PLUGIN_REPO}" 2>/dev/null || true
+      claude plugin marketplace update geronimo-agent-skills
       claude plugin install "${PLUGIN_ID}"
       echo "  ✓ agent-skills plugin"
     fi

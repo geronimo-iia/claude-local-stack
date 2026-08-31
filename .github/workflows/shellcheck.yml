@@ -10,11 +10,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install zsh
+        run: sudo apt-get install -y zsh
+
       - name: Syntax check
         run: |
           find bin lib/setup lib/services lib/utils lib/plugins \
             -type f ! -name "*.md" ! -name "*.json" ! -name "*.yaml" ! -name "*.yml" ! -name "priority" \
-            | xargs -I{} bash -n {}
+            | while IFS= read -r f; do
+                shebang=$(head -1 "$f")
+                case "$shebang" in
+                  *zsh*)  zsh -n "$f" ;;
+                  *)      bash -n "$f" ;;
+                esac
+              done
 
       - name: Lint shell scripts
         uses: ludeeus/action-shellcheck@master
@@ -23,4 +32,4 @@ jobs:
           scandir: .
           additional_files: bin lib/setup lib/services lib/utils lib/plugins
         env:
-          SHELLCHECK_OPTS: -x
+          SHELLCHECK_OPTS: -x --shell=bash

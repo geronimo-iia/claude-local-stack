@@ -21,7 +21,8 @@ readonly HEADROOM_URL="http://localhost:${HEADROOM_PORT:-8787}"
 
 # ── Python ───────────────────────────────────────────────────────────
 
-readonly PYTHON="$(asdf where python)/bin/python"
+PYTHON="$(asdf where python)/bin/python"
+readonly PYTHON
 
 # ── Temp file with trap cleanup ──────────────────────────────────────
 

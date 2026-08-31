@@ -24,12 +24,12 @@ management, and writing quality.
 |---|---|---|
 | `anti-slop` | Auto | Strip AI slop from written artifacts |
 | `kb-conventions` | Auto | KB layout, confidence markers, source schema |
-| `pdf-parse` | `/agent-skills:pdf-parse` | Dual-path PDF extraction (xberg / marker-pdf) |
-| `research-paper` | `/agent-skills:research-paper` | Single paper → KB topic |
-| `research-extraction` | `/agent-skills:research-extraction` | Multi-source extraction with reviewer gating |
-| `coding-agent` | `/agent-skills:coding-agent` | Background coding agent orchestration |
-| `oracle` | `/agent-skills:oracle` | Second-model review / cross-validation |
-| `summarize` | `/agent-skills:summarize` | Summarize URLs, PDFs, audio, YouTube |
+| `pdf-parse` | `/geronimo-skills:pdf-parse` | Dual-path PDF extraction (xberg / marker-pdf) |
+| `research-paper` | `/geronimo-skills:research-paper` | Single paper → KB topic |
+| `research-extraction` | `/geronimo-skills:research-extraction` | Multi-source extraction with reviewer gating |
+| `coding-agent` | `/geronimo-skills:coding-agent` | Background coding agent orchestration |
+| `oracle` | `/geronimo-skills:oracle` | Second-model review / cross-validation |
+| `summarize` | `/geronimo-skills:summarize` | Summarize URLs, PDFs, audio, YouTube |
 
 ## Optional install
 

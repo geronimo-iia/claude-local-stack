@@ -1,0 +1,99 @@
+#!/bin/zsh
+set -euo pipefail
+
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+
+PLUGIN_ID="agent-skills@geronimo-iia"
+PLUGIN_REPO="geronimo-iia/agent-skills"
+
+install_cli_tools() {
+  # xberg — machine-readable PDF extraction (Rust, pdfium backend)
+  if brew list xberg &>/dev/null 2>&1; then
+    brew upgrade xberg-io/tap/xberg 2>/dev/null || true
+  else
+    echo "  installing xberg…"
+    brew tap xberg-io/tap
+    brew install xberg
+  fi
+  echo "  ✓ xberg"
+
+  # poppler — pdftotext fallback for PDF extraction
+  if brew list poppler &>/dev/null 2>&1; then
+    brew upgrade poppler 2>/dev/null || true
+  else
+    echo "  installing poppler…"
+    brew install poppler
+  fi
+  echo "  ✓ poppler (pdftotext)"
+
+  # marker-pdf is used via uvx — no persistent install needed
+
+  # llm — uv tool install for persistent plugin support
+  if uv tool list 2>/dev/null | grep -q "^llm "; then
+    echo "  upgrading llm…"
+    uv tool upgrade llm
+  else
+    echo "  installing llm…"
+    uv tool install llm
+  fi
+  # Ollama plugin for local model support
+  if ! llm plugins 2>/dev/null | grep -q "llm-ollama"; then
+    echo "  installing llm-ollama plugin…"
+    llm install llm-ollama
+  fi
+  echo "  ✓ llm"
+
+  # code2prompt — Rust CLI for bundling codebases as LLM prompts
+  if command -v code2prompt &>/dev/null; then
+    echo "  upgrading code2prompt…"
+    cargo install code2prompt
+  else
+    echo "  installing code2prompt…"
+    cargo install code2prompt
+  fi
+  echo "  ✓ code2prompt"
+
+  # summarize — optional all-in-one CLI (steipete/tap)
+  if [[ "${INSTALL_SUMMARIZE:-false}" == "true" ]]; then
+    if brew list summarize &>/dev/null 2>&1; then
+      brew upgrade summarize 2>/dev/null || true
+    else
+      echo "  installing summarize…"
+      brew install steipete/tap/summarize
+    fi
+    echo "  ✓ summarize"
+  else
+    echo "  ⚠ summarize skipped (set INSTALL_SUMMARIZE=true to install)"
+  fi
+}
+
+case "${1:-install}" in
+  remove)
+    if claude plugin list 2>/dev/null | grep -q "${PLUGIN_ID}"; then
+      echo "  uninstalling agent-skills…"
+      claude plugin uninstall --keep-data "${PLUGIN_ID}"
+    fi
+    echo "  ✓ agent-skills removed"
+    ;;
+  upgrade)
+    echo "  upgrading agent-skills…"
+    claude plugin update "${PLUGIN_ID}"
+    install_cli_tools
+    echo "  ✓ agent-skills upgraded"
+    ;;
+  install)
+    if claude plugin list 2>/dev/null | grep -q "${PLUGIN_ID}"; then
+      echo "  ✓ agent-skills (plugin already installed)"
+    else
+      echo "  installing agent-skills…"
+      claude plugin marketplace add "${PLUGIN_REPO}"
+      claude plugin install "${PLUGIN_ID}"
+      echo "  ✓ agent-skills plugin"
+    fi
+    install_cli_tools
+    ;;
+  *)
+    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, or remove." >&2
+    exit 1
+    ;;
+esac

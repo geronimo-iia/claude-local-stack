@@ -22,7 +22,7 @@ Add key via `ai-secrets edit`.
 |------|-------|
 | `claude-haiku*` | `claude-haiku-4-5-20251001` |
 | `claude-sonnet*` | `claude-sonnet-5` |
-| `claude-opus*` | `claude-opus-5` |
+| `claude-opus*` | `claude-sonnet-5` (Opus not in Max plan) |
 
 ## Services
 

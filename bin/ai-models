@@ -23,19 +23,20 @@ eval "$("$(dirname "$0")/ai-secrets" env 2>/dev/null)" || true
 parse_repos() {
   local category="$1"
   awk -v cat="$category" '
-    /^[a-z]+:/ { current=$1; gsub(/:/, "", current); next }
+    /^[a-z][a-z-]*:/ { current=$1; gsub(/:/, "", current); next }
     current == cat && /^ *- / { gsub(/^ *- */, ""); sub(/ *#.*$/, ""); print }
   ' "$MANIFEST"
 }
 
 pull_category() {
   local category="$1"
+  local pull_cmd="${2:-rapid-mlx pull}"
   local repos=$(parse_repos "$category")
   [[ -z "$repos" ]] && return 0
   echo "── ${category} ──"
   while read -r repo; do
     echo "  ↓ ${repo}…"
-    hf download "$repo" --quiet
+    ${=pull_cmd} "$repo"
     echo "  ✓ ${repo}"
   done <<< "$repos"
 }
@@ -75,12 +76,12 @@ list_ollama_models() {
 }
 
 list_models() {
-  for category in llm embedding; do
+  for category in rapid-mlx llm; do
     local repos=$(parse_repos "$category")
     [[ -z "$repos" ]] && continue
     echo "${category}:"
     while read -r repo; do
-      local cache_name="models--${repo//\//-}"
+      local cache_name="models--${repo//\//--}"
       local hf_cache="${HF_HUB_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/huggingface/hub}"
       if [[ -d "${hf_cache}/${cache_name}" ]]; then
         echo "  ✓ ${repo}"
@@ -114,14 +115,16 @@ case "${1:-}" in
   pull)
     shift
     if [[ $# -eq 0 ]]; then
-      for cat in llm embedding; do pull_category "$cat"; done
+      pull_category "rapid-mlx"
+      pull_category "llm" "hf download"
       pull_ollama_category
     else
       for target in "$@"; do
         case "$target" in
-          llm|embedding) pull_category "$target" ;;
+          rapid-mlx) pull_category "$target" ;;
+          llm) pull_category "$target" "hf download" ;;
           ollama) pull_ollama_category ;;
-          *) hf download "$target" --quiet ;;
+          *) rapid-mlx pull "$target" ;;
         esac
       done
     fi

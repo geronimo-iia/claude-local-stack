@@ -1,1 +1,1 @@
-headroom: ${AI_HOME}/lib/services/headroom/launch-cloud
+headroom: ${AI_HOME}/lib/services/headroom/launch-bedrock

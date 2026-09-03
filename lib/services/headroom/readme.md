@@ -7,7 +7,7 @@ Token compression proxy between Claude Code and LLM backends. Supports local (vi
 | Script         | Backend   | Chain                                    |
 | -------------- | --------- | ---------------------------------------- |
 | `launch`       | anthropic | Claude Code → Headroom → CCR → rapid-mlx |
-| `launch-cloud` | bedrock   | Claude Code → Headroom → AWS Bedrock     |
+| `launch-bedrock` | bedrock   | Claude Code → Headroom → AWS Bedrock     |
 
 ## Installation
 
@@ -53,7 +53,7 @@ MCP tools exposed to Claude Code:
 
 ## Cloud (Bedrock)
 
-`launch-cloud` uses `--backend bedrock` with AWS SSO credentials.
+`launch-bedrock` uses `--backend bedrock` with AWS SSO credentials.
 
 | Env var       | Value     | Purpose         |
 | ------------- | --------- | --------------- |
@@ -62,7 +62,7 @@ MCP tools exposed to Claude Code:
 
 Requires valid SSO session: `aws sso login --profile sbx`
 
-Note: `AWS_DEFAULT_REGION` is also exported in `launch-cloud` to force litellm/boto3 region resolution.
+Note: `AWS_DEFAULT_REGION` is also exported in `launch-bedrock` to force litellm/boto3 region resolution.
 
 ## Claude Code integration
 

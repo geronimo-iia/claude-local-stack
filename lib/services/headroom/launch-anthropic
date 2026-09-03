@@ -1,0 +1,16 @@
+#!/bin/zsh
+set -euo pipefail
+
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+
+exec "${AI_HOME}/lib/utils/supervised-launch" \
+  "headroom" proxy \
+  --port "${HEADROOM_PORT:-8787}" \
+  --mode "${HEADROOM_MODE:-token}" \
+  --backend anthropic \
+  --memory \
+  --memory-db-path "${HEADROOM_MEMORY_PATH}/memory.db" \
+  --no-telemetry \
+  --no-subscription-tracking \
+  --workers "${HEADROOM_WORKERS:-1}" \
+  --log-file "${AI_HOME}/logs/headroom-$(date +%Y-%m-%d).log"

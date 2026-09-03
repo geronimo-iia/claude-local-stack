@@ -21,10 +21,14 @@ Claude Code → Headroom (:8787) → CCR (:3456) → rapid-mlx (:8000) → Qwen3
 **mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B** — 35B MoE (~19B effective), OptiQ 4bit quantization. Fits comfortably in 32GB unified memory with room for embedding model alongside.
 
 Key inference flags:
-- `paged_cache: true` — efficient KV cache for long sequences
-- `mtp: true` — multi-token prediction for faster generation
 - `no_thinking: true` — skip CoT overhead, direct responses
-- `tool_call_parser: qwen3_coder` — structured tool-use output
+- `suffix_decoding: true` — faster fill-in-the-middle completions
+- `tool_call_parser: qwen3_coder_xml` — structured tool-use output
+- `continuous-batching` — efficient concurrent request handling
+
+## Performance
+
+~15.5 tok/s end-to-end (TTFT included) on Apple M3 Max 128GB. Expected for a 35B model on consumer hardware via MLX. Claude Sonnet API is ~60–80 tok/s by comparison.
 
 ## Routing
 

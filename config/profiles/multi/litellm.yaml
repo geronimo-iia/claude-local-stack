@@ -1,13 +1,11 @@
 model_list:
-  # Haiku-tier → local Ollama (background / cheap tasks)
+  # Haiku-tier → Bedrock (background / cheap tasks)
   - model_name: "claude-haiku*"
     litellm_params:
-      model: ollama/mistral-small:24b
-      api_base: http://localhost:11434
-      drop_params: true
-      num_ctx: 32768
-      num_gpu: 99
-      num_keep: -1
+      model: bedrock/anthropic.claude-haiku-4-5
+      aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+      aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+      aws_region_name: os.environ/AWS_REGION
   # Sonnet-tier → Bedrock (everyday tasks)
   - model_name: "claude-sonnet*"
     litellm_params:

@@ -1,5 +1,4 @@
 install:
-  - ollama
   - litellm
   - headroom
 

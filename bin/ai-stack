@@ -104,11 +104,9 @@ _activate_profile() {
   cp "$dir/Procfile" "${OVERMIND_PROCFILE}"
 
   # Auto-install services if enabled
-  if [[ "${AI_STACK_AUTO_INSTALL:-false}" == "true" && -f "$dir/services.yaml" ]]; then
-    while IFS= read -r svc; do
-      [[ -z "$svc" ]] && continue
-      "${AI_HOME}/bin/ai-install" "$svc"
-    done < <(_yaml_list "$dir/services.yaml" "install")
+  if [[ "${AI_STACK_AUTO_INSTALL:-false}" == "true" ]]; then
+    _install_yaml_deps "${AI_HOME}/config/base-services.yaml"
+    _install_yaml_deps "$dir/services.yaml"
   fi
 
   # Record active profile name

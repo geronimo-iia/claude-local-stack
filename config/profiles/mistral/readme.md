@@ -1,5 +1,9 @@
 # Mistral Profile
 
+> **Not suitable for interactive Claude Code sessions.**
+> Loading 73 GB into GPU + prefilling 20k+ token contexts takes 2–3 minutes per response.
+> Use the `local` profile (rapid-mlx + Qwen3.6) for interactive work instead.
+
 Single large model profile. All routes map to Mistral Large 2 (123B) via Ollama. Fully local, no cloud dependencies.
 
 ## Architecture Flow
@@ -26,35 +30,22 @@ Claude Code → Headroom (:8787) → LiteLLM (:4000) → Ollama (:11434) → mis
 
 All task types (`claude-haiku*`, `claude-sonnet*`, `claude-opus*`, catch-all) route to `mistral-large:123b-instruct-2411-q4_K_M` with `num_ctx: 131072`, `num_gpu: 99`, `num_keep: -1`.
 
+## Performance
+
+Measured on Apple Silicon with 128 GB unified memory:
+
+- First request: 2–3 min (model load into GPU + prefill)
+- Subsequent requests: 30–90s depending on context size
+- Generation speed: ~4–8 tok/s
+
 ## Context Window
 
 Start Ollama with flash attention and KV-cache quantization to maximize available context:
 
 ```bash
-# 200k context — recommended for large codebases and multi-agent sessions
 OLLAMA_FLASH_ATTENTION=1 \
 OLLAMA_KV_CACHE_TYPE=q8_0 \
-OLLAMA_CONTEXT_LENGTH=200000 \
 ollama serve
-```
-
-Memory budget at 200k context on 128 GB (large model active):
-
-| Item | Memory |
-|------|--------|
-| mistral-large:123b weights | ~70 GB |
-| mistral-small:24b weights | ~14 GB |
-| KV-cache (FA + q8_0) | ~12–15 GB |
-| OS + system | ~10 GB |
-| **Total** | **~106–109 GB** |
-
-## Multi-Agent Concurrency
-
-Add to `~/.zshrc` or `config/ai-stack.env`:
-
-```bash
-export OLLAMA_NUM_PARALLEL=3       # 3 concurrent agent channels
-export OLLAMA_MAX_LOADED_MODELS=2  # optional: keep a second smaller model loaded
 ```
 
 ## Activation
@@ -69,7 +60,6 @@ ai-stack profile mistral
 
 ## When to Use
 
-- Large codebase sessions requiring 64k–200k context
-- Multi-agent workflows with `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
-- When Qwen3 multi-instance stack (local profile) is too memory-constrained for long context
-- Offline environments where a single capable model is preferable to a tiered setup
+- Air-gapped environments with no cloud access
+- Sensitive codebases that must not leave the machine
+- Batch/offline tasks where latency is acceptable

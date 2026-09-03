@@ -1,7 +1,6 @@
 install:
   - headroom
   - litellm
-  - rapid-mlx
 
 plugins:
   - caveman

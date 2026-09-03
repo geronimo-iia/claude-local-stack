@@ -23,23 +23,6 @@ model_list:
       model: anthropic/claude-sonnet-5
       api_key: os.environ/ANTHROPIC_API_KEY
 
-  # Local fallback — used automatically on 429 from Anthropic
-  - model_name: "local-fallback"
-    litellm_params:
-      model: openai/mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B
-      api_base: http://localhost:8000/v1
-      api_key: local
-
-router_settings:
-  fallbacks:
-    - "claude-sonnet*": ["local-fallback"]
-    - "claude-opus*":   ["local-fallback"]
-    - "claude-haiku*":  ["local-fallback"]
-    - "*":              ["local-fallback"]
-  retry_policy:
-    RateLimitErrorRetries: 1
-  num_retries: 1
-
 litellm_settings:
   drop_params: true
   callbacks: ["strip_thinking.proxy_handler_instance"]

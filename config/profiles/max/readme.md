@@ -1,38 +1,34 @@
 # max profile
 
-Anthropic direct API (Claude Max plan) as primary, local rapid-mlx as automatic fallback on rate-limit (429).
+Anthropic direct API (Claude Max plan). No fallback — Max plan limits are high enough that 429s are not a practical concern.
 
 Prompt caching works natively — Headroom places `cache_control` at stable prefix boundaries. Unlike Bedrock (eu-west-1 Converse API), the Anthropic Messages API honors cache reads, cutting costs 10x on repeated context.
 
 ## Architecture
 
 ```
-Claude Code → Headroom (:8787) → LiteLLM (:4000) → Anthropic API  [primary]
-                                                  → rapid-mlx :8000 [429 fallback]
+Claude Code → Headroom (:8787) → LiteLLM (:4000) → Anthropic API
 ```
 
 ## Prerequisites
 
 - `ANTHROPIC_API_KEY` provisioned (Claude Max plan)
-- local Qwen3.6 model downloaded (`ai-models pull llm`)
 
 Add key via `ai-secrets edit`.
 
 ## Routing
 
-| Tier | Model | Notes |
-|------|-------|-------|
-| `claude-haiku*` | `claude-haiku-4-5-20251001` | Anthropic direct |
-| `claude-sonnet*` | `claude-sonnet-5` | Anthropic direct |
-| `claude-opus*` | `claude-opus-5` | Anthropic direct |
-| `local-fallback` | Qwen3.6-35B-A3B-OptiQ | Auto on 429 |
+| Tier | Model |
+|------|-------|
+| `claude-haiku*` | `claude-haiku-4-5-20251001` |
+| `claude-sonnet*` | `claude-sonnet-5` |
+| `claude-opus*` | `claude-opus-5` |
 
 ## Services
 
 | Service | Port | Role |
 |---------|------|------|
-| rapid-mlx | 8000 | Local inference (fallback) |
-| LiteLLM | 4000 | Routing + 429 fallback logic |
+| LiteLLM | 4000 | Proxy, model routing |
 | Headroom | 8787 | Token compression + cache_control |
 
 ## Why not aws-bedrock?

@@ -2,28 +2,30 @@ model_list:
   # Haiku-tier → Bedrock (background / cheap tasks)
   - model_name: "claude-haiku*"
     litellm_params:
-      model: bedrock/anthropic.claude-haiku-4-5
+      model: bedrock/eu.anthropic.claude-haiku-4-5-20251001-v1:0
       aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
       aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
       aws_region_name: os.environ/AWS_REGION
   # Sonnet-tier → Bedrock (everyday tasks)
   - model_name: "claude-sonnet*"
     litellm_params:
-      model: bedrock/anthropic.claude-sonnet-4-5
+      model: bedrock/eu.anthropic.claude-sonnet-4-5-20250929-v1:0
       aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
       aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
       aws_region_name: os.environ/AWS_REGION
 
-  # Opus-tier → Anthropic direct (heavy reasoning)
+  # Opus-tier → Bedrock (heavy reasoning)
   - model_name: "claude-opus*"
     litellm_params:
-      model: anthropic/claude-opus-4-5
-      api_key: os.environ/ANTHROPIC_API_KEY
+      model: bedrock/eu.anthropic.claude-opus-4-5-20251101-v1:0
+      aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+      aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+      aws_region_name: os.environ/AWS_REGION
 
   # Catch-all → Bedrock
   - model_name: "*"
     litellm_params:
-      model: bedrock/anthropic.claude-sonnet-4-5
+      model: bedrock/eu.anthropic.claude-sonnet-4-5-20250929-v1:0
       aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
       aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
       aws_region_name: os.environ/AWS_REGION

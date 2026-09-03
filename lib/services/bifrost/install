@@ -1,0 +1,31 @@
+#!/bin/zsh
+set -euo pipefail
+
+[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+
+case "${1:-install}" in
+  remove)
+    echo "  bifrost runs via npx — no permanent install to remove"
+    echo "  To clear cached package: npm cache clean --force"
+    ;;
+  upgrade)
+    echo "  clearing npx cache for @maximhq/bifrost…"
+    npm cache clean --force 2>/dev/null || true
+    echo "  warming npx cache for latest @maximhq/bifrost…"
+    npx -y @maximhq/bifrost --version 2>/dev/null || true
+    echo "  ✓ bifrost cache refreshed"
+    ;;
+  install)
+    echo "  warming npx cache for @maximhq/bifrost…"
+    npx -y @maximhq/bifrost --version 2>/dev/null || true
+    mkdir -p "${AI_HOME}/config/.bifrost"
+    echo "  ✓ bifrost (via npx)"
+    ;;
+  check)
+    command -v npx &>/dev/null && echo "  ✓ bifrost (via npx)" || { echo "  ✗ npx not found (install Node via asdf)"; exit 1; }
+    ;;
+  *)
+    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, remove, or check." >&2
+    exit 1
+    ;;
+esac

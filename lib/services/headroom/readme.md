@@ -74,6 +74,39 @@ ANTHROPIC_BASE_URL="http://localhost:${HEADROOM_PORT}"
 
 `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=70` triggers auto-compaction at 70% context usage to keep token count manageable.
 
+## Observability
+
+Dashboard and stats commands (proxy must be running on port 8787):
+
+| Command | Description |
+|---------|-------------|
+| `headroom dashboard` | Opens savings dashboard in browser |
+| `headroom perf` | Analyzes proxy performance from logs |
+| `headroom savings` | Durable compression savings over time |
+| `headroom inspect` | Original vs compressed content for recent requests |
+| `headroom output-savings` | Output token reduction stats |
+
+## Logs
+
+Two log locations:
+
+**`$AI_HOME/logs/`** — stdout/stderr from supervised-launch (via `--log-file`):
+
+| File | Profile |
+|------|---------|
+| `headroom.log` | default (no date suffix) |
+| `headroom-YYYY-MM-DD.log` | cloud and max profiles |
+
+**`~/.headroom/logs/`** — internal proxy logs (rotated):
+
+| File | Contents |
+|------|----------|
+| `proxy.log` | current — PERF lines, cache stats, request trace |
+| `proxy.log.1`, `.2`, `.3` | rotated (~10M each) |
+| `debug_400/` | captured 400 error payloads |
+
+PERF lines in `proxy.log` contain per-request `cache_read` / `cache_write` counters. Use these to verify prompt caching is active.
+
 ## Env vars
 
 Set in `config/ai-stack.env`:

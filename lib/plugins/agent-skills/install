@@ -94,8 +94,11 @@ case "${1:-install}" in
     fi
     install_cli_tools
     ;;
+  check)
+    claude plugin list 2>/dev/null | grep -q "${PLUGIN_ID}" && echo "  ✓ agent-skills" || { echo "  ✗ agent-skills"; exit 1; }
+    ;;
   *)
-    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, or remove." >&2
+    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, remove, or check." >&2
     exit 1
     ;;
 esac

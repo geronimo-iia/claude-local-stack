@@ -15,6 +15,8 @@ ai-stack logs [svc]         # stream all output, or attach to one service
 ai-stack shell              # open subshell with stack env + secrets loaded
 ai-stack profile            # show current profile
 ai-stack profile <name>     # switch profile (default|local|hybrid|cloud)
+ai-stack check [profile]    # check all deps for active (or named) profile
+ai-stack install [profile]  # install all missing deps for active (or named) profile
 ai-stack plugin  {install|upgrade|remove} <name...>   # manage Claude Code plugins
 ai-stack service {install|upgrade|remove} <name...>   # manage services and setup components
 ```

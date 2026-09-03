@@ -29,8 +29,11 @@ case "${1:-install}" in
       echo "  ✓ llm-wiki-skills"
     fi
     ;;
+  check)
+    claude plugin list 2>/dev/null | grep -q "${PLUGIN_ID}" && echo "  ✓ llm-wiki-skills" || { echo "  ✗ llm-wiki-skills"; exit 1; }
+    ;;
   *)
-    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, or remove." >&2
+    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, remove, or check." >&2
     exit 1
     ;;
 esac

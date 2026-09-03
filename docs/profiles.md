@@ -11,6 +11,7 @@ A profile is a complete stack configuration: routing rules + service definitions
 | hybrid | rapid-mlx ×2 | 64 GB | Bedrock for think/longContext |
 | mistral | ollama ×1 | 128 GB | Two Ollama models, large context |
 | cloud | none | any | Bedrock only, no local inference |
+| multi | ollama ×1 + litellm | 128 GB | LiteLLM router: Ollama + Bedrock + Anthropic API |
 
 ## Structure
 
@@ -53,37 +54,69 @@ ai-stack profile hybrid
 4. Copies `Procfile` → `config/Procfile`
 5. If `AI_STACK_AUTO_INSTALL=true`: runs `ai-install <svc>` for each service in `services.yaml`
 6. Writes profile name to `config/.active-profile`
-7. Restarts services (if was running)
+7. Runs silent dep check — warns if anything is missing
+8. Restarts services (if was running)
 
 ## services.yaml
 
-Declares which services must be installed for the profile to work:
+Declares all deps for a profile — services, plugins, MCP registrations, and arbitrary binaries:
 
 ```yaml
 # config/profiles/default/services.yaml
-install:
+install:          # services to install — ai-stack service install <name>
   - headroom
   - claude-code-router
   - rapid-mlx
+
+plugins:          # Claude Code plugins — ai-stack plugin install <name>
+  - caveman
+  - context-mode
+  - agent-skills
+
+mcp:              # MCP servers that must be registered in ~/.claude.json
+  - headroom
+
+check:            # arbitrary binaries that must exist (no install action)
+  - overmind
 ```
+
+All sections are optional. Existing `install:`-only files remain valid.
+
+## base-services.yaml
+
+`config/base-services.yaml` lists deps required by **all** profiles — checked and installed before any profile-specific deps:
 
 ```yaml
-# config/profiles/cloud/services.yaml
 install:
-  - headroom
+  - claude-code
+
+plugins:
+  - superpowers
+
+check:
+  - overmind
 ```
 
-Install scripts are idempotent — safe to run on every profile switch.
+## Dep checking
+
+```bash
+ai-stack check              # full report for active profile (base + profile)
+ai-stack check cloud        # report for a named profile without switching
+ai-stack install            # install all missing deps for active profile
+ai-stack install cloud      # install for a named profile without switching
+```
+
+On every profile switch, a silent check runs automatically — prints `⚠ Deps missing. Run: ai-stack install` if anything is missing.
 
 ## Auto-install
 
 Controlled by env var in `config/ai-stack.env`:
 
 ```bash
-AI_STACK_AUTO_INSTALL="true"    # run install on profile switch
+AI_STACK_AUTO_INSTALL="true"    # run service install on profile switch
 ```
 
-Set to `"false"` for fast switching (CI, already-installed environments).
+Set to `"false"` for fast switching (CI, already-installed environments). `ai-stack install` is the explicit alternative.
 
 ## Runtime overrides
 

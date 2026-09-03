@@ -1,7 +1,7 @@
 install:
+  - ollama
+  - litellm
   - headroom
-  - claude-code-router
-  - rapid-mlx
 
 plugins:
   - caveman
@@ -10,3 +10,6 @@ plugins:
 
 mcp:
   - headroom
+
+check:
+  - overmind

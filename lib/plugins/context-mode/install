@@ -40,8 +40,11 @@ case "${1:-install}" in
     fi
     configure_claude_md
     ;;
+  check)
+    claude plugin list 2>/dev/null | grep -q "context-mode@context-mode" && echo "  ✓ context-mode" || { echo "  ✗ context-mode"; exit 1; }
+    ;;
   *)
-    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, or remove." >&2
+    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, remove, or check." >&2
     exit 1
     ;;
 esac

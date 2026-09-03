@@ -1,0 +1,35 @@
+model_list:
+  - model_name: background
+    litellm_params:
+      model: ollama/mistral-small:24b
+      api_base: http://localhost:11434
+
+  - model_name: default
+    litellm_params:
+      model: ollama/mistral-large:123b
+      api_base: http://localhost:11434
+
+  - model_name: think
+    litellm_params:
+      model: bedrock/anthropic.claude-sonnet-4-5
+      aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+      aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+      aws_region_name: os.environ/AWS_REGION
+
+  - model_name: longContext
+    litellm_params:
+      model: bedrock/anthropic.claude-sonnet-4-5
+      aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+      aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+      aws_region_name: os.environ/AWS_REGION
+
+  - model_name: webSearch
+    litellm_params:
+      model: anthropic/claude-opus-4-5
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+litellm_settings:
+  fallbacks:
+    - default: [think]
+  request_timeout: 600
+  telemetry: false

@@ -30,8 +30,11 @@ case "${1:-install}" in
 
 
     ;;
+  check)
+    claude plugin list 2>/dev/null | grep -q "superpowers@claude-plugins-official" && echo "  ✓ superpowers" || { echo "  ✗ superpowers"; exit 1; }
+    ;;
   *)
-    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, or remove." >&2
+    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, remove, or check." >&2
     exit 1
     ;;
 esac

@@ -42,8 +42,20 @@ models:
 
 ## Shell
 
+Add to `~/.zshenv` (runs for all processes including GUI-launched apps):
+
 ```bash
-export PATH="${HOME}/claude-stack/bin:$PATH"
+export AI_HOME="$HOME/claude-local-stack"
+export ANTHROPIC_BASE_URL="http://localhost:8787"
+```
+
+`AI_HOME` must be set before anything else — the stack bin and `ai-stack.env` both depend on it.
+`ANTHROPIC_BASE_URL` ensures Claude Code always routes through the headroom proxy regardless of how it was launched. When headroom is not running, Claude Code will fail to connect — start the stack first with `ais`.
+
+Add to `~/.zshrc` (terminal sessions):
+
+```bash
+export PATH="${AI_HOME}/bin:$PATH"
 
 # Stack
 alias ais="ai-stack start"

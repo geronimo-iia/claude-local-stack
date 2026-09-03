@@ -1,4 +1,12 @@
 install:
   - ollama
+  - litellm
   - headroom
-  - claude-code-router
+
+plugins:
+  - caveman
+  - context-mode
+  - agent-skills
+
+mcp:
+  - headroom

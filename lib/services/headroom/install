@@ -34,8 +34,11 @@ case "${1:-install}" in
     fi
     echo "  ✓ headroom MCP registered in claude-code"
     ;;
+  check)
+    command -v headroom &>/dev/null && echo "  ✓ headroom" || { echo "  ✗ headroom"; exit 1; }
+    ;;
   *)
-    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, or remove." >&2
+    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, remove, or check." >&2
     exit 1
     ;;
 esac

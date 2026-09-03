@@ -1,0 +1,8 @@
+install:
+  - claude-code
+
+plugins:
+  - superpowers
+
+check:
+  - overmind

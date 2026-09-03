@@ -27,8 +27,11 @@ case "${1:-install}" in
     fi
 
     ;;
+  check)
+    claude plugin list 2>/dev/null | grep -q "caveman@caveman" && echo "  ✓ caveman" || { echo "  ✗ caveman"; exit 1; }
+    ;;
   *)
-    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, or remove." >&2
+    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, remove, or check." >&2
     exit 1
     ;;
 esac

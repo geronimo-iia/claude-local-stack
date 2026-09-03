@@ -91,8 +91,9 @@ flowchart LR
 3. Install tools: `ai-install`
 4. use [ai-secret](./docs/secrets.md) to set your local secret like `ANTHROPIC_API_KEY`, `HF_TOKEN`, ...
 5. Activate a profile: `ai-stack profile default`
-6. boot: `ai-stack start`
-7. launch Claude: `aclaude`, or VS Code: `acode`
+6. Verify all deps: `ai-stack check` (install missing: `ai-stack install`)
+7. boot: `ai-stack start`
+8. launch Claude: `aclaude`, or VS Code: `acode`
    (`aclaude`/`acode` are shell aliases injected by `ai-stack shell` — see [docs/integration.md](docs/integration.md))
 
 
@@ -126,6 +127,8 @@ ai-stack logs [svc]         # stream or attach logs
 ai-stack enable <svc...>    # uncomment service, restart if running
 ai-stack disable <svc...>   # comment service, restart if running
 ai-stack shell              # subshell with env + secrets loaded
+ai-stack check [profile]    # dep report for active (or named) profile
+ai-stack install [profile]  # install all missing deps
 ```
 
 ### Installation
@@ -177,14 +180,15 @@ Point any tool at `http://localhost:8787` with `ANTHROPIC_API_KEY=local`.
 ai-stack/
 ├── bin/              # CLI tools (ai-stack, ai-install, ai-secrets, ai-models)
 ├── config/
-│   ├── ai-stack.env  # project paths
-│   ├── profiles/     # profile definitions (default, cloud, ...)
-│   ├── Procfile      # active service definitions
-│   └── models.yaml   # model manifest
+│   ├── ai-stack.env        # project paths
+│   ├── base-services.yaml  # universal deps (claude-code, superpowers, overmind)
+│   ├── profiles/           # profile definitions (default, cloud, ...)
+│   ├── Procfile            # active service definitions
+│   └── models.yaml         # model manifest
 ├── lib/
-│   ├── setup/        # bootstrap scripts
-│   ├── services/     # daemons (rapid-mlx, headroom, ccr)
-│   ├── plugins/      # extensions (rtk, context-mode, superpowers, caveman, drawio, atlassian)
+│   ├── setup/        # one-shot bootstrap scripts (prerequisites, runtimes, tooling)
+│   ├── services/     # daemons and installable tools (rapid-mlx, headroom, ccr, claude-code…)
+│   ├── plugins/      # Claude Code plugins (rtk, context-mode, superpowers, caveman, agent-skills…)
 │   └── utils/        # helpers
 ├── secrets/          # SOPS-encrypted keys
 ├── logs/             # runtime logs (gitignored)

@@ -95,20 +95,162 @@ _activate_profile() {
     cp "$dir/rapid-mlx.yaml" "${AI_HOME}/config/rapid-mlx.yaml"
   fi
 
+  # LiteLLM multi-provider config (optional — only multi profile has this)
+  if [[ -f "$dir/litellm.yaml" ]]; then
+    cp "$dir/litellm.yaml" "${AI_HOME}/config/litellm.yaml"
+  fi
+
   # Procfile → active service definitions for overmind
   cp "$dir/Procfile" "${OVERMIND_PROCFILE}"
 
   # Auto-install services if enabled
   if [[ "${AI_STACK_AUTO_INSTALL:-false}" == "true" && -f "$dir/services.yaml" ]]; then
     while IFS= read -r svc; do
-      svc=$(echo "$svc" | sed 's/^[- ]*//' | xargs)
-      [[ -z "$svc" || "$svc" == "install:" ]] && continue
+      [[ -z "$svc" ]] && continue
       "${AI_HOME}/bin/ai-install" "$svc"
-    done < "$dir/services.yaml"
+    done < <(_yaml_list "$dir/services.yaml" "install")
   fi
 
   # Record active profile name
   echo "$name" > "${AI_HOME}/config/.active-profile"
+}
+
+# --- Dep checking ---
+
+# Extract list items from a named YAML section. Args: file section
+_yaml_list() {
+  local file="$1" section="$2"
+  [[ -f "$file" ]] || return 0
+  awk "/^${section}:/{f=1;next} f&&/^[^ ]/{f=0} f&&/^  - /{sub(/^  - /,\"\");print}" "$file"
+}
+
+# Install all deps from one services.yaml file.
+_install_yaml_deps() {
+  local yaml="$1"
+  [[ -f "$yaml" ]] || return 0
+  local items
+
+  items="$(_yaml_list "$yaml" "install")"
+  if [[ -n "$items" ]]; then
+    while IFS= read -r svc; do
+      [[ -z "$svc" ]] && continue
+      local script="${AI_HOME}/lib/services/${svc}/install"
+      [[ ! -f "$script" ]] && script="${AI_HOME}/lib/setup/${svc}/install"
+      if [[ -f "$script" ]]; then
+        echo "── service: ${svc} ──"
+        source "$script" install
+      fi
+    done <<< "$items"
+  fi
+
+  items="$(_yaml_list "$yaml" "plugins")"
+  if [[ -n "$items" ]]; then
+    while IFS= read -r plugin; do
+      [[ -z "$plugin" ]] && continue
+      local script="${AI_HOME}/lib/plugins/${plugin}/install"
+      if [[ -f "$script" ]]; then
+        echo "── plugin: ${plugin} ──"
+        source "$script" install
+      fi
+    done <<< "$items"
+  fi
+}
+
+# Check one services.yaml file. Prints results; returns missing count.
+_check_yaml_deps() {
+  local yaml="$1"
+  [[ -f "$yaml" ]] || return 0
+  local missing=0 items
+
+  items="$(_yaml_list "$yaml" "install")"
+  if [[ -n "$items" ]]; then
+    echo ""
+    echo "Services:"
+    while IFS= read -r svc; do
+      [[ -z "$svc" ]] && continue
+      local script="${AI_HOME}/lib/services/${svc}/install"
+      [[ ! -f "$script" ]] && script="${AI_HOME}/lib/setup/${svc}/install"
+      if [[ -f "$script" ]]; then
+        "${script}" check || { echo "    → ai-stack service install ${svc}"; missing=$(( missing + 1 )); }
+      fi
+    done <<< "$items"
+  fi
+
+  items="$(_yaml_list "$yaml" "plugins")"
+  if [[ -n "$items" ]]; then
+    echo ""
+    echo "Plugins:"
+    while IFS= read -r plugin; do
+      [[ -z "$plugin" ]] && continue
+      local script="${AI_HOME}/lib/plugins/${plugin}/install"
+      if [[ -f "$script" ]]; then
+        "${script}" check || { echo "    → ai-stack plugin install ${plugin}"; missing=$(( missing + 1 )); }
+      fi
+    done <<< "$items"
+  fi
+
+  items="$(_yaml_list "$yaml" "mcp")"
+  if [[ -n "$items" ]]; then
+    echo ""
+    echo "MCP:"
+    while IFS= read -r mcp; do
+      [[ -z "$mcp" ]] && continue
+      if grep -q "\"${mcp}\"" ~/.claude.json 2>/dev/null; then
+        echo "  ✓ mcp: ${mcp}"
+      else
+        echo "  ✗ mcp: ${mcp}"
+        echo "    → ai-stack service install ${mcp}"
+        missing=$(( missing + 1 ))
+      fi
+    done <<< "$items"
+  fi
+
+  items="$(_yaml_list "$yaml" "check")"
+  if [[ -n "$items" ]]; then
+    echo ""
+    echo "Binaries:"
+    while IFS= read -r bin; do
+      [[ -z "$bin" ]] && continue
+      if command -v "$bin" &>/dev/null; then
+        echo "  ✓ ${bin}"
+      else
+        echo "  ✗ ${bin} not found"
+        missing=$(( missing + 1 ))
+      fi
+    done <<< "$items"
+  fi
+
+  return "$missing"
+}
+
+# Check base + profile deps. Prints full report; returns total missing count.
+_check_profile_deps() {
+  local profile="${1:-$(_current_profile)}"
+  local missing=0
+
+  local base_yaml="${AI_HOME}/config/base-services.yaml"
+  if [[ -f "$base_yaml" ]]; then
+    echo "Base:"
+    _check_yaml_deps "$base_yaml" || missing=$(( missing + $? ))
+    echo ""
+  fi
+
+  local dir
+  dir="$(_profile_dir "$profile")"
+  echo "Profile: ${profile}"
+  if [[ ! -f "$dir/services.yaml" ]]; then
+    echo "  (no services.yaml)"
+  else
+    _check_yaml_deps "$dir/services.yaml" || missing=$(( missing + $? ))
+  fi
+
+  echo ""
+  if (( missing > 0 )); then
+    echo "⚠ ${missing} dep(s) missing. Run: ai-stack install"
+    return "$missing"
+  fi
+  echo "✓ All deps present"
+  return 0
 }
 
 # --- Commands ---
@@ -206,11 +348,38 @@ case "${1:-help}" in
     fi
     _activate_profile "$1"
     echo "✓ Profile '$1' activated"
+    _check_profile_deps "$1" &>/dev/null || echo "⚠ Deps missing. Run: ai-stack install"
     # Restart with new profile if previously running
     if $was_running; then
       overmind start -D
       echo "✓ Stack restarted"
     fi
+    ;;
+  check)
+    local profile="${2:-$(_current_profile)}"
+    if [[ "$profile" == "none" ]]; then
+      echo "No active profile. Run: ai-stack profile <name>" >&2
+      exit 1
+    fi
+    _check_profile_deps "$profile"
+    ;;
+  install)
+    local profile="${2:-$(_current_profile)}"
+    if [[ "$profile" == "none" ]]; then
+      echo "No active profile. Run: ai-stack profile <name>" >&2
+      exit 1
+    fi
+    local dir yaml
+    dir="$(_profile_dir "$profile")"
+    yaml="$dir/services.yaml"
+    if [[ ! -f "$yaml" ]]; then
+      echo "No services.yaml for profile '${profile}'"
+      exit 0
+    fi
+    echo "Installing deps for profile: ${profile}"
+    _install_yaml_deps "${AI_HOME}/config/base-services.yaml"
+    _install_yaml_deps "$yaml"
+    echo "✓ Done"
     ;;
   plugin|service)
     local kind="${1}"
@@ -246,7 +415,7 @@ case "${1:-help}" in
     done
     ;;
   *)
-    echo "Usage: ai-stack {start|stop|restart|status|enable|disable|logs|profile|plugin|service} [args...]"
+    echo "Usage: ai-stack {start|stop|restart|status|enable|disable|logs|profile|check|install|plugin|service} [args...]"
     echo ""
     echo "Commands:"
     echo "  start              Start all services (daemonized)"
@@ -258,6 +427,8 @@ case "${1:-help}" in
     echo "  logs [svc]         Stream all output, or attach to one service"
     echo "  shell [cmd...]     Run command with stack env, or open subshell"
     echo "  profile [name]     Switch routing profile (default|local|hybrid|cloud)"
+    echo "  check [profile]    Check all services.yaml deps for active (or named) profile"
+    echo "  install [profile]  Install all missing deps for active (or named) profile"
     echo "  plugin  {install|upgrade|remove} <name...>"
     echo "                     Manage Claude Code plugins"
     echo "  service {install|upgrade|remove} <name...>"

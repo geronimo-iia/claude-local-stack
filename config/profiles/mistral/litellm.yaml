@@ -1,0 +1,24 @@
+model_list:
+  - model_name: background
+    litellm_params:
+      model: ollama/mistral-small:24b
+      api_base: http://localhost:11434
+
+  - model_name: default
+    litellm_params:
+      model: ollama/mistral-large:123b
+      api_base: http://localhost:11434
+
+  - model_name: think
+    litellm_params:
+      model: ollama/mistral-large:123b
+      api_base: http://localhost:11434
+
+  - model_name: longContext
+    litellm_params:
+      model: ollama/mistral-large:123b
+      api_base: http://localhost:11434
+
+litellm_settings:
+  request_timeout: 600
+  telemetry: false

@@ -21,8 +21,11 @@ case "${1:-install}" in
     fi
     echo "  ✓ ollama ($(ollama --version))"
     ;;
+  check)
+    command -v ollama &>/dev/null && echo "  ✓ ollama" || { echo "  ✗ ollama"; exit 1; }
+    ;;
   *)
-    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, or remove." >&2
+    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, remove, or check." >&2
     exit 1
     ;;
 esac

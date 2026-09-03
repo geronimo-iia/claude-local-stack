@@ -1,0 +1,27 @@
+model_list:
+  - model_name: "claude-haiku*"
+    litellm_params:
+      model: openai/mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B
+      api_base: http://localhost:8000/v1
+      api_key: local
+  - model_name: "claude-sonnet*"
+    litellm_params:
+      model: openai/mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B
+      api_base: http://localhost:8000/v1
+      api_key: local
+  - model_name: "claude-opus*"
+    litellm_params:
+      model: openai/mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B
+      api_base: http://localhost:8000/v1
+      api_key: local
+  - model_name: "*"
+    litellm_params:
+      model: openai/mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B
+      api_base: http://localhost:8000/v1
+      api_key: local
+
+litellm_settings:
+  drop_params: true
+  callbacks: ["strip_thinking.proxy_handler_instance"]
+  request_timeout: 600
+  telemetry: false

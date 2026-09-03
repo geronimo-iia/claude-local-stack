@@ -9,7 +9,7 @@ ollama:
   #- qwen3:30b-a3b-instruct-2507-q4_K_M       # Qwen3 30B MoE — Q4_K_M, ~19 GB
 
 llm:
-  - mlx-community/Qwen3.8-27B-MTP-4bit          # Qwen3.8 27B dense — MTP, 4bit
+  #- mlx-community/Qwen3.8-27B-MTP-4bit          # Qwen3.8 27B dense — MTP, 4bit (unused since local multi-instance profile removed)
   - mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B  # Qwen3.6 35B MoE — OptiQ, ~19B effective
 
 embedding:

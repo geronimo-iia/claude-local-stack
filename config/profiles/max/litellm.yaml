@@ -24,7 +24,5 @@ model_list:
       api_key: os.environ/ANTHROPIC_API_KEY
 
 litellm_settings:
-  drop_params: true
-  callbacks: ["strip_thinking.proxy_handler_instance"]
   request_timeout: 600
   telemetry: false

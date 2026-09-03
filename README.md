@@ -90,7 +90,7 @@ flowchart LR
 2. [configure your shell](./docs/integration.md#Shell)
 3. Install tools: `ai-install`
 4. use [ai-secret](./docs/secrets.md) to set your local secret like `ANTHROPIC_API_KEY`, `HF_TOKEN`, ...
-5. Activate a profile: `ai-stack profile default`
+5. Activate a profile: `ai-stack profile local`
 6. Verify all deps: `ai-stack check` (install missing: `ai-stack install`)
 7. boot: `ai-stack start`
 8. launch Claude: `aclaude`, or VS Code: `acode`
@@ -101,12 +101,12 @@ flowchart LR
 
 Switch routing strategy, models, and services per workflow:
 
-- `default`: [local only](./config/profiles/default/readme.md) — no cloud account needed
+- `local`: [local only](./config/profiles/local/readme.md) — no cloud account needed
 - `cloud`: [aws bedrock](./config/profiles/cloud/readme.md) — requires AWS CLI configured with Bedrock access (`aws configure`, model access enabled in us-east-1 or eu-west-1)
 
 
 ```bash
-ai-stack profile default   # switch profile
+ai-stack profile local   # switch profile
 ai-stack profile          # show current
 ```
 
@@ -182,7 +182,7 @@ ai-stack/
 ├── config/
 │   ├── ai-stack.env        # project paths
 │   ├── base-services.yaml  # universal deps (claude-code, superpowers, overmind)
-│   ├── profiles/           # profile definitions (default, cloud, ...)
+│   ├── profiles/           # profile definitions (local, mistral, mistral-light, multi, cloud)
 │   ├── Procfile            # active service definitions
 │   └── models.yaml         # model manifest
 ├── lib/

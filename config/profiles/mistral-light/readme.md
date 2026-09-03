@@ -2,7 +2,7 @@
 
 > **Not usable for interactive Claude Code sessions.**
 > Claude Code sends 20k+ token contexts per request. `mistral-small:24b` on Ollama takes 3+ minutes
-> to respond even to a simple "hello". Use the `mistral` profile (large model) or `multi` profile instead.
+> to respond even to a simple "hello". Use the `mistral` profile (large model) or `aws-bedrock` profile instead.
 
 Single small model profile. All routes map to Mistral Small 2 (24B) via Ollama. Minimal RAM footprint.
 

@@ -3,7 +3,7 @@
 
 
 ollama:
-  - mistral-large:123b-instruct-2411-q4_K_M  # Mistral Large 2 — Q4_K_M, ~73 GB
+  #- mistral-large:123b-instruct-2411-q4_K_M  # Mistral Large 2 — Q4_K_M, ~73 GB
   #- mistral-small:24b                         # Mistral Small 3.1 — Q4_K_M, ~14 GB (too slow for interactive use; only mistral-light/multi profiles)
   #- qwen3.8:27b-mtp-q4_K_M                   # Qwen3.8 27B dense — MTP, Q4_K_M, ~18 GB
   #- qwen3:30b-a3b-instruct-2507-q4_K_M       # Qwen3 30B MoE — Q4_K_M, ~19 GB
@@ -14,4 +14,4 @@ llm:
 
 embedding:
   - mlx-community/Qwen3-Embedding-0.6B-4bit-DWQ  # fast/tiny, general use
-  - mlx-community/Qwen3-Embedding-4B-4bit-DWQ    # quality retrieval/RAG
+  #- mlx-community/Qwen3-Embedding-4B-4bit-DWQ    # quality retrieval/RAG

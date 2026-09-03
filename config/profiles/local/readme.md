@@ -5,7 +5,7 @@ Balanced single-model profile for general coding assistance. Runs everything loc
 ## Architecture Flow
 
 ```
-Claude Code → Headroom (:8787) → CCR (:3456) → rapid-mlx (:8000) → Qwen3.6-35B-A3B (MLX)
+Claude Code → Headroom (:8787) → LiteLLM (:4000) → rapid-mlx (:8000) → Qwen3.6-35B-A3B (MLX)
 ```
 
 ## Services
@@ -13,8 +13,8 @@ Claude Code → Headroom (:8787) → CCR (:3456) → rapid-mlx (:8000) → Qwen3
 | Service | Port | Role |
 |---------|------|------|
 | rapid-mlx | 8000 | Local LLM inference (MLX backend) |
-| CCR | 3456 | Request routing, status line, token tracking |
-| Headroom | 8787 | Memory-augmented proxy between Claude Code and CCR |
+| LiteLLM | 4000 | Model routing proxy |
+| Headroom | 8787 | Memory-augmented proxy between Claude Code and LiteLLM |
 
 ## Model
 
@@ -32,9 +32,7 @@ Key inference flags:
 
 ## Routing
 
-All CCR routes (`default`, `background`, `think`, `longContext`) point to the same model instance. No tier differentiation — simplicity over optimization.
-
-`longContextThreshold: 60000` tokens triggers the longContext route (same destination in this profile).
+All model name patterns (`claude-haiku*`, `claude-sonnet*`, `claude-opus*`, `*`) route to the same Qwen3.6-35B instance. No tier differentiation — simplicity over optimization.
 
 ## When to Use
 

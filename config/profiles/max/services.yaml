@@ -1,0 +1,12 @@
+install:
+  - headroom
+  - litellm
+  - rapid-mlx
+
+plugins:
+  - caveman
+  - context-mode
+  - agent-skills
+
+mcp:
+  - headroom

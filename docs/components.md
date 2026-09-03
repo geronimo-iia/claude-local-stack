@@ -19,14 +19,14 @@ lib/services/headroom/
 
 ## Services
 
-| Name               | Purpose                 | Port      |
-| ------------------ | ----------------------- | --------- |
-| rapid-mlx          | Local MLX inference     | 8000-8002 |
-| ollama             | Local Ollama inference  | 11434     |
-| headroom           | Token compression proxy | 8787      |
-| claude-code-router | Multi-provider router   | 3456      |
-| voicemode          | Voice I/O (STT + TTS)  | 8765      |
-| llm-wiki           | Git-backed wiki engine (binary, no daemon) | — |
+| Name      | Purpose                                    | Port      |
+| --------- | ------------------------------------------ | --------- |
+| rapid-mlx | Local MLX inference                        | 8000-8002 |
+| ollama    | Local Ollama inference                     | 11434     |
+| litellm   | Model routing proxy                        | 4000      |
+| headroom  | Token compression proxy                    | 8787      |
+| voicemode | Voice I/O (STT + TTS)                     | 8765      |
+| llm-wiki  | Git-backed wiki engine (binary, no daemon) | —         |
 
 ## Plugins
 
@@ -48,12 +48,12 @@ Defined in `config/rapid-mlx.yaml` (copied from active profile):
 instances:
   - role: default
     port: 8000
-    model: arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8
-    embedding_model: mlx-community/bge-m3-mlx-4bit
-    max_tokens: 8192
-    tool_call_parser: auto
-    paged_cache: true
-    reasoning_parser: qwen3
+    model: mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B
+    embedding_model: mlx-community/Qwen3-Embedding-0.6B-4bit-DWQ
+    max_tokens: 32768
+    tool_call_parser: qwen3_coder_xml
+    no_thinking: true
+    suffix_decoding: true
     features: [tool-calling, continuous-batching]
 ```
 

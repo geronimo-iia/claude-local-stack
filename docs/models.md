@@ -7,19 +7,16 @@ Declared in `config/models.yaml`. Downloaded via `ai-models pull`. HuggingFace m
 ```yaml
 ollama:
   - mistral-small:24b                        # Mistral Small 3.1, ~14 GB
-  - qwen3.8:27b-mtp-q4_K_M                  # Qwen3.8 27B dense, ~18 GB
-  - qwen3:30b-a3b-instruct-2507-q4_K_M      # Qwen3 30B MoE, ~19 GB
+
+rapid-mlx:
+  - mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B
+  - mlx-community/Qwen3-Embedding-0.6B-4bit-DWQ  # embedding
 
 llm:
-  - mlx-community/Qwen3.8-27B-MTP-4bit
-  - mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B
-
-embedding:
-  - mlx-community/Qwen3-Embedding-0.6B-4bit-DWQ
-  - mlx-community/Qwen3-Embedding-4B-4bit-DWQ
+  # models pulled via hf download (empty — use rapid-mlx section for MLX models)
 ```
 
-`ollama:` entries are pulled via `ollama pull`. `llm:` and `embedding:` entries are pulled via the HuggingFace CLI.
+`ollama:` entries are pulled via `ollama pull`. `rapid-mlx:` entries are pulled via `rapid-mlx pull`. `llm:` entries (if any) are pulled via `hf download`.
 
 ## Commands
 

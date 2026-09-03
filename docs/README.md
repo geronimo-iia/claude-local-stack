@@ -4,14 +4,17 @@ Local AI inference infrastructure for Claude Code on Apple Silicon. Provides off
 
 ## Architecture
 
-```
-Claude Code → Headroom (:8787) → CCR (:3456) → rapid-mlx (:8000-8002)
-                                              → Ollama (:11434)
-                                              → AWS Bedrock
-```
+Profile-dependent. Typical flows:
 
-Cloud profile bypasses CCR:
 ```
+# local / max
+Claude Code → Headroom (:8787) → LiteLLM (:4000) → rapid-mlx (:8000)
+                                                   → Anthropic API
+
+# max-direct
+Claude Code → Headroom (:8787) → Anthropic API
+
+# bedrock-direct
 Claude Code → Headroom (:8787, --backend bedrock) → AWS Bedrock
 ```
 
@@ -21,12 +24,12 @@ Claude Code → Headroom (:8787, --backend bedrock) → AWS Bedrock
 bin/              # CLI entry points (ai-stack, ai-install, ai-secrets, ai-models)
 config/
   ai-stack.env   # env vars, ports, Overmind config
-  profiles/      # default | local | hybrid | cloud — each has Procfile + ccr.json + rapid-mlx.yaml
+  profiles/      # local | max | max-direct | bedrock-direct | mistral — each has Procfile + optional litellm.yaml/rapid-mlx.yaml
   Procfile       # active service definitions (copied from active profile)
   models.yaml    # model manifest (HuggingFace repo IDs)
 lib/
   setup/         # bootstrap scripts (prerequisites, runtimes, tooling)
-  services/      # daemons: rapid-mlx, headroom, claude-code-router, voicemode; binaries: llm-wiki
+  services/      # daemons: rapid-mlx, litellm, headroom, voicemode; binaries: llm-wiki
   plugins/       # Claude Code extensions: rtk, context-mode, superpowers, caveman, drawio, atlassian, llm-wiki-skills
   utils/         # supervised-launch (restart wrapper), token-savings (dashboard)
 secrets/         # SOPS + age encrypted secrets (age-key.txt and api-keys.sops.yaml are gitignored)
@@ -40,8 +43,8 @@ docs/            # reference docs per topic
 |------|---------|
 | `config/ai-stack.env` | All env vars — sourced first before anything else |
 | `config/.active-profile` | Current profile name (runtime state, gitignored) |
-| `config/profiles/*/ccr.json` | Router rules per profile (task → model mapping) |
 | `config/profiles/*/Procfile` | Services to run per profile |
+| `config/profiles/*/litellm.yaml` | LiteLLM routing config per profile (LiteLLM profiles only) |
 | `config/profiles/*/rapid-mlx.yaml` | Model instance definitions per profile (rapid-mlx profiles only) |
 | `config/profiles/*/services.yaml` | Services to install on profile activation |
 | `lib/utils/supervised-launch` | Restart wrapper: 5 attempts / 60s window, exponential backoff |
@@ -77,16 +80,15 @@ Each component under `lib/services/` or `lib/plugins/` has an `install` script. 
 
 ## Profiles
 
-| Profile | Local models | Cloud | Services | Min RAM |
-|---------|:---:|:---:|---------|--------|
-| default | Qwen3.6-35B-A3B (MoE, 3B active) | — | headroom, ccr, rapid-mlx ×1 | 32 GB |
-| local | Qwen3.6-35B-A3B + Qwen3.6-27B | — | headroom, ccr, rapid-mlx ×2 | 64 GB |
-| local (+think) | + Qwen3-235B-A22B (opt-in) | — | headroom, ccr, rapid-mlx ×3 | 128 GB |
-| hybrid | Qwen3.6-35B + 27B | Bedrock (think/longContext) | headroom, ccr, rapid-mlx ×2 | 64 GB |
-| mistral | Mistral Large 2 (123B) + Small 4 (24B) | — | headroom, ccr, ollama | 128 GB |
-| cloud | — | Bedrock only | headroom (bedrock backend) | any |
+| Profile | Backend | Services | Min RAM |
+|---------|---------|----------|---------|
+| local | rapid-mlx (Qwen3.6-35B) | headroom, litellm, rapid-mlx | 32 GB |
+| max | Anthropic API + local fallback | headroom, litellm, rapid-mlx | 32 GB |
+| max-direct | Anthropic API | headroom | any |
+| bedrock-direct | AWS Bedrock | headroom | any |
+| mistral | Ollama (Mistral Large 2 + Small 4) | headroom, ollama | 128 GB |
 
-Switching profile: copies `Procfile` (+ `ccr.json` + `rapid-mlx.yaml` if present) from profile dir to runtime locations.
+Switching profile copies `Procfile` (+ `litellm.yaml` + `rapid-mlx.yaml` if present) from the profile dir to runtime locations.
 
 ## Secrets
 
@@ -172,4 +174,5 @@ All service `launch` scripts delegate to `lib/utils/supervised-launch`. This wra
 | Models | [models.md](models.md) |
 | Secrets | [secrets.md](secrets.md) |
 | Overmind | [overmind.md](overmind.md) |
-| Roadmap: LiteLLM multi-provider | [roadmap/litellm.md](roadmap/litellm.md) |
+| Roadmap: Bifrost gateway | [roadmap/bifrost.md](roadmap/bifrost.md) |
+| Roadmap: Groq integration | [roadmap/groq.md](roadmap/groq.md) |

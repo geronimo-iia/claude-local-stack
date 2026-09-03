@@ -26,7 +26,7 @@ models:
     provider: openai
     apiBase: http://localhost:8787/v1
     apiKey: local
-    model: arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8
+    model: mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B
 ```
 
 ### Claude extension

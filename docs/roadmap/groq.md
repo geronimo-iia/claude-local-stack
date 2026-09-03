@@ -234,9 +234,3 @@ friction point.
 **Option B:** implement when you want an Anthropic-free fallback during Max plan outages,
 or want to test Groq quality for specific task types before using it in production.
 
-## What Does Not Change
-
-- Headroom stays as the Claude Code entry point (`http://localhost:8787`)
-- `ANTHROPIC_BASE_URL=http://localhost:8787` unchanged
-- Secret management via SOPS + age — just add `GROQ_API_KEY`
-- All existing profiles remain functional

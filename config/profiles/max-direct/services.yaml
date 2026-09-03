@@ -1,0 +1,10 @@
+install:
+  - headroom
+
+plugins:
+  - caveman
+  - context-mode
+  - agent-skills
+
+mcp:
+  - headroom

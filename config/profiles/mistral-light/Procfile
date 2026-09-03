@@ -1,0 +1,3 @@
+ollama:   ${AI_HOME}/lib/services/ollama/launch
+litellm:  ${AI_HOME}/lib/services/litellm/launch
+headroom: ${AI_HOME}/lib/services/headroom/launch-litellm

@@ -1,0 +1,11 @@
+install:
+  - ollama
+  - litellm
+  - headroom
+
+plugins:
+  - caveman
+  - context-mode
+
+mcp:
+  - headroom

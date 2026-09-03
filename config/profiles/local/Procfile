@@ -1,5 +1,0 @@
-rapid-mlx-default: ${AI_HOME}/lib/services/rapid-mlx/launch default
-rapid-mlx-background: ${AI_HOME}/lib/services/rapid-mlx/launch background
-#rapid-mlx-think: ${AI_HOME}/lib/services/rapid-mlx/launch think
-headroom: ${AI_HOME}/lib/services/headroom/launch
-ccr: ${AI_HOME}/lib/services/claude-code-router/launch

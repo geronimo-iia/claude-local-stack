@@ -24,7 +24,7 @@ parse_repos() {
   local category="$1"
   awk -v cat="$category" '
     /^[a-z]+:/ { current=$1; gsub(/:/, "", current); next }
-    current == cat && /^ *- / { gsub(/^ *- */, ""); print }
+    current == cat && /^ *- / { gsub(/^ *- */, ""); sub(/ *#.*$/, ""); print }
   ' "$MANIFEST"
 }
 

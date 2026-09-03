@@ -12,16 +12,16 @@
       "type": "openai",
       "api_base_url": "http://localhost:8000/v1/chat/completions",
       "models": [
-        "arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8"
+        "mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B"
       ],
       "api_key": "local"
     }
   ],
   "Router": {
-    "default": "rapid-mlx-default,arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8",
-    "background": "rapid-mlx-default,arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8",
-    "think": "rapid-mlx-default,arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8",
-    "longContext": "rapid-mlx-default,arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8",
+    "default": "rapid-mlx-default,mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B",
+    "background": "rapid-mlx-default,mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B",
+    "think": "rapid-mlx-default,mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B",
+    "longContext": "rapid-mlx-default,mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B",
     "longContextThreshold": 60000,
     "webSearch": "",
     "image": ""

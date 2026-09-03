@@ -1,13 +1,12 @@
 instances:
   - role: default
     port: 8000
-    model: arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8
-    embedding_model: mlx-community/bge-m3-mlx-4bit
-    max_tokens: 8192
+    model: mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B
+    embedding_model: mlx-community/Qwen3-Embedding-0.6B-4bit-DWQ
+    max_tokens: 32768
     tool_call_parser: qwen3_coder
     paged_cache: true
     #suffix_decoding: true
-    mtp: true
     no_thinking: true
     reasoning_parser: qwen3
     features: [tool-calling, continuous-batching]

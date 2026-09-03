@@ -18,7 +18,7 @@ Claude Code → Headroom (:8787) → CCR (:3456) → rapid-mlx (:8000) → Qwen3
 
 ## Model
 
-**arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8** — 35B MoE (3B active), quantized to mxfp8. Fits comfortably in 128GB unified memory with room for embedding model alongside.
+**mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B** — 35B MoE (~19B effective), OptiQ 4bit quantization. Fits comfortably in 32GB unified memory with room for embedding model alongside.
 
 Key inference flags:
 - `paged_cache: true` — efficient KV cache for long sequences

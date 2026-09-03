@@ -1,24 +1,37 @@
 model_list:
-  - model_name: background
+  - model_name: "claude-haiku*"
     litellm_params:
       model: ollama/mistral-small:24b
       api_base: http://localhost:11434
-
-  - model_name: default
+      drop_params: true
+      num_ctx: 32768
+      num_gpu: 99
+      num_keep: -1
+  - model_name: "claude-sonnet*"
     litellm_params:
       model: ollama/mistral-small:24b
       api_base: http://localhost:11434
-
-  - model_name: think
+      drop_params: true
+      num_ctx: 32768
+      num_gpu: 99
+      num_keep: -1
+  - model_name: "claude-opus*"
     litellm_params:
       model: ollama/mistral-small:24b
       api_base: http://localhost:11434
-
-  - model_name: longContext
+      drop_params: true
+      num_ctx: 32768
+      num_gpu: 99
+      num_keep: -1
+  - model_name: "*"
     litellm_params:
       model: ollama/mistral-small:24b
       api_base: http://localhost:11434
-
+      drop_params: true
+      num_ctx: 32768
+      num_gpu: 99
+      num_keep: -1
 litellm_settings:
+  drop_params: true
   request_timeout: 600
   telemetry: false

@@ -6,14 +6,17 @@ Declared in `config/models.yaml`. Downloaded via `ai-models pull`. HuggingFace m
 
 ```yaml
 ollama:
-  - mistral-large
+  - mistral-small:24b                        # Mistral Small 3.1, ~14 GB
+  - qwen3.8:27b-mtp-q4_K_M                  # Qwen3.8 27B dense, ~18 GB
+  - qwen3:30b-a3b-instruct-2507-q4_K_M      # Qwen3 30B MoE, ~19 GB
 
 llm:
-  - arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8
-  - arthurcollet/Qwen3.6-27B-mlx-mxfp8
+  - mlx-community/Qwen3.8-27B-MTP-4bit
+  - mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B
 
 embedding:
-  - mlx-community/bge-m3-mlx-4bit
+  - mlx-community/Qwen3-Embedding-0.6B-4bit-DWQ
+  - mlx-community/Qwen3-Embedding-4B-4bit-DWQ
 ```
 
 `ollama:` entries are pulled via `ollama pull`. `llm:` and `embedding:` entries are pulled via the HuggingFace CLI.

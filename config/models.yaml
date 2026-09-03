@@ -3,19 +3,15 @@
 
 
 ollama:
-  - mistral-large:123b  # Mistral Large 2 — Q4_K_M, ~70 GB
-  - mistral-small:24b   # Mistral Small 4 — Q4_K_M, ~14 GB
+  - mistral-large:123b-instruct-2411-q4_K_M  # Mistral Large 2 — Q4_K_M, ~73 GB
+  #- mistral-small:24b                         # Mistral Small 3.1 — Q4_K_M, ~14 GB (too slow for interactive use; only mistral-light/multi profiles)
+  #- qwen3.8:27b-mtp-q4_K_M                   # Qwen3.8 27B dense — MTP, Q4_K_M, ~18 GB
+  #- qwen3:30b-a3b-instruct-2507-q4_K_M       # Qwen3 30B MoE — Q4_K_M, ~19 GB
 
 llm:
-  - arthurcollet/Qwen3.6-35B-A3B-mlx-mxfp8
-  - arthurcollet/Qwen3.6-27B-mlx-mxfp8
+  - mlx-community/Qwen3.8-27B-MTP-4bit          # Qwen3.8 27B dense — MTP, 4bit
+  - mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B  # Qwen3.6 35B MoE — OptiQ, ~19B effective
 
 embedding:
-  # Tiny memory footprint, Fast inference
-  - mlx-community/all-MiniLM-L6-v2-4bit
-  # good middle ground (Gemma backbone, trained for embeddings, multilingual)
-  # - mlx-community/embeddinggemma-300m-6bit
-  # top-tier retrieval quality at similar memory cost, only English
-  # NOT EXIST - mlx-community/bge-large-en-v1.5-4bit
-  # BGE-M3 is battle-tested for search/RAG, specifically trained for retrieval tasks (dense + sparse + multi-vector)
-  - mlx-community/bge-m3-mlx-4bit
+  - mlx-community/Qwen3-Embedding-0.6B-4bit-DWQ  # fast/tiny, general use
+  - mlx-community/Qwen3-Embedding-4B-4bit-DWQ    # quality retrieval/RAG

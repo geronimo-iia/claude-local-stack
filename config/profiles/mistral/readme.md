@@ -1,12 +1,11 @@
 # Mistral Profile
 
-Single large model profile. Runs Mistral Large 2 (123B) via Ollama with extended context window. Fully local, no cloud dependencies.
+Single large model profile. All routes map to Mistral Large 2 (123B) via Ollama. Fully local, no cloud dependencies.
 
 ## Architecture Flow
 
 ```
-Claude Code → Headroom (:8787) → CCR (:3456) → Ollama (:11434) → mistral-large:123b  [default / think / longContext]
-                                              → Ollama (:11434) → mistral-small:24b   [background]
+Claude Code → Headroom (:8787) → LiteLLM (:4000) → Ollama (:11434) → mistral-large:123b  [all tiers]
 ```
 
 ## Services
@@ -14,26 +13,18 @@ Claude Code → Headroom (:8787) → CCR (:3456) → Ollama (:11434) → mistral
 | Service | Port | Role |
 |---------|------|------|
 | Ollama | 11434 | Inference backend |
-| CCR | 3456 | Router, status line, token tracking |
-| Headroom | 8787 | Memory-augmented proxy between Claude Code and CCR |
+| LiteLLM | 4000 | Proxy, model routing |
+| Headroom | 8787 | Memory-augmented proxy between Claude Code and LiteLLM |
 
 ## Models
 
 | Model | Tag | Quantization | Memory | Role |
 |-------|-----|-------------|--------|------|
-| Mistral Large 2 | mistral-large:123b | Q4_K_M | ~70 GB | default, think, longContext |
-| Mistral Small 4 | mistral-small:24b | Q4_K_M | ~14 GB | background |
-
-Combined footprint: ~84 GB. Requires 128 GB unified memory.
+| Mistral Large 2 | mistral-large:123b-instruct-2411-q4_K_M | Q4_K_M | ~73 GB | all tiers |
 
 ## Routing
 
-| Route | Model | Use case |
-|-------|-------|----------|
-| `default` | mistral-large:123b | Most coding tasks |
-| `think` | mistral-large:123b | Complex reasoning |
-| `longContext` | mistral-large:123b | Contexts > 60k tokens |
-| `background` | mistral-small:24b | Agentic subtasks, summaries |
+All task types (`claude-haiku*`, `claude-sonnet*`, `claude-opus*`, catch-all) route to `mistral-large:123b-instruct-2411-q4_K_M` with `num_ctx: 131072`, `num_gpu: 99`, `num_keep: -1`.
 
 ## Context Window
 
@@ -69,9 +60,8 @@ export OLLAMA_MAX_LOADED_MODELS=2  # optional: keep a second smaller model loade
 ## Activation
 
 ```bash
-# 1. Pull models if not already cached
-ollama pull mistral-large:123b
-ollama pull mistral-small:24b
+# 1. Pull model if not already cached
+ollama pull mistral-large:123b-instruct-2411-q4_K_M
 
 # 2. Switch to this profile
 ai-stack profile mistral

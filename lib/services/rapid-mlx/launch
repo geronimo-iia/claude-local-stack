@@ -70,5 +70,5 @@ done
 if [[ "$DRY_RUN" == "--dry-run" ]]; then
   echo "${cmd[@]}"
 else
-  exec "${AI_HOME}/lib/utils/supervised-launch" "${cmd[@]}"
+  yes | exec "${AI_HOME}/lib/utils/supervised-launch" "${cmd[@]}"
 fi

@@ -1,6 +1,6 @@
-# Cloud Profile
+# bedrock-direct profile
 
-Minimal profile that uses AWS Bedrock. Only runs Headroom locally for memory augmentation.
+Minimal profile — Headroom directly in front of AWS Bedrock, no LiteLLM routing layer.
 
 ## Architecture Flow
 

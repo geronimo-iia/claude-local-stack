@@ -9,7 +9,7 @@ ollama:
   #- qwen3:30b-a3b-instruct-2507-q4_K_M       # Qwen3 30B MoE — Q4_K_M, ~19 GB
 
 rapid-mlx:
-  #- mlx-community/Qwen3.8-27B-MTP-4bit          # Qwen3.8 27B dense — MTP, 4bit (unused since local multi-instance profile removed)
+  #- mlx-community/Qwen3.8-27B-MTP-4bit            # Qwen3.8 27B — crashes: model_type qwen3_5_mtp not in mlx-lm 0.13.4; use rapid-mlx/Qwen3.8-27B-4bit-MTP-MLX alias instead
   - mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B  # Qwen3.6 35B MoE — OptiQ, ~19B effective (local profile)
   - mlx-community/Qwen3.6-35B-A3B-4bit                 # Qwen3.6 35B MoE — standard 4bit, MTP-capable (rapid-mlx-test profile)
   #- rapid-mlx/Qwen3.8-Flash-Next-4bit           # Qwen3.8 Flash-Next — QSA hybrid, ~103 GiB MLX active, MTP +41% (requires 192 GB)

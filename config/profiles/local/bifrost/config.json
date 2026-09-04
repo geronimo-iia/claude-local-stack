@@ -9,14 +9,14 @@
           "models": ["*"],
           "weight": 1.0,
           "aliases": {
-            "claude-opus-5": "mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B",
-            "claude-sonnet-5": "mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B",
-            "claude-sonnet-4-5": "mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B",
-            "claude-sonnet-4-6": "mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B",
-            "claude-haiku-4-5-20251001": "mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B",
-            "claude-opus-4-5": "mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B",
-            "claude-haiku-3-5-20241022": "mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B",
-            "*": "mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B"
+            "claude-opus-5": "mlx-community/Qwen3.6-35B-A3B-4bit",
+            "claude-sonnet-5": "mlx-community/Qwen3.6-35B-A3B-4bit",
+            "claude-sonnet-4-5": "mlx-community/Qwen3.6-35B-A3B-4bit",
+            "claude-sonnet-4-6": "mlx-community/Qwen3.6-35B-A3B-4bit",
+            "claude-haiku-4-5-20251001": "mlx-community/Qwen3.6-35B-A3B-4bit",
+            "claude-opus-4-5": "mlx-community/Qwen3.6-35B-A3B-4bit",
+            "claude-haiku-3-5-20241022": "mlx-community/Qwen3.6-35B-A3B-4bit",
+            "*": "mlx-community/Qwen3.6-35B-A3B-4bit"
           }
         }
       ],

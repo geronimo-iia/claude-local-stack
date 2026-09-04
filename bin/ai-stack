@@ -336,16 +336,20 @@ case "${1:-help}" in
   profile)
     shift
     local force=false
-    if [[ "${1:-}" == "--force" ]]; then
-      force=true
-      shift
-    fi
-    if [[ $# -eq 0 ]]; then
+    local profile_name=""
+    for arg in "$@"; do
+      if [[ "$arg" == "--force" ]]; then
+        force=true
+      else
+        profile_name="$arg"
+      fi
+    done
+    if [[ -z "$profile_name" ]]; then
       echo "Current profile: $(_current_profile)"
       exit 0
     fi
-    if [[ "$(_current_profile)" == "$1" ]] && ! $force; then
-      echo "Profile '$1' already active"
+    if [[ "$(_current_profile)" == "$profile_name" ]] && ! $force; then
+      echo "Profile '$profile_name' already active"
       exit 0
     fi
     # Stop current services before swapping config
@@ -356,9 +360,9 @@ case "${1:-help}" in
       overmind quit 2>/dev/null || true
       _wait_socket_gone
     fi
-    _activate_profile "$1"
-    echo "✓ Profile '$1' activated"
-    _check_profile_deps "$1" &>/dev/null || echo "⚠ Deps missing. Run: ai-stack install"
+    _activate_profile "$profile_name"
+    echo "✓ Profile '$profile_name' activated"
+    _check_profile_deps "$profile_name" &>/dev/null || echo "⚠ Deps missing. Run: ai-stack install"
     # Restart with new profile if previously running
     if $was_running; then
       overmind start -D

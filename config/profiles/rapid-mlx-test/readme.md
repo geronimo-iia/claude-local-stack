@@ -23,6 +23,18 @@ Key inference flags:
 | | local (OptiQ-REAP) | rapid-mlx-test (A3B-4bit) |
 |---|---|---|
 | Size | 13.9 GiB | 19.0 GiB |
+| MLX active | ~14 GiB | ~23 GiB |
 | Quant | OptiQ mixed-precision | standard 4bit |
 | MTP | no | yes |
-| Speed (est.) | ~15 tok/s | ~60 tok/s |
+| Speed (measured, 192 GB M3 Ultra) | ~15.5 tok/s | **~73 tok/s** |
+
+## Other models to evaluate
+
+Swap `model:` in `rapid-mlx.yaml` and `litellm.yaml` to test:
+
+| Model | MLX active | MTP decode @8K | Notes |
+|---|---|---|---|
+| `mlx-community/Qwen3.8-27B-MTP-4bit` | ~15 GiB | ~41 tok/s | rapid-mlx "Smart" pick, newer arch |
+| `mlx-community/Qwen3.6-27B-4bit` | ~15 GiB | ~50 tok/s | dense 27B, lighter than MoE 35B |
+| `mlx-community/Qwen3-Coder-30B-Instruct-4bit` | ~16 GiB | unknown (no MTP) | coding-focused fine-tune |
+| `rapid-mlx/Qwen3.8-Flash-Next-4bit` | ~103 GiB | ~32 tok/s (+41% MTP) | QSA hybrid arch; requires 192 GB; 148 GiB load peak |

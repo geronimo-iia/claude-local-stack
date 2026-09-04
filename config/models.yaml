@@ -12,6 +12,7 @@ rapid-mlx:
   #- mlx-community/Qwen3.8-27B-MTP-4bit          # Qwen3.8 27B dense — MTP, 4bit (unused since local multi-instance profile removed)
   - mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B  # Qwen3.6 35B MoE — OptiQ, ~19B effective (local profile)
   - mlx-community/Qwen3.6-35B-A3B-4bit                 # Qwen3.6 35B MoE — standard 4bit, MTP-capable (rapid-mlx-test profile)
+  #- rapid-mlx/Qwen3.8-Flash-Next-4bit           # Qwen3.8 Flash-Next — QSA hybrid, ~103 GiB MLX active, MTP +41% (requires 192 GB)
   - mlx-community/Qwen3-Embedding-0.6B-4bit-DWQ  # embedding — fast/tiny, general use
   #- mlx-community/Qwen3-Embedding-4B-4bit-DWQ    # embedding — quality retrieval/RAG
   - mlx-community/Qwen3.5-4B-MLX-4bit  # Qwen3.5 4B dense — MLX, ~4 GB

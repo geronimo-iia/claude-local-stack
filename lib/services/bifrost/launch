@@ -2,6 +2,7 @@
 set -euo pipefail
 
 source "$(dirname "$0")/../../../config/ai-stack.env"
+source "${AI_HOME}/lib/utils/load-service-env" "bifrost"
 
 exec "${AI_HOME}/lib/utils/supervised-launch" \
   npx -y @maximhq/bifrost \

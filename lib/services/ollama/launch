@@ -1,14 +1,7 @@
 #!/bin/zsh
 set -euo pipefail
 
-[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+source "$(dirname "$0")/../../../config/ai-stack.env"
+source "${AI_HOME}/lib/utils/load-service-env" "ollama"
 
-exec "${AI_HOME}/lib/utils/supervised-launch" \
-  env \
-  OLLAMA_KEEP_ALIVE="${OLLAMA_KEEP_ALIVE:-5m}" \
-  OLLAMA_FLASH_ATTENTION="${OLLAMA_FLASH_ATTENTION:-1}" \
-  OLLAMA_KV_CACHE_TYPE="${OLLAMA_KV_CACHE_TYPE:-q8_0}" \
-  OLLAMA_CONTEXT_LENGTH="${OLLAMA_CONTEXT_LENGTH:-200000}" \
-  OLLAMA_NUM_PARALLEL="${OLLAMA_NUM_PARALLEL:-3}" \
-  OLLAMA_MAX_LOADED_MODELS="${OLLAMA_MAX_LOADED_MODELS:-2}" \
-  ollama serve
+exec "${AI_HOME}/lib/utils/supervised-launch" ollama serve

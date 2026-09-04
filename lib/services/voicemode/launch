@@ -1,6 +1,7 @@
 #!/bin/zsh
 set -euo pipefail
 
-[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+source "$(dirname "$0")/../../../config/ai-stack.env"
+source "${AI_HOME}/lib/utils/load-service-env" "voicemode"
 
 exec "${AI_HOME}/lib/utils/supervised-launch" voicemode serve --transport "streamable-http"

@@ -1,0 +1,7 @@
+# Source this file AFTER ai-stack.env (AI_HOME must be set).
+# Usage: source load-service-env "service-name"
+_lse_svc="$1"
+[[ -f "${AI_HOME}/lib/services/${_lse_svc}/default.env" ]] && source "${AI_HOME}/lib/services/${_lse_svc}/default.env"
+_lse_profile="$(cat "${AI_HOME}/config/.active-profile" 2>/dev/null || true)"
+[[ -n "$_lse_profile" && -f "${AI_HOME}/config/profiles/${_lse_profile}/${_lse_svc}.env" ]] && source "${AI_HOME}/config/profiles/${_lse_profile}/${_lse_svc}.env"
+unset _lse_svc _lse_profile

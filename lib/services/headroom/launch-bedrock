@@ -1,11 +1,11 @@
 #!/bin/zsh
 set -euo pipefail
 
-[[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
+source "$(dirname "$0")/../../../config/ai-stack.env"
+source "${AI_HOME}/lib/utils/load-service-env" "headroom"
 
-# Force region for litellm/boto3
+# Force region for boto3
 export AWS_DEFAULT_REGION="${AWS_REGION:-eu-west-1}"
-export AWS_REGION="${AWS_REGION:-eu-west-1}"
 
 exec "${AI_HOME}/lib/utils/supervised-launch" \
   "headroom" proxy \

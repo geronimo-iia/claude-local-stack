@@ -335,11 +335,16 @@ case "${1:-help}" in
     ;;
   profile)
     shift
+    local force=false
+    if [[ "${1:-}" == "--force" ]]; then
+      force=true
+      shift
+    fi
     if [[ $# -eq 0 ]]; then
       echo "Current profile: $(_current_profile)"
       exit 0
     fi
-    if [[ "$(_current_profile)" == "$1" ]]; then
+    if [[ "$(_current_profile)" == "$1" ]] && ! $force; then
       echo "Profile '$1' already active"
       exit 0
     fi

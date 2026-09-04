@@ -1,17 +1,23 @@
 {
   "$schema": "https://www.getbifrost.ai/schema",
+  "client": {
+    "disable_content_logging": true,
+    "log_retention_days": 90
+  },
   "providers": {
     "bedrock": {
       "keys": [
         {
           "name": "bedrock-key",
-          "value": "local",
-          "models": ["*"],
+          "models": [
+            "*"
+          ],
           "weight": 1.0,
           "bedrock_key_config": {
+            "region": "eu-west-1",
             "access_key": "env.AWS_ACCESS_KEY_ID",
             "secret_key": "env.AWS_SECRET_ACCESS_KEY",
-            "region": "env.AWS_REGION"
+            "session_token": "env.AWS_SESSION_TOKEN"
           },
           "aliases": {
             "claude-haiku-3-5-20241022": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
@@ -29,8 +35,5 @@
         "default_request_timeout_in_seconds": 600
       }
     }
-  },
-  "config_store": {
-    "enabled": false
   }
 }

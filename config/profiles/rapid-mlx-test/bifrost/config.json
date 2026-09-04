@@ -6,7 +6,9 @@
         {
           "name": "rapid-mlx-key",
           "value": "local",
-          "models": ["*"],
+          "models": [
+            "*"
+          ],
           "weight": 1.0,
           "aliases": {
             "claude-opus-5": "mlx-community/Qwen3.6-35B-A3B-4bit",
@@ -32,8 +34,5 @@
         }
       }
     }
-  },
-  "config_store": {
-    "enabled": false
   }
 }

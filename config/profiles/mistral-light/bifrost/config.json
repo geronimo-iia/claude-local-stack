@@ -6,7 +6,9 @@
         {
           "name": "ollama-key",
           "value": "local",
-          "models": ["*"],
+          "models": [
+            "*"
+          ],
           "weight": 1.0,
           "aliases": {
             "claude-opus-5": "mistral-small:24b",
@@ -32,8 +34,5 @@
         }
       }
     }
-  },
-  "config_store": {
-    "enabled": false
   }
 }

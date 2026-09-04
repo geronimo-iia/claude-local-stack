@@ -1,5 +1,9 @@
 {
   "$schema": "https://www.getbifrost.ai/schema",
+  "client": {
+    "disable_content_logging": true,
+    "log_retention_days": 90
+  },
   "providers": {
     "anthropic": {
       "keys": [
@@ -19,8 +23,5 @@
         "default_request_timeout_in_seconds": 600
       }
     }
-  },
-  "config_store": {
-    "enabled": false
   }
 }

@@ -1,0 +1,3 @@
+rapid-mlx-default: ${AI_HOME}/lib/services/rapid-mlx/launch default
+litellm:  ${AI_HOME}/lib/services/litellm/launch
+headroom: ${AI_HOME}/lib/services/headroom/launch-litellm

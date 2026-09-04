@@ -1,2 +1,1 @@
-litellm:  ${AI_HOME}/lib/services/litellm/launch
-headroom: ${AI_HOME}/lib/services/headroom/launch-litellm
+headroom: ${AI_HOME}/lib/services/headroom/launch-anthropic

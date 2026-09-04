@@ -1,0 +1,39 @@
+{
+  "$schema": "https://www.getbifrost.ai/schema",
+  "providers": {
+    "ollama": {
+      "keys": [
+        {
+          "name": "ollama-key",
+          "value": "local",
+          "models": ["*"],
+          "weight": 1.0,
+          "aliases": {
+            "claude-opus-5": "mistral-small:24b",
+            "claude-sonnet-5": "mistral-small:24b",
+            "claude-sonnet-4-5": "mistral-small:24b",
+            "claude-sonnet-4-6": "mistral-small:24b",
+            "claude-haiku-4-5-20251001": "mistral-small:24b",
+            "claude-opus-4-5": "mistral-small:24b",
+            "claude-haiku-3-5-20241022": "mistral-small:24b",
+            "*": "mistral-small:24b"
+          }
+        }
+      ],
+      "network_config": {
+        "base_url": "http://localhost:11434",
+        "default_request_timeout_in_seconds": 600
+      },
+      "custom_provider_config": {
+        "base_provider_type": "openai",
+        "allowed_requests": {
+          "chat_completion": true,
+          "chat_completion_stream": true
+        }
+      }
+    }
+  },
+  "config_store": {
+    "enabled": false
+  }
+}

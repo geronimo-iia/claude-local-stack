@@ -7,21 +7,21 @@ Local AI inference infrastructure for Claude Code on Apple Silicon. Provides off
 Profile-dependent. Typical flows:
 
 ```
-# local / max  (litellm profiles)
-Claude Code → Headroom (:8787) → LiteLLM (:4000) → rapid-mlx (:8000)
-                                                   → Anthropic API
+# local / mistral / mistral-light  (bifrost profiles — OpenAI-compatible backends)
+Claude Code → Headroom (:8787) → Bifrost (:4000/anthropic) → rapid-mlx (:8000)
+                                                            → Ollama (:11434)
 
-# rapid-mlx-test  (bifrost profile)
+# rapid-mlx-test  (bifrost profile — model benchmarking)
 Claude Code → Headroom (:8787) → Bifrost (:4000/anthropic) → rapid-mlx (:8000)
 
-# max-direct
+# max / max-direct
 Claude Code → Headroom (:8787) → Anthropic API
 
-# bedrock-direct
+# aws-bedrock / bedrock-direct
 Claude Code → Headroom (:8787, --backend bedrock) → AWS Bedrock
 ```
 
-LiteLLM and Bifrost share port 4000 — never co-deployed. Bifrost is used where Anthropic→OpenAI tool conversion must be correct (litellm strips tools on the `/v1/messages` path).
+Bifrost replaces LiteLLM for all profiles. LiteLLM's `/v1/messages` path stripped `tools` before forwarding to OpenAI-compatible backends; bifrost handles the conversion correctly. Cloud API profiles (max, aws-bedrock) go headroom-direct — no routing layer needed.
 
 ## Repository layout
 
@@ -88,14 +88,16 @@ Each component under `lib/services/` or `lib/plugins/` has an `install` script. 
 
 | Profile | Backend | Services | Min RAM |
 |---------|---------|----------|---------|
-| local | rapid-mlx (Qwen3.6-35B) | headroom, litellm, rapid-mlx | 32 GB |
-| max | Anthropic API + local fallback | headroom, litellm, rapid-mlx | 32 GB |
+| local | rapid-mlx (Qwen3.6-35B) | headroom, bifrost, rapid-mlx | 32 GB |
+| max | Anthropic API | headroom | any |
 | max-direct | Anthropic API | headroom | any |
+| aws-bedrock | AWS Bedrock | headroom | any |
 | bedrock-direct | AWS Bedrock | headroom | any |
-| mistral | Ollama (Mistral Large 2 + Small 4) | headroom, ollama | 128 GB |
+| mistral | Ollama (Mistral Large 123B) | headroom, bifrost, ollama | 128 GB |
+| mistral-light | Ollama (Mistral Small 24B) | headroom, bifrost, ollama | 64 GB |
 | rapid-mlx-test | rapid-mlx via bifrost | headroom, bifrost, rapid-mlx | 32 GB |
 
-Switching profile copies `Procfile` (+ `litellm.yaml` + `rapid-mlx.yaml` + `bifrost/` dir if present) from the profile dir to runtime locations.
+Switching profile copies `Procfile` (+ `rapid-mlx.yaml` + `bifrost/` dir if present) from the profile dir to runtime locations.
 
 ## Secrets
 

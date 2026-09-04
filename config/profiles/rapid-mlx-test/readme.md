@@ -36,7 +36,7 @@ Swap `model:` in `rapid-mlx.yaml` and `litellm.yaml` to test:
 | --------------------------------------------- | ---------- | -------------------- | --------------------------------------------------- |
 | ~~`mlx-community/Qwen3.6-27B-4bit`~~          | ~15 GiB    | no MTP               | pure attention dense 27B; no drafter trained; slower than A3B-4bit |
 | `mlx-community/Qwen3-Coder-30B-A3B-Instruct-4bit` | ~16 GiB | no spec decode | MoE (30B/3B active); tool format `hermes`; suffix avoid (0.87x regression) |
-| `rapid-mlx/Qwen3.8-Flash-Next-4bit`           | ~103 GiB   | ~32 tok/s (+41% MTP) | QSA hybrid arch; requires 192 GB; 148 GiB load peak |
+| `rapid-mlx/Qwen3.8-Flash-Next-4bit`           | ~103 GiB   | ~32 tok/s (native MTP opt-in) | ⚠ experimental; hybrid arch; 97.5 GiB download; 148 GiB load peak; hermes tool format; 200ms throttle; slower than A3B-4bit |
 
 ### Investigated, not viable
 

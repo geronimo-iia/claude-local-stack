@@ -1,1 +1,2 @@
-headroom: ${AI_HOME}/lib/services/headroom/launch-bedrock
+bifrost:  ${AI_HOME}/lib/services/bifrost/launch
+headroom: ${AI_HOME}/lib/services/headroom/launch-bifrost

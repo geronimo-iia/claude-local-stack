@@ -1,1 +1,2 @@
-headroom: ${AI_HOME}/lib/services/headroom/launch-anthropic
+bifrost:  ${AI_HOME}/lib/services/bifrost/launch
+headroom: ${AI_HOME}/lib/services/headroom/launch-bifrost

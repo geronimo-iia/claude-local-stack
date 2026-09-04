@@ -19,6 +19,7 @@ secrets/api-keys.sops.yaml
 config/Procfile
 config/rapid-mlx.yaml
 config/.headroom
+config/.bifrost
 # old files
 docs/archive
 docs/brainstormconfig/.bifrost/

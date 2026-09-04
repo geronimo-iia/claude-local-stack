@@ -7,7 +7,7 @@ Currently active: `mlx-community/Qwen3.6-35B-A3B-4bit`
 ## Architecture Flow
 
 ```
-Claude Code → Headroom (:8787) → Bifrost (:4000) → rapid-mlx (:8000) → DeepSeek-Coder-V2-Lite (MLX)
+Claude Code → Headroom (:8787) → Bifrost (:4000) → rapid-mlx (:8000) → Qwen3.6-35B-A3B-4bit (MLX)
 ```
 
 Bifrost replaces LiteLLM. LiteLLM's `/v1/messages` path strips `tools` before forwarding to the OpenAI-compatible backend — tool calls never reach the model. Bifrost handles the Anthropic→OpenAI conversion correctly. Config in `bifrost/config.json` (file-only mode, no DB).
@@ -19,8 +19,10 @@ Bifrost replaces LiteLLM. LiteLLM's `/v1/messages` path strips `tools` before fo
 Key inference flags:
 - `mtp: true` — multi-token prediction sidecar (~30-40% throughput gain)
 - `no_thinking: true` — skip CoT overhead
-- `tool_call_parser: qwen3_coder_xml` — structured tool-use output
+- `tool_call_parser: qwen3_coder` — structured tool-use output
 - `continuous-batching` — efficient concurrent request handling
+
+**Quality verdict (2026-09-04):** trustworthy for daily Rust. Tool calls clean, no parser errors. Found and fixed a real bug (stale `ticks` entries in `CsrEdgeStore::prune_inactive`, sokm-core). No API hallucinations. 127 tests passed after fix.
 
 ## vs local profile
 

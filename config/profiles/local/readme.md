@@ -1,11 +1,11 @@
-# Default Profile
+# Local Profile
 
 Balanced single-model profile for general coding assistance. Runs everything locally on Apple Silicon with no cloud dependencies.
 
 ## Architecture Flow
 
 ```
-Claude Code → Headroom (:8787) → LiteLLM (:4000) → rapid-mlx (:8000) → Qwen3.6-35B-A3B (MLX)
+Claude Code → Headroom (:8787) → Bifrost (:4000) → rapid-mlx (:8000) → Qwen3.6-35B-A3B-4bit (MLX)
 ```
 
 ## Services
@@ -13,26 +13,28 @@ Claude Code → Headroom (:8787) → LiteLLM (:4000) → rapid-mlx (:8000) → Q
 | Service | Port | Role |
 |---------|------|------|
 | rapid-mlx | 8000 | Local LLM inference (MLX backend) |
-| LiteLLM | 4000 | Model routing proxy |
-| Headroom | 8787 | Memory-augmented proxy between Claude Code and LiteLLM |
+| Bifrost | 4000 | Anthropic→OpenAI conversion + routing |
+| Headroom | 8787 | Token compression proxy |
 
 ## Model
 
-**mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B** — 35B MoE (~19B effective), OptiQ 4bit quantization. Fits comfortably in 32GB unified memory with room for embedding model alongside.
+**mlx-community/Qwen3.6-35B-A3B-4bit** — 35B MoE (~3.6B effective), standard 4bit quantization, MTP sidecar for speculative decoding. Quality-tested 2026-09-04: trustworthy for daily Rust (clean tool calls, real bug found, no API hallucinations, 127 tests passed).
 
 Key inference flags:
+- `mtp: true` — multi-token prediction sidecar (~30-40% throughput gain)
 - `no_thinking: true` — skip CoT overhead, direct responses
 - `suffix_decoding: true` — faster fill-in-the-middle completions
-- `tool_call_parser: qwen3_coder_xml` — structured tool-use output
+- `paged_cache: true` — paged KV cache for long contexts
+- `tool_call_parser: qwen3_coder` — structured tool-use output
 - `continuous-batching` — efficient concurrent request handling
 
 ## Performance
 
-~15.5 tok/s end-to-end (TTFT included) on Apple M3 Max 128GB. Expected for a 35B model on consumer hardware via MLX. Claude Sonnet API is ~60–80 tok/s by comparison.
+~73 tok/s on Apple M3 Ultra 192GB (MTP enabled). Previous model (OptiQ-4bit-REAP-19B) ran at ~15.5 tok/s on the same hardware — A3B-4bit is ~5x faster at the cost of mixed-precision quantization.
 
 ## Routing
 
-All model name patterns (`claude-haiku*`, `claude-sonnet*`, `claude-opus*`, `*`) route to the same Qwen3.6-35B instance. No tier differentiation — simplicity over optimization.
+All model names (`claude-haiku*`, `claude-sonnet*`, `claude-opus*`, `*`) route to the same Qwen3.6-35B instance via bifrost aliases. No tier differentiation.
 
 ## When to Use
 

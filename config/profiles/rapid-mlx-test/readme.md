@@ -30,13 +30,13 @@ Key inference flags:
 
 ## Other models to evaluate
 
-Swap `model:` in `rapid-mlx.yaml` and `litellm.yaml` to test:
+Swap `model:` in `rapid-mlx.yaml` and `litellm.yaml` to test. Config changes required beyond `model:` are noted per row.
 
-| Model                                         | MLX active | MTP decode @8K       | Notes                                               |
-| --------------------------------------------- | ---------- | -------------------- | --------------------------------------------------- |
-| ~~`mlx-community/Qwen3.6-27B-4bit`~~          | ~15 GiB    | no MTP               | pure attention dense 27B; no drafter trained; slower than A3B-4bit |
-| `mlx-community/Qwen3-Coder-30B-A3B-Instruct-4bit` | ~16 GiB | no spec decode | MoE (30B/3B active); tool format `hermes`; suffix avoid (0.87x regression) |
-| `rapid-mlx/Qwen3.8-Flash-Next-4bit`           | ~103 GiB   | ~32 tok/s (native MTP opt-in) | ⚠ experimental; hybrid arch; 97.5 GiB download; 148 GiB load peak; hermes tool format; 200ms throttle; slower than A3B-4bit |
+| Model | MLX active | Speed | Config changes vs current | Notes |
+| --- | --- | --- | --- | --- |
+| ~~`mlx-community/Qwen3.6-27B-4bit`~~          | ~15 GiB  | no MTP        | remove `mtp: true` | pure attention; no drafter; slower than A3B-4bit |
+| `mlx-community/Qwen3-Coder-30B-A3B-Instruct-4bit` | ~16 GiB | no spec decode | `tool_call_parser: hermes`, remove `mtp: true` | MoE 30B/3B active; suffix avoid |
+| `rapid-mlx/Qwen3.8-Flash-Next-4bit`           | ~103 GiB | ~32 tok/s     | `tool_call_parser: hermes`, remove `mtp: true`, add `--speculative-config '{"method":"mtp"}'` manually | ⚠ experimental; 97.5 GiB download; 148 GiB load peak; 200ms throttle |
 
 ### Investigated, not viable
 

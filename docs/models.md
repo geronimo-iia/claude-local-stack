@@ -24,7 +24,7 @@ See [cli.md](cli.md#ai-models) for full command reference.
 
 ## Environment
 
-| Variable | Purpose |
-|----------|---------|
-| `HF_TOKEN` | Loaded from secrets. Required for gated HuggingFace models |
-| `HF_HUB_OFFLINE=1` | Prevent HuggingFace network access (offline mode) |
+| Variable           | Purpose                                                    |
+| ------------------ | ---------------------------------------------------------- |
+| `HF_TOKEN`         | Loaded from secrets. Required for gated HuggingFace models |
+| `HF_HUB_OFFLINE=1` | Prevent HuggingFace network access (offline mode)          |

@@ -10,10 +10,10 @@ reasoning and coding; Llama 70B is solid for general tasks.
 
 ## Rate Limits (2026)
 
-| Tier | RPM | TPM (llama-3.3-70b) |
-|------|-----|---------------------|
-| Free | 30 | 6,000 |
-| Paid | 1,000 | 100,000+ |
+| Tier | RPM   | TPM (llama-3.3-70b) |
+| ---- | ----- | ------------------- |
+| Free | 30    | 6,000               |
+| Paid | 1,000 | 100,000+            |
 
 Claude Code burns free-tier TPM in one heavy turn. Groq is useful as a fallback, not a
 primary for intensive sessions. Paid tier is viable for secondary workloads.
@@ -35,11 +35,11 @@ LiteLLM reads it as `os.environ/GROQ_API_KEY`. No plaintext anywhere.
 
 ## Profile Matrix
 
-| Profile | Anthropic | Groq | local (rapid-mlx) |
-|---------|-----------|------|-------------------|
-| `max` | primary | — | offline fallback |
-| `max-groq` | primary | default slot | offline fallback |
-| `groq` | — | primary | offline fallback |
+| Profile    | Anthropic | Groq         | local (rapid-mlx) |
+| ---------- | --------- | ------------ | ----------------- |
+| `max`      | primary   | —            | offline fallback  |
+| `max-groq` | primary   | default slot | offline fallback  |
+| `groq`     | —         | primary      | offline fallback  |
 
 Switching provider mix = switching profile. LiteLLM handles local failures automatically
 — if rapid-mlx is stopped, requests fall through to the next configured provider with no
@@ -209,11 +209,11 @@ pressure) or you want a cloud backup without Anthropic spend.
 
 ## Model Choice
 
-| Model | Task tier | Notes |
-|-------|-----------|-------|
-| `groq/qwen-qwq-32b` | Default (sonnet slot) | Strong reasoning and coding — primary Groq workhorse |
-| `groq/llama-3.3-70b-versatile` | Default fallback | Fast general model when QwQ is rate-limited |
-| `groq/llama-3.1-8b-instant` | Background (haiku slot) | Speed-optimised, acceptable for simple subtasks |
+| Model                          | Task tier               | Notes                                                |
+| ------------------------------ | ----------------------- | ---------------------------------------------------- |
+| `groq/qwen-qwq-32b`            | Default (sonnet slot)   | Strong reasoning and coding — primary Groq workhorse |
+| `groq/llama-3.3-70b-versatile` | Default fallback        | Fast general model when QwQ is rate-limited          |
+| `groq/llama-3.1-8b-instant`    | Background (haiku slot) | Speed-optimised, acceptable for simple subtasks      |
 
 ## Secrets Required
 

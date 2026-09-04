@@ -25,22 +25,22 @@ lib/services/headroom/
 | ollama    | Local Ollama inference                     | 11434     |
 | bifrost   | Model routing proxy (all profiles)         | 4000      |
 | headroom  | Token compression proxy                    | 8787      |
-| voicemode | Voice I/O (STT + TTS)                     | 8765      |
+| voicemode | Voice I/O (STT + TTS)                      | 8765      |
 | llm-wiki  | Git-backed wiki engine (binary, no daemon) | —         |
 
 Bifrost replaced LiteLLM across all profiles. LiteLLM's Anthropic→OpenAI path stripped `tools` before forwarding to local backends; bifrost handles the conversion correctly.
 
 ## Plugins
 
-| Name                | Purpose                                        |
-| ------------------- | ---------------------------------------------- |
-| context-mode        | Context management for Claude                  |
-| superpowers         | Extended Claude capabilities                   |
-| caveman             | Output token compression                       |
-| rtk                 | Prompt toolkit                                 |
-| drawio              | Diagram integration                            |
-| atlassian           | Jira/Confluence integration                    |
-| llm-wiki-skills     | Wiki skills — ingest, research, crystallize, graph (MCP via llm-wiki) |
+| Name            | Purpose                                                               |
+| --------------- | --------------------------------------------------------------------- |
+| context-mode    | Context management for Claude                                         |
+| superpowers     | Extended Claude capabilities                                          |
+| caveman         | Output token compression                                              |
+| rtk             | Prompt toolkit                                                        |
+| drawio          | Diagram integration                                                   |
+| atlassian       | Jira/Confluence integration                                           |
+| llm-wiki-skills | Wiki skills — ingest, research, crystallize, graph (MCP via llm-wiki) |
 
 ## rapid-mlx configuration
 
@@ -59,23 +59,23 @@ instances:
     features: [tool-calling, continuous-batching]
 ```
 
-| Field             | Required | Description                                                        |
-| ----------------- | :------: | ------------------------------------------------------------------ |
-| role              |    ✓     | Instance name (matches Procfile entry)                             |
-| port              |    ✓     | Listen port                                                        |
-| model             |    ✓     | HuggingFace repo ID                                                |
-| embedding_model   |          | HuggingFace repo ID for embeddings                                 |
-| max_tokens        |          | Max output tokens (default: 32768)                                 |
+| Field             | Required | Description                                                               |
+| ----------------- | :------: | ------------------------------------------------------------------------- |
+| role              |    ✓     | Instance name (matches Procfile entry)                                    |
+| port              |    ✓     | Listen port                                                               |
+| model             |    ✓     | HuggingFace repo ID                                                       |
+| embedding_model   |          | HuggingFace repo ID for embeddings                                        |
+| max_tokens        |          | Max output tokens (default: 32768)                                        |
 | tool_call_parser  |          | Parser for tool calls: `auto`, `qwen3_coder`, `qwen3_xml`, `hermes`, etc. |
-| reasoning_parser  |          | Reasoning extraction: `qwen3`, `deepseek_r1`, `gemma4`, etc.       |
-| paged_cache       |          | Enable paged KV cache (`true`/`false`)                             |
-| no_thinking       |          | Disable thinking/reasoning output (`true`/`false`)                 |
-| mtp               |          | Enable multi-token prediction (`true`/`false`)                     |
-| suffix_decoding   |          | Enable suffix decoding (`true`/`false`)                            |
-| temperature       |          | Default sampling temperature                                       |
-| top_p             |          | Default top-p sampling                                             |
-| trust_remote_code |          | Allow remote code execution for model loading                      |
-| features          |          | Feature flags (see below)                                          |
+| reasoning_parser  |          | Reasoning extraction: `qwen3`, `deepseek_r1`, `gemma4`, etc.              |
+| paged_cache       |          | Enable paged KV cache (`true`/`false`)                                    |
+| no_thinking       |          | Disable thinking/reasoning output (`true`/`false`)                        |
+| mtp               |          | Enable multi-token prediction (`true`/`false`)                            |
+| suffix_decoding   |          | Enable suffix decoding (`true`/`false`)                                   |
+| temperature       |          | Default sampling temperature                                              |
+| top_p             |          | Default top-p sampling                                                    |
+| trust_remote_code |          | Allow remote code execution for model loading                             |
+| features          |          | Feature flags (see below)                                                 |
 
 ### Features
 

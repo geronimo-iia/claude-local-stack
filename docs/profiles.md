@@ -4,16 +4,16 @@ A profile is a complete stack configuration: routing rules + service definitions
 
 ## Overview
 
-| Profile | Backend | Min RAM | Notes |
-|---------|---------|---------|-------|
-| local | rapid-mlx (Qwen3.6-35B) | 32 GB | Fully offline; headroom → bifrost → rapid-mlx |
-| max | Anthropic API | any | Claude Max plan; headroom → bifrost → Anthropic |
-| max-direct | Anthropic API | any | Headroom direct to Anthropic, no bifrost |
-| bedrock | AWS Bedrock | any | Headroom → bifrost → Bedrock |
-| bedrock-direct | AWS Bedrock | any | Headroom direct to Bedrock, no bifrost |
-| mistral | Ollama (Mistral Large 123B) | 128 GB | Headroom → bifrost → Ollama |
-| mistral-light | Ollama (Mistral Small 24B) | 64 GB | Headroom → bifrost → Ollama |
-| rapid-mlx-test | rapid-mlx (model benchmarking) | 32 GB | Headroom → bifrost → rapid-mlx |
+| Profile        | Backend                        | Min RAM | Notes                                           |
+| -------------- | ------------------------------ | ------- | ----------------------------------------------- |
+| local          | rapid-mlx (Qwen3.6-35B)        | 32 GB   | Fully offline; headroom → bifrost → rapid-mlx   |
+| max            | Anthropic API                  | any     | Claude Max plan; headroom → bifrost → Anthropic |
+| max-direct     | Anthropic API                  | any     | Headroom direct to Anthropic, no bifrost        |
+| bedrock        | AWS Bedrock                    | any     | Headroom → bifrost → Bedrock                    |
+| bedrock-direct | AWS Bedrock                    | any     | Headroom direct to Bedrock, no bifrost          |
+| mistral        | Ollama (Mistral Large 123B)    | 128 GB  | Headroom → bifrost → Ollama                     |
+| mistral-light  | Ollama (Mistral Small 24B)     | 64 GB   | Headroom → bifrost → Ollama                     |
+| rapid-mlx-test | rapid-mlx (model benchmarking) | 32 GB   | Headroom → bifrost → rapid-mlx                  |
 
 ## Structure
 

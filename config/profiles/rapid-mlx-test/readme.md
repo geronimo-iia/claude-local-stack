@@ -40,4 +40,4 @@ Swap `model:` in `rapid-mlx.yaml` and `litellm.yaml` to test:
 
 ### Investigated, not viable
 
-**`mlx-community/Qwen3.8-27B-MTP-4bit`** — crashes on rapid-mlx 0.13.4: `model_type qwen3_5_mtp` not in bundled mlx-lm. The correct rapid-mlx alias is `rapid-mlx/Qwen3.8-27B-4bit-MTP-MLX`, but that model is hybrid arch (linear-attention/Mamba), MTP disabled for hybrid, ~41 tok/s estimated — slower than A3B-4bit at 73 tok/s.
+**`mlx-community/Qwen3.8-27B-MTP-4bit`** — crashes on rapid-mlx 0.13.4: `model_type qwen3_5_mtp` not in bundled mlx-lm. Use `rapid-mlx/Qwen3.8-27B-4bit-MTP-MLX` (the curated alias) instead. That model is hybrid arch (linear-attention/Mamba); default spec decode is off for hybrid, but MTP sidecar is available via explicit `--speculative-config`. Estimated ~41 tok/s — slower than A3B-4bit at 73 tok/s, so not a priority.

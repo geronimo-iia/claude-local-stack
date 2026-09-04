@@ -4,5 +4,5 @@ instances:
     model: mlx-community/DeepSeek-Coder-V2-Lite-Instruct-4bit-mlx
     embedding_model: mlx-community/Qwen3-Embedding-0.6B-4bit-DWQ
     max_tokens: 32768
-    tool_call_parser: hermes
+    tool_call_parser: deepseek_v3
     features: [tool-calling, continuous-batching]

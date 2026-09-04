@@ -9,14 +9,14 @@ ollama:
   #- qwen3:30b-a3b-instruct-2507-q4_K_M       # Qwen3 30B MoE — Q4_K_M, ~19 GB
 
 rapid-mlx:
-  - mlx-community/DeepSeek-Coder-V2-Lite-Instruct-4bit-mlx  # DeepSeek-Coder-V2-Lite — MoE coding, ~8 GiB, spec decode, deepseek_v3 tools (rapid-mlx-test candidate)
+  #- mlx-community/DeepSeek-Coder-V2-Lite-Instruct-4bit-mlx  # DeepSeek-Coder-V2-Lite — ~8 GiB, 131 tok/s; tool calling unreliable (hallucinated tool names, invalid params); not viable for daily use
   #- mlx-community/Qwen3.8-27B-MTP-4bit            # Qwen3.8 27B — crashes: model_type qwen3_5_mtp not in mlx-lm 0.13.4; use rapid-mlx/Qwen3.8-27B-4bit-MTP-MLX alias instead
   - mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B  # Qwen3.6 35B MoE — OptiQ, ~19B effective (local profile)
   - mlx-community/Qwen3.6-35B-A3B-4bit                 # Qwen3.6 35B MoE — standard 4bit, MTP-capable (rapid-mlx-test profile)
   #- rapid-mlx/Qwen3.8-Flash-Next-4bit           # Qwen3.8 Flash-Next — QSA hybrid, ~103 GiB MLX active, MTP +41% (requires 192 GB)
   - mlx-community/Qwen3-Embedding-0.6B-4bit-DWQ  # embedding — fast/tiny, general use
   #- mlx-community/Qwen3-Embedding-4B-4bit-DWQ    # embedding — quality retrieval/RAG
-  - mlx-community/Qwen3.5-4B-MLX-4bit  # Qwen3.5 4B dense — MLX, ~4 GB
+  #- mlx-community/Qwen3.5-4B-MLX-4bit           # Qwen3.5 4B dense — not in any active profile
 
 llm:
   # models pulled via hf download (metadata + weights)

@@ -3,11 +3,15 @@ set -euo pipefail
 
 [[ -z "${AI_HOME:-}" ]] && source "$(dirname "$0")/../../../config/ai-stack.env"
 
+# headroom converts Anthropic→OpenAI internally, forwards to litellm /v1/chat/completions
+# avoids litellm's broken Anthropic→OpenAI tool conversion on /v1/messages
 exec "${AI_HOME}/lib/utils/supervised-launch" \
   "headroom" proxy \
   --port "${HEADROOM_PORT:-8787}" \
   --mode "${HEADROOM_MODE:-token}" \
-  --anthropic-api-url "http://localhost:${BIFROST_PORT:-4000}/anthropic" \
+  --backend anyllm \
+  --anyllm-provider openai \
+  --openai-api-url "http://localhost:${LITELLM_PORT:-4000}/v1" \
   --no-telemetry \
   --no-subscription-tracking  \
   --workers "${HEADROOM_WORKERS:-1}" \

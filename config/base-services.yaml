@@ -1,8 +1,20 @@
 install:
   - claude-code
+  - llm-wiki
+  - headroom
 
 plugins:
+  - caveman
+  - rtk
   - superpowers
+  - context-mode
+  - llm-wiki-skills
+  - agent-skills
+  - andrej-karpathy-skills
+  - rust-analyzer-lsp
+
+mcp:
+  - headroom
 
 check:
   - overmind

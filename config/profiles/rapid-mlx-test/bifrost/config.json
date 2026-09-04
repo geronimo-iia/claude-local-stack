@@ -1,0 +1,39 @@
+{
+  "$schema": "https://www.getbifrost.ai/schema",
+  "providers": {
+    "rapid-mlx": {
+      "keys": [
+        {
+          "name": "rapid-mlx-key",
+          "value": "local",
+          "models": ["*"],
+          "weight": 1.0,
+          "aliases": {
+            "claude-opus-5": "mlx-community/DeepSeek-Coder-V2-Lite-Instruct-4bit-mlx",
+            "claude-sonnet-5": "mlx-community/DeepSeek-Coder-V2-Lite-Instruct-4bit-mlx",
+            "claude-sonnet-4-5": "mlx-community/DeepSeek-Coder-V2-Lite-Instruct-4bit-mlx",
+            "claude-sonnet-4-6": "mlx-community/DeepSeek-Coder-V2-Lite-Instruct-4bit-mlx",
+            "claude-haiku-4-5-20251001": "mlx-community/DeepSeek-Coder-V2-Lite-Instruct-4bit-mlx",
+            "claude-opus-4-5": "mlx-community/DeepSeek-Coder-V2-Lite-Instruct-4bit-mlx",
+            "claude-haiku-3-5-20241022": "mlx-community/DeepSeek-Coder-V2-Lite-Instruct-4bit-mlx",
+            "*": "mlx-community/DeepSeek-Coder-V2-Lite-Instruct-4bit-mlx"
+          }
+        }
+      ],
+      "network_config": {
+        "base_url": "http://localhost:8000",
+        "default_request_timeout_in_seconds": 600
+      },
+      "custom_provider_config": {
+        "base_provider_type": "openai",
+        "allowed_requests": {
+          "chat_completion": true,
+          "chat_completion_stream": true
+        }
+      }
+    }
+  },
+  "config_store": {
+    "enabled": false
+  }
+}

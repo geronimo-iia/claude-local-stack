@@ -7,9 +7,12 @@ Local AI inference infrastructure for Claude Code on Apple Silicon. Provides off
 Profile-dependent. Typical flows:
 
 ```
-# local / max
+# local / max  (litellm profiles)
 Claude Code → Headroom (:8787) → LiteLLM (:4000) → rapid-mlx (:8000)
                                                    → Anthropic API
+
+# rapid-mlx-test  (bifrost profile)
+Claude Code → Headroom (:8787) → Bifrost (:4000/anthropic) → rapid-mlx (:8000)
 
 # max-direct
 Claude Code → Headroom (:8787) → Anthropic API
@@ -17,6 +20,8 @@ Claude Code → Headroom (:8787) → Anthropic API
 # bedrock-direct
 Claude Code → Headroom (:8787, --backend bedrock) → AWS Bedrock
 ```
+
+LiteLLM and Bifrost share port 4000 — never co-deployed. Bifrost is used where Anthropic→OpenAI tool conversion must be correct (litellm strips tools on the `/v1/messages` path).
 
 ## Repository layout
 
@@ -29,7 +34,7 @@ config/
   models.yaml    # model manifest (HuggingFace repo IDs)
 lib/
   setup/         # bootstrap scripts (prerequisites, runtimes, tooling)
-  services/      # daemons: rapid-mlx, litellm, headroom, voicemode; binaries: llm-wiki
+  services/      # daemons: rapid-mlx, litellm, bifrost, headroom, voicemode; binaries: llm-wiki
   plugins/       # Claude Code extensions: rtk, context-mode, superpowers, caveman, drawio, atlassian, llm-wiki-skills
   utils/         # supervised-launch (restart wrapper), token-savings (dashboard)
 secrets/         # SOPS + age encrypted secrets (age-key.txt and api-keys.sops.yaml are gitignored)
@@ -45,6 +50,7 @@ docs/            # reference docs per topic
 | `config/.active-profile` | Current profile name (runtime state, gitignored) |
 | `config/profiles/*/Procfile` | Services to run per profile |
 | `config/profiles/*/litellm.yaml` | LiteLLM routing config per profile (LiteLLM profiles only) |
+| `config/profiles/*/bifrost/config.json` | Bifrost file-only config per profile (bifrost profiles only) |
 | `config/profiles/*/rapid-mlx.yaml` | Model instance definitions per profile (rapid-mlx profiles only) |
 | `config/profiles/*/services.yaml` | Services to install on profile activation |
 | `lib/utils/supervised-launch` | Restart wrapper: 5 attempts / 60s window, exponential backoff |
@@ -87,8 +93,9 @@ Each component under `lib/services/` or `lib/plugins/` has an `install` script. 
 | max-direct | Anthropic API | headroom | any |
 | bedrock-direct | AWS Bedrock | headroom | any |
 | mistral | Ollama (Mistral Large 2 + Small 4) | headroom, ollama | 128 GB |
+| rapid-mlx-test | rapid-mlx via bifrost | headroom, bifrost, rapid-mlx | 32 GB |
 
-Switching profile copies `Procfile` (+ `litellm.yaml` + `rapid-mlx.yaml` if present) from the profile dir to runtime locations.
+Switching profile copies `Procfile` (+ `litellm.yaml` + `rapid-mlx.yaml` + `bifrost/` dir if present) from the profile dir to runtime locations.
 
 ## Secrets
 
@@ -174,5 +181,5 @@ All service `launch` scripts delegate to `lib/utils/supervised-launch`. This wra
 | Models | [models.md](models.md) |
 | Secrets | [secrets.md](secrets.md) |
 | Overmind | [overmind.md](overmind.md) |
-| Roadmap: Bifrost gateway | [roadmap/bifrost.md](roadmap/bifrost.md) |
+| Bifrost gateway (successor to LiteLLM for local backends) | [roadmap/bifrost.md](roadmap/bifrost.md) |
 | Roadmap: Groq integration | [roadmap/groq.md](roadmap/groq.md) |

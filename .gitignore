@@ -21,4 +21,4 @@ config/rapid-mlx.yaml
 config/.headroom
 # old files
 docs/archive
-docs/brainstorm
+docs/brainstormconfig/.bifrost/

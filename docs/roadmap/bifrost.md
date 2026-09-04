@@ -29,7 +29,7 @@ Installed via `npx -y @maximhq/bifrost` (Go binary distributed as npm package, n
 | Skills marketplace | No | Yes |
 | LiteLLM migration | — | Official guide `/migration-guides/litellm.md` |
 
-**Verdict:** Keep LiteLLM until MCP aggregation or observability is needed — simpler config. Bifrost is the natural next step.
+**Verdict:** Bifrost is now the router for profiles that use OpenAI-compatible local backends (rapid-mlx-test). LiteLLM remains for profiles where Anthropic→OpenAI conversion is not needed. Migration trigger: any profile routing through rapid-mlx or a custom OpenAI-compatible server should use bifrost — litellm's `/v1/messages` path strips tools before forwarding.
 
 ## MCP Gateway
 
@@ -142,16 +142,22 @@ ai-stack skill install <name>  # install into current Claude Code session
 ai-stack skill publish <path>  # publish a local skill to Bifrost
 ```
 
-## Migration Trigger
+## Migration Status
 
-Migrate from LiteLLM to Bifrost when **any** of these are true:
+Bifrost replaced LiteLLM in `rapid-mlx-test` profile. Root cause: LiteLLM's `/v1/messages` (Anthropic format) path strips `tools` before forwarding to OpenAI-compatible backends — tool schemas never reach the model.
 
+`local` profile still uses LiteLLM. Migration path when needed:
+1. Add `bifrost/config.json` to profile with provider pointing to backend
+2. Add `bifrost/` launch to Procfile, replace `litellm:` entry  
+3. Switch headroom to `launch-bifrost` in Procfile
+4. Profile activation handles the rest (`cp -r bifrost/ .bifrost/`)
+
+Same port (4000) — no other stack changes needed. Official LiteLLM migration guide at `/migration-guides/litellm` in bifrost docs.
+
+Other remaining migration triggers:
 - MCP server count grows beyond 3 (manual `~/.claude.json` wiring becomes painful)
 - Observability needed (token throughput, cost-per-session, provider latency)
 - Semantic caching would meaningfully reduce Bedrock/Anthropic spend
-- Skills need to be shared across sessions or teammates
-
-Migration is low-risk: same port (4000), same Headroom upstream, official LiteLLM migration guide exists.
 
 ## Full Stack Architecture (with Bifrost)
 

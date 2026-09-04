@@ -1,14 +1,2 @@
 install:
   - litellm
-  - headroom
-
-plugins:
-  - caveman
-  - context-mode
-  - agent-skills
-
-mcp:
-  - headroom
-
-check:
-  - overmind

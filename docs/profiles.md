@@ -11,6 +11,7 @@ A profile is a complete stack configuration: routing rules + service definitions
 | max-direct | Anthropic API | any | Direct to Anthropic, no LiteLLM |
 | bedrock-direct | AWS Bedrock | any | Headroom → Bedrock, no LiteLLM |
 | mistral | ollama ×1 | 128 GB | Mistral Large + Small via Ollama |
+| rapid-mlx-test | rapid-mlx (bifrost) | 32 GB | Model benchmarking profile; uses bifrost instead of litellm |
 
 ## Structure
 
@@ -31,7 +32,13 @@ config/profiles/
 ├── bedrock-direct/
 │   ├── Procfile
 │   └── services.yaml
-└── mistral/
+├── mistral/
+│   ├── Procfile
+│   └── services.yaml
+└── rapid-mlx-test/
+    ├── bifrost/           # → config/.bifrost/ (entire dir)
+    │   └── config.json    # bifrost file-only config (no DB)
+    ├── rapid-mlx.yaml
     ├── Procfile
     └── services.yaml
 ```
@@ -45,11 +52,12 @@ ai-stack profile hybrid
 1. Stops current services (if running)
 2. Copies `litellm.yaml` → `config/litellm.yaml` (if present)
 3. Copies `rapid-mlx.yaml` → `config/rapid-mlx.yaml` (if present)
-4. Copies `Procfile` → `config/Procfile`
-5. If `AI_STACK_AUTO_INSTALL=true`: runs `ai-install <svc>` for each service in `services.yaml`
-6. Writes profile name to `config/.active-profile`
-7. Runs silent dep check — warns if anything is missing
-8. Restarts services (if was running)
+4. Copies `bifrost/` dir → `config/.bifrost/` (if present — replaces entire dir)
+5. Copies `Procfile` → `config/Procfile`
+6. If `AI_STACK_AUTO_INSTALL=true`: runs `ai-install <svc>` for each service in `services.yaml`
+7. Writes profile name to `config/.active-profile`
+8. Runs silent dep check — warns if anything is missing
+9. Restarts services (if was running)
 
 ## services.yaml
 

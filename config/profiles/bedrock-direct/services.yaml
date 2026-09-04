@@ -1,9 +1,0 @@
-install:
-  - headroom
-
-plugins:
-  - caveman
-  - context-mode
-
-mcp:
-  - headroom

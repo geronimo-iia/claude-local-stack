@@ -1,10 +1,8 @@
 instances:
   - role: default
     port: 8000
-    model: mlx-community/Qwen3.6-35B-A3B-4bit
+    model: mlx-community/DeepSeek-Coder-V2-Lite-Instruct-4bit-mlx
     embedding_model: mlx-community/Qwen3-Embedding-0.6B-4bit-DWQ
     max_tokens: 32768
-    tool_call_parser: qwen3_coder_xml
-    no_thinking: true
-    mtp: true
+    tool_call_parser: deepseek_v3
     features: [tool-calling, continuous-batching]

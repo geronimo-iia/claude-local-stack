@@ -1,12 +1,3 @@
 install:
-  - headroom
-  - litellm
+  - bifrost
   - rapid-mlx
-
-plugins:
-  - caveman
-  - context-mode
-  - agent-skills
-
-mcp:
-  - headroom

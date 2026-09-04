@@ -1,11 +1,2 @@
 install:
-  - headroom
   - litellm
-
-plugins:
-  - caveman
-  - context-mode
-  - agent-skills
-
-mcp:
-  - headroom

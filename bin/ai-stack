@@ -100,6 +100,12 @@ _activate_profile() {
     cp "$dir/litellm.yaml" "${AI_HOME}/config/litellm.yaml"
   fi
 
+  # Bifrost config dir (optional — profiles using bifrost instead of litellm)
+  if [[ -d "$dir/bifrost" ]]; then
+    rm -rf "${AI_HOME}/config/.bifrost"
+    cp -r "$dir/bifrost" "${AI_HOME}/config/.bifrost"
+  fi
+
   # Procfile → active service definitions for overmind
   cp "$dir/Procfile" "${OVERMIND_PROCFILE}"
 

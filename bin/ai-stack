@@ -279,6 +279,7 @@ case "${1:-help}" in
     fi
     ;;
   status)
+    echo "Profile: $(_current_profile)"
     overmind ps 2>/dev/null || echo "Stack not running"
     ;;
   enable)

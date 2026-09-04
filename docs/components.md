@@ -23,13 +23,12 @@ lib/services/headroom/
 | --------- | ------------------------------------------ | --------- |
 | rapid-mlx | Local MLX inference                        | 8000-8002 |
 | ollama    | Local Ollama inference                     | 11434     |
-| litellm   | Model routing proxy (LiteLLM profiles)     | 4000      |
-| bifrost   | Model routing proxy (bifrost profiles)     | 4000      |
+| bifrost   | Model routing proxy (all profiles)         | 4000      |
 | headroom  | Token compression proxy                    | 8787      |
 | voicemode | Voice I/O (STT + TTS)                     | 8765      |
 | llm-wiki  | Git-backed wiki engine (binary, no daemon) | —         |
 
-`litellm` and `bifrost` share port 4000 — profiles use one or the other, never both. Bifrost replaces litellm for profiles that route to OpenAI-compatible local backends (rapid-mlx); litellm's Anthropic→OpenAI path strips tools before forwarding.
+Bifrost replaced LiteLLM across all profiles. LiteLLM's Anthropic→OpenAI path stripped `tools` before forwarding to local backends; bifrost handles the conversion correctly. LiteLLM service files are kept but no profile uses them.
 
 ## Plugins
 

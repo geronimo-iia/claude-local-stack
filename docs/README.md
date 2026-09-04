@@ -49,8 +49,8 @@ docs/            # reference docs per topic
 | `config/ai-stack.env` | All env vars — sourced first before anything else |
 | `config/.active-profile` | Current profile name (runtime state, gitignored) |
 | `config/profiles/*/Procfile` | Services to run per profile |
-| `config/profiles/*/litellm.yaml` | LiteLLM routing config per profile (LiteLLM profiles only) |
-| `config/profiles/*/bifrost/config.json` | Bifrost file-only config per profile (bifrost profiles only) |
+| `config/profiles/*/bifrost/config.json` | Bifrost file-only config (local/mistral profiles — no secrets) |
+| `config/profiles/*/bifrost/config.json.tpl` | Bifrost config template (max/aws-bedrock — `envsubst` injects credentials at launch) |
 | `config/profiles/*/rapid-mlx.yaml` | Model instance definitions per profile (rapid-mlx profiles only) |
 | `config/profiles/*/services.yaml` | Services to install on profile activation |
 | `lib/utils/supervised-launch` | Restart wrapper: 5 attempts / 60s window, exponential backoff |

@@ -6,38 +6,54 @@ A profile is a complete stack configuration: routing rules + service definitions
 
 | Profile | Backend | Min RAM | Notes |
 |---------|---------|---------|-------|
-| local | rapid-mlx ×1 | 32 GB | Single Qwen3.6-35B MoE, fully offline |
-| max | Anthropic API | any | Claude Max plan, local fallback on 429 |
-| max-direct | Anthropic API | any | Direct to Anthropic, no LiteLLM |
-| bedrock-direct | AWS Bedrock | any | Headroom → Bedrock, no LiteLLM |
-| mistral | ollama ×1 | 128 GB | Mistral Large + Small via Ollama |
-| rapid-mlx-test | rapid-mlx (bifrost) | 32 GB | Model benchmarking profile; uses bifrost instead of litellm |
+| local | rapid-mlx (Qwen3.6-35B) | 32 GB | Fully offline; headroom → bifrost → rapid-mlx |
+| max | Anthropic API | any | Claude Max plan; headroom → bifrost → Anthropic |
+| max-direct | Anthropic API | any | Headroom direct to Anthropic, no bifrost |
+| aws-bedrock | AWS Bedrock | any | Headroom → bifrost → Bedrock |
+| bedrock-direct | AWS Bedrock | any | Headroom direct to Bedrock, no bifrost |
+| mistral | Ollama (Mistral Large 123B) | 128 GB | Headroom → bifrost → Ollama |
+| mistral-light | Ollama (Mistral Small 24B) | 64 GB | Headroom → bifrost → Ollama |
+| rapid-mlx-test | rapid-mlx (model benchmarking) | 32 GB | Headroom → bifrost → rapid-mlx |
 
 ## Structure
 
 ```
 config/profiles/
 ├── local/
-│   ├── litellm.yaml       # → config/litellm.yaml
-│   ├── rapid-mlx.yaml     # → config/rapid-mlx.yaml
-│   ├── Procfile           # → config/Procfile
-│   └── services.yaml      # services to install on activation
+│   ├── bifrost/
+│   │   └── config.json        # → config/.bifrost/config.json (no secrets)
+│   ├── rapid-mlx.yaml         # → config/rapid-mlx.yaml
+│   ├── Procfile               # → config/Procfile
+│   └── services.yaml
 ├── max/
-│   ├── litellm.yaml
+│   ├── bifrost/
+│   │   └── config.json.tpl    # → config/.bifrost/config.json.tpl (envsubst at launch)
 │   ├── Procfile
 │   └── services.yaml
 ├── max-direct/
+│   ├── Procfile
+│   └── services.yaml
+├── aws-bedrock/
+│   ├── bifrost/
+│   │   └── config.json.tpl    # → config/.bifrost/config.json.tpl (envsubst at launch)
 │   ├── Procfile
 │   └── services.yaml
 ├── bedrock-direct/
 │   ├── Procfile
 │   └── services.yaml
 ├── mistral/
+│   ├── bifrost/
+│   │   └── config.json        # → config/.bifrost/config.json (no secrets)
+│   ├── Procfile
+│   └── services.yaml
+├── mistral-light/
+│   ├── bifrost/
+│   │   └── config.json
 │   ├── Procfile
 │   └── services.yaml
 └── rapid-mlx-test/
-    ├── bifrost/           # → config/.bifrost/ (entire dir)
-    │   └── config.json    # bifrost file-only config (no DB)
+    ├── bifrost/
+    │   └── config.json
     ├── rapid-mlx.yaml
     ├── Procfile
     └── services.yaml
@@ -46,18 +62,20 @@ config/profiles/
 ## Activation
 
 ```bash
-ai-stack profile hybrid
+ai-stack profile <name>
+ai-stack profile <name> --force   # re-activate even if already active
 ```
 
 1. Stops current services (if running)
-2. Copies `litellm.yaml` → `config/litellm.yaml` (if present)
-3. Copies `rapid-mlx.yaml` → `config/rapid-mlx.yaml` (if present)
-4. Copies `bifrost/` dir → `config/.bifrost/` (if present — replaces entire dir)
-5. Copies `Procfile` → `config/Procfile`
-6. If `AI_STACK_AUTO_INSTALL=true`: runs `ai-install <svc>` for each service in `services.yaml`
-7. Writes profile name to `config/.active-profile`
-8. Runs silent dep check — warns if anything is missing
-9. Restarts services (if was running)
+2. Copies `rapid-mlx.yaml` → `config/rapid-mlx.yaml` (if present)
+3. Copies `bifrost/` dir → `config/.bifrost/` (if present — replaces entire dir; includes `.tpl` files)
+4. Copies `Procfile` → `config/Procfile`
+5. If `AI_STACK_AUTO_INSTALL=true`: runs `ai-install <svc>` for each service in `services.yaml`
+6. Writes profile name to `config/.active-profile`
+7. Runs silent dep check — warns if anything is missing
+8. Restarts services (if was running)
+
+Profiles with `config.json.tpl` (max, aws-bedrock): the bifrost `launch` script runs `envsubst` at startup to generate `config.json` with real credentials from the stack environment. Secrets must be loaded before starting the stack.
 
 ## services.yaml
 

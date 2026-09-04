@@ -144,20 +144,27 @@ ai-stack skill publish <path>  # publish a local skill to Bifrost
 
 ## Migration Status
 
-Bifrost replaced LiteLLM in `rapid-mlx-test` profile. Root cause: LiteLLM's `/v1/messages` (Anthropic format) path strips `tools` before forwarding to OpenAI-compatible backends — tool schemas never reach the model.
+Bifrost replaced LiteLLM across all profiles. Root cause: LiteLLM's `/v1/messages` (Anthropic format) path strips `tools` before forwarding to OpenAI-compatible backends — tool schemas never reach the model.
 
-`local` profile still uses LiteLLM. Migration path when needed:
-1. Add `bifrost/config.json` to profile with provider pointing to backend
-2. Add `bifrost/` launch to Procfile, replace `litellm:` entry  
-3. Switch headroom to `launch-bifrost` in Procfile
-4. Profile activation handles the rest (`cp -r bifrost/ .bifrost/`)
+All profiles now use bifrost at port 4000:
 
-Same port (4000) — no other stack changes needed. Official LiteLLM migration guide at `/migration-guides/litellm` in bifrost docs.
+| Profile | Provider type | Config |
+|---------|--------------|--------|
+| local | OpenAI-compatible (rapid-mlx) | `bifrost/config.json` |
+| mistral | OpenAI-compatible (Ollama) | `bifrost/config.json` |
+| mistral-light | OpenAI-compatible (Ollama) | `bifrost/config.json` |
+| rapid-mlx-test | OpenAI-compatible (rapid-mlx) | `bifrost/config.json` |
+| max | Anthropic native | `bifrost/config.json.tpl` (envsubst `$ANTHROPIC_API_KEY`) |
+| aws-bedrock | Bedrock native | `bifrost/config.json.tpl` (envsubst `$AWS_ACCESS_KEY_ID`, `$AWS_REGION`) |
 
-Other remaining migration triggers:
-- MCP server count grows beyond 3 (manual `~/.claude.json` wiring becomes painful)
-- Observability needed (token throughput, cost-per-session, provider latency)
-- Semantic caching would meaningfully reduce Bedrock/Anthropic spend
+Profiles `max-direct` and `bedrock-direct` bypass bifrost — headroom talks directly to Anthropic/Bedrock.
+
+LiteLLM service files are kept at `lib/services/litellm/` but no profile references them.
+
+Next migration levers (when needed):
+- MCP server count grows beyond 3 — wire bifrost's `/mcp` aggregator instead of per-server `~/.claude.json` entries
+- Observability needed — bifrost's Prometheus metrics + web UI
+- Semantic caching — reduce Bedrock/Anthropic spend
 
 ## Full Stack Architecture (with Bifrost)
 

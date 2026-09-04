@@ -25,8 +25,11 @@ case "${1:-install}" in
       echo "  ✓ rust-analyzer-lsp"
     fi
     ;;
+  check)
+    claude plugin list 2>/dev/null | grep -q "rust-analyzer-lsp@claude-plugins-official" && echo "  ✓ rust-analyzer-lsp" || { echo "  ✗ rust-analyzer-lsp"; exit 1; }
+    ;;
   *)
-    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, or remove." >&2
+    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, remove, or check." >&2
     exit 1
     ;;
 esac

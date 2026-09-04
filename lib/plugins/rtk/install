@@ -37,8 +37,11 @@ case "${1:-install}" in
     echo "  ✓ rtk registered in claude-code"
 
     ;;
+  check)
+    command -v rtk &>/dev/null && echo "  ✓ rtk ($(rtk --version))" || { echo "  ✗ rtk"; exit 1; }
+    ;;
   *)
-    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, or remove." >&2
+    echo "Unsupported command: ${1:-install}. Use: install (default), upgrade, remove, or check." >&2
     exit 1
     ;;
 esac

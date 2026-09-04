@@ -9,7 +9,7 @@ A profile is a complete stack configuration: routing rules + service definitions
 | local | rapid-mlx (Qwen3.6-35B) | 32 GB | Fully offline; headroom → bifrost → rapid-mlx |
 | max | Anthropic API | any | Claude Max plan; headroom → bifrost → Anthropic |
 | max-direct | Anthropic API | any | Headroom direct to Anthropic, no bifrost |
-| aws-bedrock | AWS Bedrock | any | Headroom → bifrost → Bedrock |
+| bedrock | AWS Bedrock | any | Headroom → bifrost → Bedrock |
 | bedrock-direct | AWS Bedrock | any | Headroom direct to Bedrock, no bifrost |
 | mistral | Ollama (Mistral Large 123B) | 128 GB | Headroom → bifrost → Ollama |
 | mistral-light | Ollama (Mistral Small 24B) | 64 GB | Headroom → bifrost → Ollama |
@@ -27,15 +27,16 @@ config/profiles/
 │   └── services.yaml
 ├── max/
 │   ├── bifrost/
-│   │   └── config.json.tpl    # → config/.bifrost/config.json.tpl (envsubst at launch)
+│   │   └── config.json        # → config/.bifrost/config.json
 │   ├── Procfile
 │   └── services.yaml
 ├── max-direct/
 │   ├── Procfile
 │   └── services.yaml
-├── aws-bedrock/
+├── bedrock/
 │   ├── bifrost/
-│   │   └── config.json.tpl    # → config/.bifrost/config.json.tpl (envsubst at launch)
+│   │   └── config.json        # → config/.bifrost/config.json (env.VAR refs resolved at startup)
+│   ├── bifrost.env            # AWS credentials — loaded by bifrost launch via load-service-env
 │   ├── Procfile
 │   └── services.yaml
 ├── bedrock-direct/
@@ -75,7 +76,7 @@ ai-stack profile <name> --force   # re-activate even if already active
 7. Runs silent dep check — warns if anything is missing
 8. Restarts services (if was running)
 
-Profiles with `config.json.tpl` (max, aws-bedrock): the bifrost `launch` script runs `envsubst` at startup to generate `config.json` with real credentials from the stack environment. Secrets must be loaded before starting the stack.
+All bifrost `config.json` files use `"env.VAR_NAME"` references resolved by bifrost at startup. Profile-specific credentials (e.g. AWS for the `bedrock` profile) are injected via `config/profiles/<profile>/<svc>.env`, loaded by `lib/utils/load-service-env` before the service starts.
 
 ## services.yaml
 
@@ -85,7 +86,7 @@ Declares all deps for a profile — services, plugins, MCP registrations, and ar
 # config/profiles/default/services.yaml
 install:          # services to install — ai-stack service install <name>
   - headroom
-  - claude-code-router
+  - bifrost
   - rapid-mlx
 
 plugins:          # Claude Code plugins — ai-stack plugin install <name>
@@ -149,9 +150,9 @@ ai-stack profile hybrid      # resets Procfile to profile's definition
 
 ## Mistral profile
 
-Uses Ollama as the inference backend. No `rapid-mlx.yaml` or `litellm.yaml` — Ollama is configured via env vars in `config/ai-stack.env`.
+Uses Ollama as the inference backend. No `rapid-mlx.yaml` — Ollama is configured via `lib/services/ollama/default.env` (overridable per-profile via `config/profiles/<profile>/ollama.env`).
 
-Key env vars (all have defaults in the `ollama` launch script):
+Key env vars (defaults in `lib/services/ollama/default.env`):
 
 ```bash
 OLLAMA_KEEP_ALIVE=5m           # unload inactive models after 5 minutes
@@ -159,8 +160,6 @@ OLLAMA_FLASH_ATTENTION=1       # halves KV-cache memory
 OLLAMA_KV_CACHE_TYPE=q8_0     # quantizes KV-cache
 OLLAMA_CONTEXT_LENGTH=200000   # 200k context window
 ```
-
-See `lib/services/ollama/readme.md` for the full variable reference.
 
 ## Bedrock-direct profile
 
@@ -170,4 +169,4 @@ Headroom talks directly to AWS Bedrock:
 Claude Code → Headroom (:8787, --backend bedrock) → AWS Bedrock
 ```
 
-Uses `launch-bedrock` script with AWS SSO credentials. No LiteLLM in the path.
+Uses `launch-bedrock` script. AWS credentials injected via `config/profiles/bedrock-direct/headroom.env` at launch.

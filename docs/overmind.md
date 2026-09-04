@@ -39,9 +39,9 @@ OVERMIND_ANY_CAN_DIE="true"
 Each line: `name: command`. Comment with `#` to disable.
 
 ```procfile
+bifrost:  ${AI_HOME}/lib/services/bifrost/launch
+headroom: ${AI_HOME}/lib/services/headroom/launch-bifrost
 rapid-mlx-default: ${AI_HOME}/lib/services/rapid-mlx/launch default
-litellm: ${AI_HOME}/lib/services/litellm/launch
-headroom: ${AI_HOME}/lib/services/headroom/launch-litellm
 ```
 
 Active Procfile is copied from the current profile (`config/profiles/<name>/Procfile`).
@@ -52,7 +52,7 @@ Active Procfile is copied from the current profile (`config/profiles/<name>/Proc
 export OVERMIND_SOCKET="${TMPDIR:-/tmp}/ai-stack.overmind.sock"
 
 overmind ps
-overmind restart litellm
+overmind restart bifrost
 overmind stop headroom
 overmind connect rapid-mlx-default    # attach to live output
 overmind quit

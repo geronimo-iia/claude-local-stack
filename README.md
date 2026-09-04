@@ -27,8 +27,8 @@ But with the help of an agent and local docs, i'm sure that you could translate 
 ```mermaid
 flowchart LR
     CC[Claude Code] --> H[Headroom :8787]
-    H --> CCR[CCR :3456]
-    CCR --> R[rapid-mlx :8000]
+    H --> B[Bifrost :4000]
+    B --> R[rapid-mlx :8000]
     R --> M[Qwen3.6-35B-A3B MLX]
 ```
 
@@ -37,18 +37,19 @@ flowchart LR
 ```mermaid
 flowchart LR
     CC[Claude Code] --> H[Headroom :8787]
-    H --> B[AWS Bedrock]
-    B --> Claude[Claude Sonnet/Opus]
+    H --> B[Bifrost :4000]
+    B --> BK[AWS Bedrock]
+    BK --> Claude[Claude Sonnet/Opus]
 ```
 
 ### Components
 
-| Component                                               | Role                       | Port  |
-| ------------------------------------------------------- | -------------------------- | ----- |
-| [Headroom](https://github.com/nicobailon/headroom)      | Token compression proxy    | 8787  |
-| [CCR](https://github.com/musistudio/claude-code-router) | Multi-provider task router | 3456  |
-| [rapid-mlx](https://github.com/argmaxinc/rapid-mlx)     | Local MLX inference server | 8000+ |
-| [AWS Bedrock](https://aws.amazon.com/bedrock/)          | Cloud LLM provider         | —     |
+| Component                                           | Role                    | Port  |
+| --------------------------------------------------- | ----------------------- | ----- |
+| [Headroom](https://github.com/nicobailon/headroom)  | Token compression proxy | 8787  |
+| [Bifrost](https://www.getbifrost.ai)                | Multi-provider gateway  | 4000  |
+| [rapid-mlx](https://github.com/argmaxinc/rapid-mlx) | Local MLX inference     | 8000+ |
+| [AWS Bedrock](https://aws.amazon.com/bedrock/)      | Cloud LLM provider      | —     |
 
 ### Claude Plugins (token saving)
 
@@ -80,7 +81,7 @@ flowchart LR
 | Runtime                                            | Managed via | Notes                       |
 | -------------------------------------------------- | ----------- | --------------------------- |
 | [Python 3.12.x](https://github.com/python/cpython) | asdf        | ML compatibility            |
-| [Node 22.x LTS](https://github.com/nodejs/node)    | asdf        | Claude Code / CCR           |
+| [Node 22.x LTS](https://github.com/nodejs/node)    | asdf        | Claude Code / Bifrost       |
 | [Rust](https://github.com/rust-lang/rust)          | asdf        | needed for some Python deps |
 
 
@@ -102,7 +103,8 @@ flowchart LR
 Switch routing strategy, models, and services per workflow:
 
 - `local`: [local only](./config/profiles/local/readme.md) — no cloud account needed
-- `cloud`: [aws bedrock](./config/profiles/cloud/readme.md) — requires AWS CLI configured with Bedrock access (`aws configure`, model access enabled in us-east-1 or eu-west-1)
+- `bedrock`: [AWS Bedrock](./config/profiles/bedrock/readme.md) — requires AWS CLI configured with Bedrock access
+- `max`: [Anthropic API](./config/profiles/max/readme.md) — requires Anthropic API key
 
 
 ```bash
@@ -182,14 +184,14 @@ ai-stack/
 ├── config/
 │   ├── ai-stack.env        # project paths
 │   ├── base-services.yaml  # universal deps (claude-code, superpowers, overmind)
-│   ├── profiles/           # profile definitions (local, mistral, mistral-light, multi, cloud)
+│   ├── profiles/           # profile definitions (local, bedrock, bedrock-direct, max, mistral, …)
 │   ├── Procfile            # active service definitions
 │   └── models.yaml         # model manifest
 ├── lib/
 │   ├── setup/        # one-shot bootstrap scripts (prerequisites, runtimes, tooling)
-│   ├── services/     # daemons and installable tools (rapid-mlx, headroom, ccr, claude-code…)
+│   ├── services/     # daemons: rapid-mlx, bifrost, headroom, ollama, voicemode; tools: llm-wiki
 │   ├── plugins/      # Claude Code plugins (rtk, context-mode, superpowers, caveman, agent-skills…)
-│   └── utils/        # helpers
+│   └── utils/        # helpers (supervised-launch, load-service-env, token-savings)
 ├── secrets/          # SOPS-encrypted keys
 ├── logs/             # runtime logs (gitignored)
 └── docs/

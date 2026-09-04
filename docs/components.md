@@ -28,7 +28,7 @@ lib/services/headroom/
 | voicemode | Voice I/O (STT + TTS)                     | 8765      |
 | llm-wiki  | Git-backed wiki engine (binary, no daemon) | —         |
 
-Bifrost replaced LiteLLM across all profiles. LiteLLM's Anthropic→OpenAI path stripped `tools` before forwarding to local backends; bifrost handles the conversion correctly. LiteLLM service files are kept but no profile uses them.
+Bifrost replaced LiteLLM across all profiles. LiteLLM's Anthropic→OpenAI path stripped `tools` before forwarding to local backends; bifrost handles the conversion correctly.
 
 ## Plugins
 

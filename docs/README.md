@@ -17,11 +17,14 @@ Claude Code → Headroom (:8787) → Bifrost (:4000/anthropic) → rapid-mlx (:8
 # max / max-direct
 Claude Code → Headroom (:8787) → Anthropic API
 
-# aws-bedrock / bedrock-direct
+# bedrock  (bifrost → Bedrock via SigV4)
+Claude Code → Headroom (:8787) → Bifrost (:4000/anthropic) → AWS Bedrock
+
+# bedrock-direct  (headroom → Bedrock directly)
 Claude Code → Headroom (:8787, --backend bedrock) → AWS Bedrock
 ```
 
-Bifrost replaces LiteLLM for all profiles. LiteLLM's `/v1/messages` path stripped `tools` before forwarding to OpenAI-compatible backends; bifrost handles the conversion correctly. Cloud API profiles (max, aws-bedrock) go headroom-direct — no routing layer needed.
+Bifrost replaced LiteLLM for all profiles. LiteLLM's `/v1/messages` path stripped `tools` before forwarding to OpenAI-compatible backends; bifrost handles the conversion correctly. The `max` and `max-direct` profiles go headroom-direct — no routing layer needed.
 
 ## Repository layout
 
@@ -29,12 +32,12 @@ Bifrost replaces LiteLLM for all profiles. LiteLLM's `/v1/messages` path strippe
 bin/              # CLI entry points (ai-stack, ai-install, ai-secrets, ai-models)
 config/
   ai-stack.env   # env vars, ports, Overmind config
-  profiles/      # local | max | max-direct | bedrock-direct | mistral — each has Procfile + optional litellm.yaml/rapid-mlx.yaml
+  profiles/      # local | bedrock | bedrock-direct | max | max-direct | mistral | … — each has Procfile + optional rapid-mlx.yaml + bifrost/ dir
   Procfile       # active service definitions (copied from active profile)
   models.yaml    # model manifest (HuggingFace repo IDs)
 lib/
   setup/         # bootstrap scripts (prerequisites, runtimes, tooling)
-  services/      # daemons: rapid-mlx, litellm, bifrost, headroom, voicemode; binaries: llm-wiki
+  services/      # daemons: rapid-mlx, bifrost, headroom, ollama, voicemode; binaries: llm-wiki
   plugins/       # Claude Code extensions: rtk, context-mode, superpowers, caveman, drawio, atlassian, llm-wiki-skills
   utils/         # supervised-launch (restart wrapper), token-savings (dashboard)
 secrets/         # SOPS + age encrypted secrets (age-key.txt and api-keys.sops.yaml are gitignored)
@@ -46,14 +49,15 @@ docs/            # reference docs per topic
 
 | File | Purpose |
 |------|---------|
-| `config/ai-stack.env` | All env vars — sourced first before anything else |
+| `config/ai-stack.env` | Stack topology vars — sourced first; service-specific vars live in `lib/services/<svc>/default.env` |
 | `config/.active-profile` | Current profile name (runtime state, gitignored) |
 | `config/profiles/*/Procfile` | Services to run per profile |
 | `config/profiles/*/bifrost/config.json` | Bifrost file-only config (local/mistral profiles — no secrets) |
-| `config/profiles/*/bifrost/config.json.tpl` | Bifrost config template (max/aws-bedrock — `envsubst` injects credentials at launch) |
+| `config/profiles/*/bifrost/config.json` | Bifrost config (all profiles — uses `env.VAR_NAME` refs resolved at startup) |
 | `config/profiles/*/rapid-mlx.yaml` | Model instance definitions per profile (rapid-mlx profiles only) |
 | `config/profiles/*/services.yaml` | Services to install on profile activation |
 | `lib/utils/supervised-launch` | Restart wrapper: 5 attempts / 60s window, exponential backoff |
+| `lib/utils/load-service-env` | Env layering helper: sources `default.env` then profile override per service |
 | `lib/utils/token-savings` | CLI dashboard showing RTK + Headroom token savings |
 
 ## Stack management
@@ -91,7 +95,7 @@ Each component under `lib/services/` or `lib/plugins/` has an `install` script. 
 | local | rapid-mlx (Qwen3.6-35B) | headroom, bifrost, rapid-mlx | 32 GB |
 | max | Anthropic API | headroom | any |
 | max-direct | Anthropic API | headroom | any |
-| aws-bedrock | AWS Bedrock | headroom | any |
+| bedrock | AWS Bedrock via Bifrost | headroom, bifrost | any |
 | bedrock-direct | AWS Bedrock | headroom | any |
 | mistral | Ollama (Mistral Large 123B) | headroom, bifrost, ollama | 128 GB |
 | mistral-light | Ollama (Mistral Small 24B) | headroom, bifrost, ollama | 64 GB |
@@ -140,37 +144,56 @@ All service `launch` scripts delegate to `lib/utils/supervised-launch`. This wra
 
 1. Create `lib/services/<name>/`
 2. Add `install` script (idempotent)
-3. Add `launch` script — must `exec` into `supervised-launch`:
+3. Add `launch` script — source `ai-stack.env` + `load-service-env`, then `exec` into `supervised-launch`:
    ```bash
+   source "$(dirname "$0")/../../../config/ai-stack.env"
+   source "${AI_HOME}/lib/utils/load-service-env" "<name>"
    exec "${AI_HOME}/lib/utils/supervised-launch" <binary> [args...]
    ```
+4. Optional: add `lib/services/<name>/default.env` for service-local env vars
 4. Add entry to relevant profile `Procfile`s
 5. Optional: `priority` file (integer, lower = installed first), `remove` script, `readme.md`
 
 ## Environment variables
 
+Vars are split across three layers — set the narrowest one that applies:
+
+**`config/ai-stack.env`** — stack topology (all processes inherit these):
+
 | Var | Default | Purpose |
 |-----|---------|---------|
 | `AI_HOME` | resolved from `ai-stack.env` location | project root |
-| `OLLAMA_FLASH_ATTENTION` | `1` | Halves KV-cache memory on Apple Silicon |
-| `OLLAMA_KV_CACHE_TYPE` | `q8_0` | Quantizes KV-cache (halves footprint again) |
-| `OLLAMA_CONTEXT_LENGTH` | `200000` | Default context window for Ollama models |
-| `OLLAMA_NUM_PARALLEL` | `3` | Concurrent agent request channels |
-| `OLLAMA_MAX_LOADED_MODELS` | `1` | Models kept in memory simultaneously |
 | `AI_STACK_AUTO_INSTALL` | `true` | run install on profile switch |
-| `HEADROOM_PORT` | 8787 | token compression proxy port |
-| `HEADROOM_MODE` | token | compression mode (token, cache) |
-| `HEADROOM_MEMORY_PATH` | `${AI_HOME}/config/.headroom` | SQLite memory DB path |
-| `CCR_PORT` | 3456 | router port |
+| `HEADROOM_PORT` | `8787` | token compression proxy port (referenced by `ANTHROPIC_BASE_URL`) |
+| `BIFROST_PORT` | `4000` | bifrost gateway port |
 | `ANTHROPIC_BASE_URL` | `http://localhost:8787` | Claude Code entry point |
 | `ANTHROPIC_API_KEY` | `local` | placeholder key for local routing |
-| `AWS_PROFILE` | sbx | AWS profile for Bedrock |
-| `AWS_REGION` | eu-west-1 | AWS region |
 | `ENABLE_TOOL_SEARCH` | `true` | Claude Code tool search |
-| `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | 70 | auto-compaction threshold (% context) |
+| `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | `70` | auto-compaction threshold (% context) |
 | `OVERMIND_PROCFILE` | `config/Procfile` | active service definitions |
 | `OVERMIND_SOCKET` | `$TMPDIR/ai-stack.overmind.sock` | Overmind IPC socket |
-| `OVERMIND_ANY_CAN_DIE` | true | services can die independently |
+| `OVERMIND_ANY_CAN_DIE` | `true` | services can die independently |
+
+**`lib/services/<svc>/default.env`** — service-local defaults:
+
+| Var | Default | Service | Purpose |
+|-----|---------|---------|---------|
+| `HEADROOM_MODE` | `token` | headroom | compression mode (token, cache) |
+| `HEADROOM_WORKERS` | `1` | headroom | worker count |
+| `HEADROOM_MEMORY_PATH` | `${AI_HOME}/config/.headroom` | headroom | SQLite memory DB path |
+| `OLLAMA_KEEP_ALIVE` | `5m` | ollama | unload inactive models after this duration |
+| `OLLAMA_FLASH_ATTENTION` | `1` | ollama | halves KV-cache memory on Apple Silicon |
+| `OLLAMA_KV_CACHE_TYPE` | `q8_0` | ollama | quantizes KV-cache |
+| `OLLAMA_CONTEXT_LENGTH` | `200000` | ollama | default context window |
+| `OLLAMA_NUM_PARALLEL` | `3` | ollama | concurrent request channels |
+| `OLLAMA_MAX_LOADED_MODELS` | `2` | ollama | models kept in memory simultaneously |
+
+**`config/profiles/<profile>/<svc>.env`** — profile-specific overrides (optional, loaded after `default.env`):
+
+| File | Purpose |
+|------|---------|
+| `bedrock/bifrost.env` | AWS credentials for bifrost SigV4 auth |
+| `bedrock-direct/headroom.env` | AWS credentials for headroom direct Bedrock mode |
 
 ## Docs index
 

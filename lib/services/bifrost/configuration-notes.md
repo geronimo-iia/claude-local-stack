@@ -59,6 +59,32 @@ Bifrost handles the Anthropic→OpenAI conversion correctly: `tools` are preserv
 
 LiteLLM's `/v1/chat/completions` (OpenAI format) does not have this bug, but headroom's `--anthropic-api-url` only supports Anthropic-format upstreams — that path is not usable with headroom.
 
+## AWS Bedrock credentials
+
+Credentials go in `bedrock_key_config` on the key, not in `network_config`. The `value` field is a virtual key for bifrost routing, not the AWS access key.
+
+```json
+{
+  "providers": {
+    "bedrock": {
+      "keys": [{
+        "name": "bedrock-key",
+        "value": "local",
+        "bedrock_key_config": {
+          "access_key": "env.AWS_ACCESS_KEY_ID",
+          "secret_key": "env.AWS_SECRET_ACCESS_KEY",
+          "region": "env.AWS_REGION"
+        }
+      }]
+    }
+  }
+}
+```
+
+`SecretVar` fields accept `"env.VAR_NAME"` strings — bifrost resolves them at startup from the process environment. No envsubst template needed. Commit `config.json` directly with `env.VAR_NAME` placeholders; they contain no secrets.
+
+Confirmed available EU inference profiles (2026-09-04): `eu.anthropic.claude-haiku-4-5-20251001-v1:0`, `eu.anthropic.claude-sonnet-5`, `eu.anthropic.claude-opus-5`. Use these exact IDs in `aliases`.
+
 ## Per-profile config pattern
 
 One `bifrost/config.json` per profile directory. Profile activation copies the entire `bifrost/` dir to `config/.bifrost/`, replacing any previous profile's config. This is equivalent to how `litellm.yaml` is handled.

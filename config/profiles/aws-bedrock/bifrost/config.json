@@ -5,9 +5,14 @@
       "keys": [
         {
           "name": "bedrock-key",
-          "value": "${AWS_ACCESS_KEY_ID}",
+          "value": "local",
           "models": ["*"],
           "weight": 1.0,
+          "bedrock_key_config": {
+            "access_key": "env.AWS_ACCESS_KEY_ID",
+            "secret_key": "env.AWS_SECRET_ACCESS_KEY",
+            "region": "env.AWS_REGION"
+          },
           "aliases": {
             "claude-haiku-3-5-20241022": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
             "claude-haiku-4-5-20251001": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
@@ -21,7 +26,7 @@
         }
       ],
       "network_config": {
-        "aws_region": "${AWS_REGION}"
+        "default_request_timeout_in_seconds": 600
       }
     }
   },

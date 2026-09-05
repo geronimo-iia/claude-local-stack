@@ -88,6 +88,6 @@ instances:
 ## Adding a component
 
 1. Create directory under `lib/services/` or `lib/plugins/`
-2. Add `install` script (idempotent, sourced by ai-install)
+2. Add `install` script (idempotent, sourced by `ai-stack install`)
 3. For services: add `launch` script + Procfile entry in relevant profiles
 4. Optional: `priority`, `readme.md`

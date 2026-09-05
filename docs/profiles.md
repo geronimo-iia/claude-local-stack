@@ -71,7 +71,7 @@ ai-stack profile <name> --force   # re-activate even if already active
 2. Copies `rapid-mlx.yaml` → `config/rapid-mlx.yaml` (if present)
 3. Copies `bifrost/` dir → `config/.bifrost/` (if present — replaces entire dir; includes `.tpl` files)
 4. Copies `Procfile` → `config/Procfile`
-5. If `AI_STACK_AUTO_INSTALL=true`: runs `ai-install <svc>` for each service in `services.yaml`
+5. If `AI_STACK_AUTO_INSTALL=true`: runs `ai-stack install` (reads `base-services.yaml` + profile `services.yaml`)
 6. Writes profile name to `config/.active-profile`
 7. Runs silent dep check — warns if anything is missing
 8. Restarts services (if was running)

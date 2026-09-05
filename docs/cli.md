@@ -25,16 +25,18 @@ ai-stack service {install|upgrade|remove} <name...>   # manage services and setu
 
 ## ai-install
 
-Bootstrap only. Installs all components in order; use `ai-stack plugin/service` for day-to-day per-component ops.
+Machine bootstrap only: prerequisites, runtimes, tooling. Run once on a new machine.
 
 ```bash
-ai-install                  # full install (setup → services → plugins)
-ai-install setup            # bootstrap only (prerequisites, runtimes, tooling)
-ai-install services         # all services (sorted by priority)
-ai-install plugins          # all plugins (sorted by priority)
+ai-install
 ```
 
-Install order within a category is controlled by `priority` file (lower = first, default 50).
+Service and plugin installation is profile-driven:
+
+```bash
+ai-stack profile <name>   # activate profile
+ai-stack install          # install services + plugins from services.yaml
+```
 
 ## ai-secrets
 

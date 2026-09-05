@@ -80,11 +80,12 @@ ai-stack service {install|upgrade|remove} <name...>
 ## Installation
 
 ```bash
-ai-install                  # full install (bootstrap → services → plugins)
-ai-install setup            # bootstrap only (prerequisites, runtimes, tooling)
-ai-install services         # all services (sorted by priority)
-ai-install plugins          # all plugins (sorted by priority)
+ai-install                  # bootstrap (prerequisites, runtimes, tooling)
+ai-stack profile <name>     # activate a profile
+ai-stack install            # install services + plugins for active profile
 ```
+
+`ai-install` bootstraps the machine only. Service and plugin installation is profile-driven via `ai-stack install`, which reads `base-services.yaml` and the active profile's `services.yaml`.
 
 Each component under `lib/services/` or `lib/plugins/` has an `install` script. Services also have a `launch` script (called by Overmind via Procfile).
 

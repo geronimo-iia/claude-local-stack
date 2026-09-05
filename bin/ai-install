@@ -12,62 +12,35 @@ trap 'cd "${_CALLER_DIR}"' EXIT
 
 run_install() { echo "  → $1"; source "$2" }
 
-install_setup() {
-  echo "── setup ──"
-  for f in prerequisites runtimes tooling; do
-    [[ -f "${LIB}/setup/${f}" ]] && run_install "$f" "${LIB}/setup/${f}"
-  done
-  for f in "${LIB}"/setup/*/install(N); do
-    run_install "$(basename "$(dirname "$f")")" "$f"
-  done
-}
-
-install_category() {
-  local category="$1"
-  echo "── ${category} ──"
-  local items=()
-  for dir in "${LIB}/${category}"/*(N/); do
-    local pri=50
-    [[ -f "${dir}/priority" ]] && pri=$(<"${dir}/priority")
-    [[ -f "${dir}/install" ]] && items+=("${pri}:${dir}")
-  done
-  for entry in ${(on)items}; do
-    local dir="${entry#*:}"
-    run_install "$(basename "$dir")" "${dir}/install"
-  done
-}
-
-case "${1:-all}" in
+case "${1:-}" in
   -h|--help)
     cat <<EOF
-Usage: ai-install [all|setup|services|plugins]
+Usage: ai-install
 
-Targets:
-  all        Install everything (default)
-  setup      Bootstrap (prerequisites, runtimes, tooling, claude-code)
-  services   All services (sorted by priority)
-  plugins    All plugins (sorted by priority)
+Bootstraps the machine: prerequisites, runtimes, and tooling.
 
-For individual components use:
-  ai-stack plugin  {install|upgrade|remove} <name...>
-  ai-stack service {install|upgrade|remove} <name...>
+To install services and plugins for the active profile:
+  ai-stack install
+
+To install for a specific profile without switching:
+  ai-stack install <profile>
 EOF
     ;;
-  all)
-    install_setup
-    install_category services
-    install_category plugins
+  "")
+    echo "── setup ──"
+    for f in prerequisites runtimes tooling; do
+      [[ -f "${LIB}/setup/${f}" ]] && run_install "$f" "${LIB}/setup/${f}"
+    done
+    for f in "${LIB}"/setup/*/install(N); do
+      run_install "$(basename "$(dirname "$f")")" "$f"
+    done
     echo ""
-    echo "✓ ai-stack installed."
-    echo "  Next: ai-stack profile default"
+    echo "✓ Bootstrap complete."
+    echo "  Next: ai-stack profile <name> && ai-stack install"
     ;;
-  setup)    install_setup ;;
-  services) install_category services ;;
-  plugins)  install_category plugins ;;
   *)
-    echo "error: unknown target '${1}'" >&2
-    echo "Use: ai-install [all|setup|services|plugins]" >&2
-    echo "     ai-stack plugin/service {install|upgrade|remove} <name>" >&2
+    echo "error: unknown argument '${1}'" >&2
+    echo "Use: ai-install" >&2
     exit 1
     ;;
 esac

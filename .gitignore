@@ -20,6 +20,6 @@ config/Procfile
 config/rapid-mlx.yaml
 config/.headroom
 config/.bifrost
-# old files
-docs/archive
-docs/brainstormconfig/.bifrost/
+
+
+.env

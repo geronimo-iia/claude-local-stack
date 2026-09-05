@@ -195,6 +195,16 @@ Vars are split across three layers — set the narrowest one that applies:
 | `bedrock/bifrost.env`         | AWS credentials for bifrost SigV4 auth           |
 | `bedrock-direct/headroom.env` | AWS credentials for headroom direct Bedrock mode |
 
+The bedrock env files use `${AWS_PROFILE:-default}` and `${AWS_REGION:-eu-west-1}` — set `AWS_PROFILE` and `AWS_REGION` in `config/.env` to override without touching the profile files.
+
+**`config/.env`** — local machine overrides, gitignored, sourced last by `ai-stack.env`. Use for credentials, machine-specific ports, or anything that must not be committed:
+
+```bash
+# config/.env  (gitignored)
+export AWS_PROFILE=sbx
+export AWS_REGION=eu-west-1
+```
+
 ## Docs index
 
 | Topic                                                     | File                                     |

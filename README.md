@@ -61,20 +61,18 @@ flowchart LR
 | [rapid-mlx](https://github.com/argmaxinc/rapid-mlx) | Local MLX inference     | 8000+ |
 | [AWS Bedrock](https://aws.amazon.com/bedrock/)      | Cloud LLM provider      | —     |
 
-### Claude Plugins (token saving)
+### Claude Plugins
 
-| Plugin                                                 |
-| ------------------------------------------------------ |
-| [RTK](https://github.com/nicobailon/rtk)               |
-| [caveman](https://github.com/cyanheads/caveman)        |
-| [context-mode](https://github.com/mksglu/context-mode) |
-
-### Claude Plugins (daily use)
-
-| Plugin                                                |
-| ----------------------------------------------------- |
-| [superpowers](https://claude.com/plugins/superpowers) |
-| [atlassian](https://claude.com/plugins/atlassian)     |
+| Plugin                                                  | Role                                      |
+| ------------------------------------------------------- | ----------------------------------------- |
+| [RTK](https://github.com/nicobailon/rtk)                | Token saving — shell command compression  |
+| [caveman](https://github.com/cyanheads/caveman)         | Token saving — output compression         |
+| [context-mode](https://github.com/mksglu/context-mode)  | Token saving — context management         |
+| superpowers                                             | Skills framework — workflows and checklists |
+| agent-skills                                            | Agentic task skills                       |
+| andrej-karpathy-skills                                  | ML/research skills                        |
+| llm-wiki-skills                                         | Wiki ingest, research, crystallize (MCP)  |
+| rust-analyzer-lsp                                       | Rust LSP integration                      |
 
 ### Stack Technologies
 

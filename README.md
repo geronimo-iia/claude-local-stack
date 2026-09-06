@@ -87,15 +87,16 @@ flowchart LR
 
 ## Quick start
 
-1. clone this repository "cd ${HOME} && git clone ..."
-2. [configure your shell](./docs/integration.md#Shell)
-3. Install tools: `ai-install`
-4. use [ai-secret](./docs/secrets.md) to set your local secret like `ANTHROPIC_API_KEY`, `HF_TOKEN`, ...
+1. Clone: `cd $HOME && git clone <repo> claude-local-stack`
+2. [Configure your shell](./docs/integration.md#shell) — add `AI_HOME`, `PATH`, aliases to `~/.zshrc`/`~/.zshenv`
+3. Bootstrap: `ai-install` (prerequisites, runtimes, tooling)
+4. Set secrets: `ai-secrets init` then `ai-secrets edit` — add `ANTHROPIC_API_KEY`, `HF_TOKEN`, etc.
 5. Activate a profile: `ai-stack profile local`
-6. Verify all deps: `ai-stack check` (install missing: `ai-stack install`)
-7. boot: `ai-stack start`
-8. launch Claude: `aclaude`, or VS Code: `acode`
-   (`aclaude`/`acode` are shell aliases injected by `ai-stack shell` — see [docs/integration.md](docs/integration.md))
+6. Install profile deps: `ai-stack install`
+7. Start the stack: `ai-stack start`
+8. Launch Claude: `aclaude`, or VS Code: `acode`
+
+If anything goes wrong: see [docs/troubleshooting.md](docs/troubleshooting.md).
 
 
 ## Profiles
@@ -136,9 +137,9 @@ ai-stack install [profile]  # install all missing deps
 ### Installation
 
 ```bash
-ai-install                  # full install
-ai-install headroom rtk     # cherry-pick by name
-ai-install --list           # available components
+ai-install                  # bootstrap (prerequisites, runtimes, tooling)
+ai-stack install            # install services + plugins for active profile
+ai-stack install <profile>  # install for a named profile without switching
 ```
 
 ### Secrets
@@ -207,12 +208,13 @@ ai-stack/
 
 ## Docs
 
-| Topic       | File                                       |
-| ----------- | ------------------------------------------ |
-| CLI         | [docs/cli.md](docs/cli.md)                 |
-| Profiles    | [docs/profiles.md](docs/profiles.md)       |
-| Components  | [docs/components.md](docs/components.md)   |
-| Integration | [docs/integration.md](docs/integration.md) |
-| Models      | [docs/models.md](docs/models.md)           |
-| Secrets     | [docs/secrets.md](docs/secrets.md)         |
-| Overmind    | [docs/overmind.md](docs/overmind.md)       |
+| Topic           | File                                                   |
+| --------------- | ------------------------------------------------------ |
+| CLI             | [docs/cli.md](docs/cli.md)                             |
+| Profiles        | [docs/profiles.md](docs/profiles.md)                   |
+| Components      | [docs/components.md](docs/components.md)               |
+| Integration     | [docs/integration.md](docs/integration.md)             |
+| Models          | [docs/models.md](docs/models.md)                       |
+| Secrets         | [docs/secrets.md](docs/secrets.md)                     |
+| Overmind        | [docs/overmind.md](docs/overmind.md)                   |
+| Troubleshooting | [docs/troubleshooting.md](docs/troubleshooting.md)     |

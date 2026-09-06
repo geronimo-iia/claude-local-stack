@@ -52,7 +52,6 @@ docs/            # reference docs per topic
 | `config/ai-stack.env`                   | Stack topology vars — sourced first; service-specific vars live in `lib/services/<svc>/default.env` |
 | `config/.active-profile`                | Current profile name (runtime state, gitignored)                                                    |
 | `config/profiles/*/Procfile`            | Services to run per profile                                                                         |
-| `config/profiles/*/bifrost/config.json` | Bifrost file-only config (local/mistral profiles — no secrets)                                      |
 | `config/profiles/*/bifrost/config.json` | Bifrost config (all profiles — uses `env.VAR_NAME` refs resolved at startup)                        |
 | `config/profiles/*/rapid-mlx.yaml`      | Model instance definitions per profile (rapid-mlx profiles only)                                    |
 | `config/profiles/*/services.yaml`       | Services to install on profile activation                                                           |
@@ -208,14 +207,15 @@ export AWS_REGION=eu-west-1
 
 ## Docs index
 
-| Topic                                                     | File                                     |
-| --------------------------------------------------------- | ---------------------------------------- |
-| CLI reference                                             | [cli.md](cli.md)                         |
-| Profiles                                                  | [profiles.md](profiles.md)               |
-| Components                                                | [components.md](components.md)           |
-| Integration                                               | [integration.md](integration.md)         |
-| Models                                                    | [models.md](models.md)                   |
-| Secrets                                                   | [secrets.md](secrets.md)                 |
-| Overmind                                                  | [overmind.md](overmind.md)               |
-| Bifrost gateway (successor to LiteLLM for local backends) | [roadmap/bifrost.md](roadmap/bifrost.md) |
-| Roadmap: Groq integration                                 | [roadmap/groq.md](roadmap/groq.md)       |
+| Topic                       | File                                     |
+| --------------------------- | ---------------------------------------- |
+| CLI reference               | [cli.md](cli.md)                         |
+| Profiles                    | [profiles.md](profiles.md)               |
+| Components                  | [components.md](components.md)           |
+| Integration                 | [integration.md](integration.md)         |
+| Models                      | [models.md](models.md)                   |
+| Secrets                     | [secrets.md](secrets.md)                 |
+| Overmind                    | [overmind.md](overmind.md)               |
+| Troubleshooting             | [troubleshooting.md](troubleshooting.md) |
+| Bifrost gateway             | [roadmap/bifrost.md](roadmap/bifrost.md) |
+| Roadmap: Groq integration   | [roadmap/groq.md](roadmap/groq.md)       |

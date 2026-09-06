@@ -1,57 +1,45 @@
-# claude-local-stack Changelog
+# Changelog
 
-All notable changes to this project will be documented in this file.
+## 2026-09-06
 
-Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+### Docs
+- Added 5 architecture decision records in `docs/decisions/` — bifrost over LiteLLM, per-service env layering, profile-driven install, supervised-launch over overmind auto-restart, headroom as stack entry point
+- Added `docs/invariants.md` with rules grouped by category (config, boot order, service contract, profiles, security); linked from AGENTS.md
+- Rewrote `AGENTS.md` for current stack — bifrost, env layering, invariants section, no CCR/LiteLLM references
+- Added cross-links between decision files and the docs they reference
+- Added troubleshooting guide (`docs/troubleshooting.md`)
+- Applied anti-slop pass across all docs — fixed passive voice, removed filler connectors
+- Updated README: max profile architecture diagram, full plugin table with roles and GitHub links
+- Updated GitHub repo description and topics
 
-## [Unreleased]
-
-### Added
-- `lib/services/bifrost/`: Bifrost gateway service (install via npx, launch, readme)
-- `lib/services/headroom/launch-bifrost`: headroom launch script pointing at Bifrost
-- `BIFROST_PORT=4000` added to `config/ai-stack.env`
-- `config/profiles/mistral-light/`: new minimal profile (mistral-small:24b only, ~16 GB RAM)
-- `config/profiles/readme.md`: profile index table
-- Ollama models added to `config/models.yaml`: `qwen3.8:27b-mtp-q4_K_M`, `qwen3:30b-a3b-instruct-2507-q4_K_M`
-- `docs/roadmap/bifrost.md`: Bifrost vs LiteLLM comparison, MCP gateway analysis, full-stack architecture
+## 2026-09-05
 
 ### Changed
-- `config/profiles/mistral/`: migrated from CCR to LiteLLM; `ccr.json` removed
-- All `litellm.yaml` files: fixed model routing — now match actual Claude model name patterns (`claude-haiku*`, `claude-sonnet*`, `claude-opus*`, `*`) instead of CCR-style task-type aliases
-- `config/models.yaml` llm section: replaced `arthurcollet/Qwen3.6-*` with `mlx-community/Qwen3.8-27B-MTP-4bit` and `mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B`
-- `config/models.yaml` embedding section: replaced `all-MiniLM-L6-v2-4bit` + `bge-m3-mlx-4bit` with `Qwen3-Embedding-0.6B-4bit-DWQ` + `Qwen3-Embedding-4B-4bit-DWQ`
-- `config/models.yaml` ollama: explicit `mistral-large:123b-instruct-2411-q4_K_M` tag (Q4_K_M guaranteed)
-- `default/` and `local/` profiles: model refs updated to OptiQ/MTP/Qwen3.8 equivalents in `rapid-mlx.yaml` and `ccr.json`
-- `lib/services/litellm/`: migrated from pip to uvx (no permanent install)
+- `ai-install` is now bootstrap-only (prerequisites, runtimes, tooling). Service and plugin installation is delegated to `ai-stack install`, which reads `base-services.yaml` + active profile's `services.yaml`
+- Per-service env layering: service-specific vars moved from `config/ai-stack.env` to `lib/services/<svc>/default.env`; profile overrides in `config/profiles/<profile>/<svc>.env`; loaded by new `lib/utils/load-service-env` helper
+- AWS profile env files now use `${AWS_PROFILE:-default}` and `${AWS_REGION:-eu-west-1}` — no hardcoded profile names
+- Added `config/.env` local override sourced last by `ai-stack.env` (gitignored)
 
-### Fixed
-- `bin/ai-models`: inline YAML comments (`# ...`) no longer passed to `ollama pull` / `hf download`
-- `bin/ai-stack` `_activate_profile`: broken service install loop replaced with `_install_yaml_deps` calls
+### Removed
+- LiteLLM service and all `litellm.yaml` files across profiles
+- CCR (was replaced by bifrost in prior work)
+- `docs/brainstorm/` scratch directory
+
+## 2026-09-04
 
 ### Added
-- `lib/services/litellm/`: LiteLLM multi-provider proxy service (install, launch, priority 15, readme)
-- `lib/services/headroom/launch-litellm`: headroom launch script pointing at LiteLLM (:4000)
-- `config/profiles/multi/`: new profile (ollama + litellm + headroom, no CCR)
-- `LITELLM_PORT=4000` added to `config/ai-stack.env`
-- Profile activation copies `litellm.yaml` when present (same pattern as `rapid-mlx.yaml`)
-- Profile dep tracking: `services.yaml` extended with `plugins:`, `mcp:`, `check:` sections
-- `config/base-services.yaml`: universal deps for all profiles (claude-code, superpowers, overmind)
-- `ai-stack check [profile]`: full dep report (base + profile — services, plugins, MCP, binaries)
-- `ai-stack install [profile]`: installs all missing deps for a profile in one shot
-- Profile switch auto-check: silent dep check on every `ai-stack profile <name>` with warning if missing
-- `check)` case added to all service and plugin install scripts
-- `lib/services/claude-code/`: moved from `lib/setup/claude-code/` — now a first-class service
-- `ai-stack` CLI: start/stop/restart/status/logs/enable/disable/shell commands
-- `ai-install` CLI: component-level install with cherry-pick support
-- `ai-secrets` CLI: SOPS + age encrypted secrets management
-- `ai-models` CLI: HuggingFace model manifest with pull/list commands
-- Profile system: `default` (local MLX), `cloud` (AWS Bedrock)
-- Headroom proxy integration (token compression, port 8787)
-- CCR (claude-code-router) integration (multi-provider routing, port 3456)
-- rapid-mlx local inference server integration (port 8000)
-- Claude Code plugins: RTK, caveman, context-mode, superpowers, atlassian
-- SOPS-encrypted secrets with age key management
-- asdf-managed runtimes: Python 3.12, Node 22 LTS, Rust
-- overmind Procfile-based process management
-- Mermaid architecture diagrams in README
-- Docs: cli, profiles, components, integration, models, secrets, overmind
+- Bifrost migration across all profiles — replaces LiteLLM as the routing layer; correctly forwards `tools` to OpenAI-compatible backends
+- `bedrock` profile (renamed from `aws-bedrock`); AWS credentials scoped to bifrost env file via `load-service-env`
+- `rapid-mlx-test` profile with Qwen3.6-35B-A3B-4bit + MTP for speed benchmarking (~73 t/s measured)
+- `--force` flag for `ai-stack profile` to re-activate an already-active profile
+- `ai-stack status` shows active profile name
+- `local` profile: switched default model to Qwen3.6-35B-A3B-4bit with MTP
+
+### Fixed
+- Bedrock bifrost config: correct `bedrock` provider type (was `openai`)
+- `ai-stack profile --force` accepted before or after profile name
+- Plugin `check` subcommand added to rtk, karpathy-skills, rust-analyzer-lsp
+
+### Removed
+- LiteLLM from `rapid-mlx-test`, `max`, `aws-bedrock` profiles
+- Unused model entries (DeepSeek-Coder-V2-Lite, Qwen3.8-27B MTP) from manifest

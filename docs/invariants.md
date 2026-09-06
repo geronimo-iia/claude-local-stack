@@ -14,7 +14,7 @@ Rules that must hold at all times. Breaking any of these causes silent failures,
 
 ## Boot order
 
-**`AI_HOME` is set before anything else.** Every script, util, and service depends on it. It is resolved by `config/ai-stack.env` from the file's own location — source that file first.
+**`AI_HOME` is set before anything else.** Every script, util, and service depends on it. `config/ai-stack.env` resolves it from its own file location — source that file first.
 
 **`load-service-env` requires `AI_HOME`.** Always source `ai-stack.env` before calling `load-service-env`.
 

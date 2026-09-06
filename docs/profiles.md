@@ -78,7 +78,7 @@ ai-stack profile <name> --force   # re-activate even if already active
 7. Runs silent dep check — warns if anything is missing
 8. Restarts services (if was running)
 
-All bifrost `config.json` files use `"env.VAR_NAME"` references resolved by bifrost at startup. Profile-specific credentials (e.g. AWS for the `bedrock` profile) are injected via `config/profiles/<profile>/<svc>.env`, loaded by `lib/utils/load-service-env` before the service starts.
+All bifrost `config.json` files use `"env.VAR_NAME"` references resolved by bifrost at startup. Profile-specific credentials (e.g. AWS for `bedrock`) come from `config/profiles/<profile>/<svc>.env`, loaded by `lib/utils/load-service-env` before the service starts.
 
 ## services.yaml
 

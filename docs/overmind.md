@@ -46,7 +46,7 @@ headroom: ${AI_HOME}/lib/services/headroom/launch-bifrost
 rapid-mlx-default: ${AI_HOME}/lib/services/rapid-mlx/launch default
 ```
 
-Active Procfile is copied from the current profile (`config/profiles/<name>/Procfile`).
+Profile switch copies the Procfile from `config/profiles/<name>/Procfile`.
 
 ## Direct overmind usage
 

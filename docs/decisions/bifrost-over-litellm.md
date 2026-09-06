@@ -21,7 +21,6 @@ LiteLLM was used to bridge Claude Code's Anthropic message format to OpenAI-comp
 
 **LiteLLM stripped `tools` from requests before forwarding to OpenAI-compatible backends.** Claude Code uses tool use extensively (file read/write, bash, search). With LiteLLM in the path, tool calls silently disappeared — the local model received a plain text conversation with no tool schema. This broke the agentic loop entirely for local profiles.
 
-Additionally:
 - LiteLLM required a Python venv, adding startup time and a fragile dependency
 - Config was a separate YAML file per profile with its own format
 - No native Bedrock SigV4 support — required custom wrappers

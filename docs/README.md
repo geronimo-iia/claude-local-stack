@@ -201,7 +201,7 @@ The bedrock env files use `${AWS_PROFILE:-default}` and `${AWS_REGION:-eu-west-1
 
 ```bash
 # config/.env  (gitignored)
-export AWS_PROFILE=sbx
+export AWS_PROFILE=your-profile
 export AWS_REGION=eu-west-1
 ```
 

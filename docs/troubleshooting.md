@@ -66,9 +66,9 @@ ai-stack restart bifrost
 If still failing, check the SSO session is still valid:
 
 ```bash
-aws sts get-caller-identity --profile sbx
+aws sts get-caller-identity --profile your-profile
 # If expired:
-aws sso login --profile sbx
+aws sso login --profile your-profile
 ai-stack restart bifrost
 ```
 

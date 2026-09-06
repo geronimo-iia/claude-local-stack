@@ -73,6 +73,8 @@ flowchart LR
 | andrej-karpathy-skills                                  | ML/research skills                        |
 | llm-wiki-skills                                         | Wiki ingest, research, crystallize (MCP)  |
 | rust-analyzer-lsp                                       | Rust LSP integration                      |
+| drawio                                                  | Diagram editing (occasional)              |
+| [atlassian](https://claude.com/plugins/atlassian)       | Jira/Confluence integration (occasional)  |
 
 ### Stack Technologies
 

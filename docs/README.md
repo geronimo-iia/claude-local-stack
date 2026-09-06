@@ -156,6 +156,8 @@ All service `launch` scripts delegate to `lib/utils/supervised-launch`. This wra
 
 ## Environment variables
 
+Decision: [Why per-service env layering](decisions/per-service-env-layering.md)
+
 Vars are split across three layers — set the narrowest one that applies:
 
 **`config/ai-stack.env`** — stack topology (all processes inherit these):

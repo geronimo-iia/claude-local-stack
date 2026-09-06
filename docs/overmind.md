@@ -1,5 +1,7 @@
 # Overmind
 
+Decision: [Why supervised-launch over Overmind auto-restart](decisions/supervised-launch-over-overmind-restart.md)
+
 Process manager for ai-stack services. Procfile-based, per-service control, tmux-backed output.
 
 ## ai-stack commands

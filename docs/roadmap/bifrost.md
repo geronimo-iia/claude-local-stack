@@ -1,5 +1,7 @@
 # Bifrost
 
+Decision: [Why bifrost over LiteLLM](../decisions/bifrost-over-litellm.md)
+
 [Bifrost](https://www.getbifrost.ai) is the Go gateway used by all profiles that need provider routing. Three roles in one process:
 
 1. **LLM Router** — multi-provider routing via model aliases, weight-based load balancing, fallback

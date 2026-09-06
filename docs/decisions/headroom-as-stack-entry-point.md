@@ -7,6 +7,8 @@ last_updated: "2026-09-06"
 
 # Headroom as Stack Entry Point
 
+See also: [Components](../components.md) · [Invariants](../invariants.md) · [Troubleshooting](../troubleshooting.md)
+
 ## Decision
 
 `ANTHROPIC_BASE_URL=http://localhost:8787` is a constant in `ai-stack.env`. All Claude Code traffic enters the stack through headroom, regardless of which profile is active.

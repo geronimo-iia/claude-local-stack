@@ -7,6 +7,8 @@ last_updated: "2026-09-06"
 
 # Profile-Driven Service Install
 
+See also: [Profiles](../profiles.md) · [CLI reference](../cli.md)
+
 ## Decision
 
 `ai-install` bootstraps the machine only (prerequisites, runtimes, tooling). Service and plugin installation is driven by `ai-stack install`, which reads `base-services.yaml` + the active profile's `services.yaml`.

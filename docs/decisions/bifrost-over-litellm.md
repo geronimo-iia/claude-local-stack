@@ -7,6 +7,8 @@ last_updated: "2026-09-06"
 
 # Bifrost over LiteLLM
 
+See also: [Bifrost roadmap](../roadmap/bifrost.md) · [Components](../components.md)
+
 ## Decision
 
 Bifrost (`@maximhq/bifrost`) replaced LiteLLM as the multi-provider routing gateway. LiteLLM has been removed from the stack entirely.

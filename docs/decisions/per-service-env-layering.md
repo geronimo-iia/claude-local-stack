@@ -7,6 +7,8 @@ last_updated: "2026-09-06"
 
 # Per-Service Env Layering
 
+See also: [Env vars reference](../README.md#environment-variables) · [Profiles](../profiles.md) · [Invariants](../invariants.md)
+
 ## Decision
 
 Env vars are split across three layers loaded in order:

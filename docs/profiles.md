@@ -1,5 +1,7 @@
 # Profiles
 
+Decisions: [Profile-driven install](decisions/profile-driven-install.md) · [Headroom as entry point](decisions/headroom-as-stack-entry-point.md)
+
 A profile is a complete stack configuration: routing rules + service definitions + model config + install manifest.
 
 ## Overview

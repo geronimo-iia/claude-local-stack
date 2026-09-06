@@ -7,6 +7,8 @@ last_updated: "2026-09-06"
 
 # supervised-launch over Overmind Auto-Restart
 
+See also: [Overmind](../overmind.md) · [Invariants](../invariants.md)
+
 ## Decision
 
 All service launch scripts delegate to `lib/utils/supervised-launch` for crash recovery. Overmind's `OVERMIND_AUTO_RESTART` is deliberately not set.

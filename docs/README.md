@@ -217,6 +217,7 @@ export AWS_REGION=eu-west-1
 | Secrets                     | [secrets.md](secrets.md)                 |
 | Overmind                    | [overmind.md](overmind.md)               |
 | Troubleshooting             | [troubleshooting.md](troubleshooting.md) |
-| Invariants                  | [invariants.md](invariants.md)           |
-| Bifrost gateway             | [roadmap/bifrost.md](roadmap/bifrost.md) |
-| Roadmap: Groq integration   | [roadmap/groq.md](roadmap/groq.md)       |
+| Invariants                  | [invariants.md](invariants.md)                                               |
+| Decisions                   | [decisions/](decisions/)                                                     |
+| Bifrost gateway             | [roadmap/bifrost.md](roadmap/bifrost.md)                                     |
+| Roadmap: Groq integration   | [roadmap/groq.md](roadmap/groq.md)                                           |

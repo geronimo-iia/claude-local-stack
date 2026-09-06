@@ -150,6 +150,20 @@ ai-secrets init|edit|get|show|rotate   # secrets management
 ai-models pull|list                    # model management
 ```
 
+## Invariants
+
+Rules that must hold at all times — see [docs/invariants.md](docs/invariants.md) for the full list with rationale. Summary:
+
+- `config/Procfile` is generated — never edit directly; edit the profile source
+- Bifrost `config.json` must never contain a `config_store` block
+- Bifrost secrets use `"env.VAR_NAME"` syntax — never inline credentials
+- `AI_HOME` must be set before anything else — source `ai-stack.env` first
+- `launch` scripts must source `ai-stack.env` + `load-service-env` before `exec`
+- `install` scripts are idempotent and handle `install`, `upgrade`, `remove`, `check` via `$1`
+- `supervised-launch` is the only restart mechanism — overmind auto-restart is disabled
+- `ANTHROPIC_API_KEY=local` is a sentinel — never forwarded to any provider
+- AWS credentials belong in `config/profiles/<profile>/<svc>.env` (gitignored) — never committed
+
 ## What not to do
 
 - Don't hardcode `$HOME` or absolute paths — always use `$AI_HOME` (set by `ai-stack.env`)

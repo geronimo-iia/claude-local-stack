@@ -32,6 +32,16 @@ flowchart LR
     R --> M[Qwen3.6-35B-A3B MLX]
 ```
 
+### Max Profile (Anthropic API via Claude Max plan)
+
+```mermaid
+flowchart LR
+    CC[Claude Code] --> H[Headroom :8787]
+    H --> B[Bifrost :4000]
+    B --> A[Anthropic API]
+    A --> Claude[Claude Sonnet/Opus]
+```
+
 ### Cloud Profile (AWS Bedrock)
 
 ```mermaid

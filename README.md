@@ -69,9 +69,9 @@ flowchart LR
 | [caveman](https://github.com/cyanheads/caveman)         | Token saving — output compression         |
 | [context-mode](https://github.com/mksglu/context-mode)  | Token saving — context management         |
 | superpowers                                             | Skills framework — workflows and checklists |
-| agent-skills                                            | Agentic task skills                       |
-| andrej-karpathy-skills                                  | ML/research skills                        |
-| llm-wiki-skills                                         | Wiki ingest, research, crystallize (MCP)  |
+| [agent-skills](https://github.com/geronimo-iia/agent-skills)     | Agentic task skills                       |
+| andrej-karpathy-skills                                            | ML/research skills                        |
+| [llm-wiki-skills](https://github.com/geronimo-iia/llm-wiki-skills) | Wiki ingest, research, crystallize (MCP) |
 | rust-analyzer-lsp                                       | Rust LSP integration                      |
 | drawio                                                  | Diagram editing (occasional)              |
 | [atlassian](https://claude.com/plugins/atlassian)       | Jira/Confluence integration (occasional)  |
